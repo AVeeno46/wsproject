@@ -1,0 +1,6 @@
+python-dotenv
+PyMuPDF
+httpx
+grpcio
+grpcio-tools
+qdrant-client

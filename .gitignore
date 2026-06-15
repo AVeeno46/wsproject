@@ -38,3 +38,11 @@ appsettings.Development.json
 # OS
 .DS_Store
 Thumbs.db
+
+# RAG sample data
+services/rag/samples/*.pdf
+services/rag/samples/*.hwp
+services/rag/samples/*.hwpx
+services/rag/samples/*.docx
+services/rag/samples/*.xlsx
+services/rag/samples/*.pptx
