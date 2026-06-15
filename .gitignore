@@ -1,0 +1,40 @@
+﻿# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# RAG generated files
+processed/
+vectordb/
+qdrant_storage/
+*.db
+*.sqlite3
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.next/
+.vite/
+
+# .NET / Server
+bin/
+obj/
+appsettings.Development.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
