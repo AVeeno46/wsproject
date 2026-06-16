@@ -1,5 +1,10 @@
+import re
 from core.config import CHUNK_SIZE
 from processors.table_chunker import MAX_TABLE_CHARS, TableChunker
+
+
+ROMAN_SECTION_RE = re.compile(r"^[IVXLC]+\s+[\uac00-\ud7a3].{1,120}$")
+DECIMAL_SECTION_RE = re.compile(r"^\d+(?:\.\d+)+\s+[^\s].{1,120}$")
 
 
 class Chunker:
@@ -23,6 +28,119 @@ class Chunker:
         # 학교 요구사항에 맞춰 기본 600자로 설정되어 있다.
         self.chunk_size = chunk_size
         self.table_chunker = TableChunker()
+
+    def _is_parent_section_heading(self, element: dict) -> bool:
+        content = str(element.get("content", "")).strip()
+        if not content:
+            return False
+
+        lines = [line.strip() for line in content.splitlines() if line.strip()]
+        if len(lines) != 1 or len(content) > 180:
+            return False
+
+        if (content.startswith("\u3010") and content.endswith("\u3011")) or (
+            content.startswith("[") and content.endswith("]")
+        ):
+            return True
+
+        if ROMAN_SECTION_RE.match(content):
+            return True
+
+        if DECIMAL_SECTION_RE.match(content):
+            return True
+
+        return False
+
+    @staticmethod
+    def _clean_parent_section(content: str) -> str:
+        content = str(content or "").strip()
+        for left, right in (("\u3010", "\u3011"), ("[", "]")):
+            if content.startswith(left) and content.endswith(right):
+                return content[len(left) : -len(right)].strip()
+        return content
+
+    def _build_parent_section_context(self, parsed_elements: list) -> tuple[dict, set]:
+        element_parent_sections = {}
+        heading_element_indexes = set()
+        current_parent_section = ""
+        parent_section_has_body = False
+        current_page = None
+
+        for element in parsed_elements:
+            element_page = element.get("page")
+            element_index = element.get("element_index")
+
+            if (
+                current_page is not None
+                and element_page is not None
+                and element_page > current_page + 1
+                and parent_section_has_body
+            ):
+                current_parent_section = ""
+                parent_section_has_body = False
+
+            if self._is_parent_section_heading(element):
+                if element_index is not None:
+                    element_parent_sections[element_index] = current_parent_section
+                    heading_element_indexes.add(element_index)
+                current_parent_section = self._clean_parent_section(element.get("content", ""))
+                parent_section_has_body = False
+                current_page = element_page
+                continue
+
+            if element_index is not None:
+                element_parent_sections[element_index] = current_parent_section
+
+            if current_parent_section:
+                parent_section_has_body = True
+
+            current_page = element_page
+
+        return element_parent_sections, heading_element_indexes
+
+    def _apply_parent_sections(
+        self,
+        chunked_data: list,
+        element_parent_sections: dict,
+        heading_element_indexes: set,
+    ) -> list:
+        self.parent_section_context_conflicts = []
+
+        for chunk in chunked_data:
+            indexes = chunk.get("element_indexes", []) or []
+            context_indexes = indexes
+
+            if chunk.get("type") == "text":
+                non_heading_indexes = [idx for idx in indexes if idx not in heading_element_indexes]
+                if non_heading_indexes:
+                    context_indexes = non_heading_indexes
+
+            contexts = [
+                element_parent_sections[idx]
+                for idx in context_indexes
+                if idx in element_parent_sections
+            ]
+            distinct_contexts = []
+            for context in contexts:
+                if context not in distinct_contexts:
+                    distinct_contexts.append(context)
+
+            if len(distinct_contexts) > 1:
+                self.parent_section_context_conflicts.append(
+                    {
+                        "chunk_id": chunk.get("chunk_id"),
+                        "page": chunk.get("page"),
+                        "type": chunk.get("type"),
+                        "element_indexes": indexes,
+                        "parent_sections": distinct_contexts,
+                        "content": chunk.get("content", "")[:200],
+                    }
+                )
+
+            chunk["parent_section"] = contexts[-1] if contexts else ""
+
+        return chunked_data
+
 
     def _flush_text_chunk(
         self,
@@ -69,6 +187,10 @@ class Chunker:
     def chunk_documents(self, parsed_elements: list) -> list:
         """표준 element 리스트를 text/table chunk 리스트로 변환한다."""
         print("\n[Chunker] Starting structured chunking...")
+
+        element_parent_sections, heading_element_indexes = self._build_parent_section_context(
+            parsed_elements
+        )
 
         chunked_data = []
 
@@ -209,6 +331,12 @@ class Chunker:
             chunk_id,
             current_text,
             current_indexes,
+        )
+
+        self._apply_parent_sections(
+            chunked_data,
+            element_parent_sections,
+            heading_element_indexes,
         )
 
         print(f"[Chunker] Created {len(chunked_data)} chunks.")
