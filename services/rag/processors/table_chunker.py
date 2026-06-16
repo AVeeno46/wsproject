@@ -165,6 +165,10 @@ class TableChunker:
                 part for part in parts
                 if not self._looks_numeric_part(part)
             ]
+            non_numeric_parts = self._filter_duplicate_numeric_artifacts(
+                non_numeric_parts,
+                content_numeric_parts,
+            )
             parts = non_numeric_parts + content_numeric_parts
 
         parts = self._merge_small_parts(parts)
@@ -373,6 +377,101 @@ class TableChunker:
         for label, value in pairs:
             lines.append(f"| {label} | {self._format_numeric_value(label, value, amount_unit)} |")
         return "\n".join(lines)
+
+    def _filter_duplicate_numeric_artifacts(
+        self,
+        parts: list[dict],
+        numeric_parts: list[dict],
+    ) -> list[dict]:
+        if not parts or not numeric_parts:
+            return parts
+
+        numeric_labels = set()
+        numeric_sections = set()
+        for part in numeric_parts:
+            section_title = str(part.get("section_title", "")).strip()
+            row_label = self._row_label_from_section(section_title)
+            if row_label:
+                numeric_labels.add(self._normalize_key(row_label))
+
+            table_section = self._table_section_from_section_title(section_title)
+            if table_section:
+                numeric_sections.add(self._normalize_key(table_section))
+
+        filtered = []
+        for part in parts:
+            if self._is_duplicate_numeric_artifact(part, numeric_labels, numeric_sections):
+                continue
+            filtered.append(part)
+        return filtered
+
+    def _is_duplicate_numeric_artifact(
+        self,
+        part: dict,
+        numeric_labels: set[str],
+        numeric_sections: set[str],
+    ) -> bool:
+        content = str(part.get("content", "")).strip()
+        section_title = str(part.get("section_title", "")).strip()
+        if not content or not section_title:
+            return False
+
+        row_label = self._row_label_from_section(section_title)
+        normalized_row_label = self._normalize_key(row_label)
+        if not normalized_row_label:
+            return False
+
+        if (
+            normalized_row_label not in numeric_labels
+            and normalized_row_label not in numeric_sections
+        ):
+            return False
+
+        if self._has_explicit_numeric_pairs(content):
+            return False
+
+        return self._ends_with_row_label_only(content, row_label)
+
+    @staticmethod
+    def _row_label_from_section(section_title: str) -> str:
+        section_title = str(section_title or "").strip()
+        if " - " in section_title:
+            return section_title.rsplit(" - ", 1)[-1].strip()
+        return ""
+
+    @staticmethod
+    def _table_section_from_section_title(section_title: str) -> str:
+        section_title = str(section_title or "").strip()
+        if " - " in section_title:
+            return section_title.rsplit(" - ", 1)[0].strip()
+        return ""
+
+    @staticmethod
+    def _normalize_key(text: str) -> str:
+        return re.sub(r"\s+", "", str(text or ""))
+
+    def _has_explicit_numeric_pairs(self, content: str) -> bool:
+        numeric_headers = (
+            set(LABEL_HEADERS)
+            | set(AMOUNT_HEADERS)
+            | set(RATE_HEADERS)
+            | set(NUMERIC_HEADERS)
+        )
+        for line in str(content or "").splitlines():
+            if ":" not in line:
+                continue
+            label, value = line.split(":", 1)
+            if self._has_any(label, numeric_headers) and self._contains_number(value):
+                return True
+        return False
+
+    @staticmethod
+    def _ends_with_row_label_only(content: str, row_label: str) -> bool:
+        row_label = str(row_label or "").strip()
+        if not row_label:
+            return False
+        last_line = str(content or "").strip().splitlines()[-1].strip()
+        return last_line.endswith(f": {row_label}") or last_line == row_label
 
     def _is_rate_header(self, label: str) -> bool:
         return self._has_any(label, RATE_HEADERS)
