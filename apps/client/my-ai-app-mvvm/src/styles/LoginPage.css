@@ -1,0 +1,736 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+.loginPage {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #eef5ff 0%, #f8fbff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  color: #102033;
+  overflow: hidden;
+}
+
+.loginShell {
+  width: min(1780px, calc(100vw - 56px));
+  height: min(940px, calc(100vh - 56px));
+  min-height: 760px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 30px 80px rgba(30, 80, 150, 0.13);
+  display: grid;
+  grid-template-columns: 1.25fr 0.95fr;
+  overflow: hidden;
+}
+
+/* LEFT */
+.loginIntro {
+  position: relative;
+  min-width: 0;
+  padding: 56px 72px;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(248, 251, 255, 0.95) 100%);
+  overflow: hidden;
+}
+
+.loginLogoGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  top: 40px;
+  left: 70px;
+}
+
+.loginLogoMark {
+  width: 155px;
+  height: auto;
+  object-fit: contain;
+  transform: translateY(6px);
+}
+
+.loginLogoText {
+  width: 155px;
+  height: auto;
+  object-fit: contain;
+  transform: translateY(-8px);
+}
+
+.loginHero {
+  position: absolute;
+  left: 92px;
+  top: 265px;
+  z-index: 5;
+}
+
+.loginTitle {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.sparkle {
+  font-size: 48px;
+  color: #4a90ff;
+  line-height: 1;
+}
+
+.loginTitle h1 {
+  margin: 0;
+  font-size: 54px;
+  line-height: 1.04;
+  letter-spacing: -1.7px;
+  color: #0f2c5c;
+  font-weight: 900;
+}
+
+.loginDesc {
+  margin: 32px 0 0;
+  font-size: 23px;
+  line-height: 1.72;
+  color: #53647b;
+  letter-spacing: -0.4px;
+}
+
+.loginCircle {
+  position: absolute;
+  left: -165px;
+  bottom: -145px;
+  width: 570px;
+  height: 570px;
+  border-radius: 50%;
+  background: rgba(141, 189, 255, 0.12);
+  z-index: 1;
+}
+
+.loginMascot {
+  position: absolute;
+  left: 45px;
+  bottom: 50px;
+  width: 400px;
+  height: auto;
+  z-index: 4;
+}
+
+.loginMascotShadow {
+  position: absolute;
+  left: 138px;
+  bottom: 102px;
+  width: 230px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(56, 78, 120, 0.18);
+  filter: blur(14px);
+  z-index: 2;
+}
+
+.loginFeatureList {
+  position: absolute;
+  right: 82px;
+  bottom: 96px;
+  width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  z-index: 5;
+}
+
+.loginFeature {
+  height: 96px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e5eefb;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px;
+  box-shadow: 0 14px 32px rgba(30, 80, 150, 0.07);
+}
+
+.featureIcon {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.featureIcon.blue {
+  background: #eaf3ff;
+  color: #1479ff;
+  font-weight: 900;
+}
+
+.featureIcon.green {
+  background: #e9fbf2;
+}
+
+.featureIcon.purple {
+  background: #f1eafd;
+}
+
+.loginFeature strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1;
+  color: #0f2c5c;
+  font-weight: 900;
+}
+
+.loginFeature span {
+  display: block;
+  margin-top: 10px;
+  color: #728197;
+  font-size: 15px;
+}
+
+/* RIGHT */
+.loginRight {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 2px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.loginCard {
+  width: 680px;
+  min-height: 820px;
+  padding: 72px 82px;
+  margin: 0 auto;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 24px 64px rgba(30, 80, 150, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.loginTabs {
+  display: flex;
+  gap: 44px;
+  margin-bottom: 34px;
+}
+
+.loginTabs button {
+  border: none;
+  background: transparent;
+  color: #7a8798;
+  font-size: 18px;
+  font-weight: 900;
+  padding: 0 0 15px;
+  cursor: pointer;
+}
+
+.loginTabs .active {
+  color: #0564e8;
+  border-bottom: 3px solid #0564e8;
+}
+
+.loginCard h2 {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1.15;
+  letter-spacing: -1.2px;
+  color: #0f2c5c;
+  font-weight: 900;
+}
+
+.loginCard>p {
+  margin: 14px 0 30px;
+  color: #718198;
+  font-size: 16px;
+}
+
+.loginInput {
+  width: 100%;
+  height: 60px;
+  border: 1px solid #d4deec;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  margin-bottom: 16px;
+  background: #ffffff;
+}
+
+.inputIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #eef5ff;
+  color: #0564e8;
+  font-size: 12px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loginInput input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  color: #102033;
+}
+
+.loginInput input::placeholder {
+  color: #718198;
+}
+
+.keepLogin,
+.circleCheck {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.keepLogin {
+  margin: 18px 0 24px;
+}
+
+.keepLogin input,
+.circleCheck input {
+  width: 21px;
+  height: 21px;
+  accent-color: #1479ff;
+}
+
+.loginBtn,
+.simpleLoginBtn {
+  border: none;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #1479ff, #0564e8);
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 14px 32px rgba(20, 110, 240, 0.25);
+}
+
+.loginBtn {
+  width: 100%;
+  height: 62px;
+  font-size: 18px;
+}
+
+.loginLinks {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.loginLinks button {
+  border: none;
+  background: transparent;
+  color: #0564e8;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* SIMPLE LOGIN */
+.simpleLoginArea {
+  width: 100%;
+  display: flex;
+  gap: 18px;
+  margin-top: 36px;
+}
+
+.simpleLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.simpleInput {
+  margin-bottom: 12px;
+}
+
+.guideBtn {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #d4deec;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #687386;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.simpleLoginBtn {
+  width: 150px;
+  height: 132px;
+  font-size: 20px;
+}
+
+.simpleBottom {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.circleCheck {
+  white-space: nowrap;
+}
+
+.simpleLinks {
+  margin-top: 0;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+/* PROFILE / SETTINGS */
+.profileActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profileCircle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffd34d;
+  color: #0f1f33;
+  font-size: 16px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileName {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f1f33;
+  margin-right: 8px;
+}
+
+.profileDivider {
+  width: 1px;
+  height: 26px;
+  background: #d8e5f5;
+}
+
+.settingBtn {
+  height: 38px;
+  padding: 0 18px;
+  border: 1px solid #d8e5f5;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f1f33;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* 화면 크기에 따라 이미지/카드/글자 같이 줄어들게 수정 */
+@media (max-width: 1500px),
+(max-height: 900px) {
+  .loginPage {
+    height: 100vh;
+    padding: clamp(12px, 1.6vw, 28px);
+    overflow: hidden;
+  }
+
+  .loginShell {
+    width: calc(100vw - 40px);
+    height: calc(100vh - 40px);
+    min-height: 0;
+    grid-template-columns: 1.18fr 0.95fr;
+  }
+
+  .loginIntro {
+    padding: clamp(30px, 3.2vw, 56px) clamp(42px, 4vw, 72px);
+  }
+
+  .loginLogoGroup {
+    top: clamp(24px, 3vh, 40px);
+    left: clamp(44px, 4vw, 70px);
+  }
+
+  .loginLogoMark {
+    width: clamp(115px, 9vw, 155px);
+  }
+
+  .loginLogoText {
+    width: clamp(115px, 9vw, 155px);
+  }
+
+  .loginHero {
+    left: clamp(62px, 5.6vw, 92px);
+    top: clamp(185px, 26vh, 265px);
+  }
+
+  .sparkle {
+    font-size: clamp(32px, 3vw, 48px);
+  }
+
+  .loginTitle h1 {
+    font-size: clamp(38px, 3.7vw, 54px);
+  }
+
+  .loginDesc {
+    margin-top: clamp(18px, 2vh, 32px);
+    font-size: clamp(17px, 1.5vw, 23px);
+    line-height: 1.55;
+  }
+
+  .loginCircle {
+    width: clamp(360px, 35vw, 570px);
+    height: clamp(360px, 35vw, 570px);
+    left: clamp(-165px, -10vw, -90px);
+    bottom: clamp(-145px, -10vh, -80px);
+  }
+
+  .loginMascot {
+    width: clamp(250px, 24vw, 400px);
+    left: clamp(36px, 3vw, 45px);
+    bottom: clamp(34px, 5vh, 50px);
+  }
+
+  .loginMascotShadow {
+    left: clamp(92px, 8vw, 138px);
+    bottom: clamp(72px, 9vh, 102px);
+    width: clamp(160px, 15vw, 230px);
+  }
+
+  .loginFeatureList {
+    right: clamp(36px, 5vw, 82px);
+    bottom: clamp(42px, 7vh, 96px);
+    width: clamp(330px, 31vw, 440px);
+    gap: clamp(10px, 1.6vh, 18px);
+  }
+
+  .loginFeature {
+    height: clamp(72px, 9vh, 96px);
+    border-radius: 16px;
+    padding: 0 clamp(16px, 1.5vw, 24px);
+    gap: clamp(12px, 1.3vw, 20px);
+  }
+
+  .featureIcon {
+    width: clamp(44px, 4vw, 58px);
+    height: clamp(44px, 4vw, 58px);
+    border-radius: 14px;
+    font-size: clamp(20px, 2vw, 26px);
+  }
+
+  .loginFeature strong {
+    font-size: clamp(16px, 1.4vw, 20px);
+  }
+
+  .loginFeature span {
+    margin-top: 6px;
+    font-size: clamp(12px, 1.05vw, 15px);
+  }
+
+  .loginCard {
+    width: min(600px, calc(100% - 48px));
+    min-height: 0;
+    height: min(720px, calc(100vh - 120px));
+    padding: clamp(42px, 5vh, 72px) clamp(52px, 5vw, 82px);
+  }
+
+  .loginTabs {
+    margin-bottom: clamp(22px, 3vh, 34px);
+  }
+
+  .loginCard h2 {
+    font-size: clamp(30px, 2.5vw, 36px);
+  }
+
+  .loginCard>p {
+    margin-bottom: clamp(22px, 3vh, 30px);
+  }
+
+  .loginInput {
+    height: clamp(52px, 6vh, 60px);
+  }
+
+  .keepLogin {
+    margin: clamp(14px, 2vh, 18px) 0 clamp(18px, 2.4vh, 24px);
+  }
+
+  .loginBtn {
+    height: clamp(54px, 6vh, 62px);
+  }
+}
+
+/* 너무 좁은 화면에서는 세로 배치로 깨짐 방지 */
+@media (max-width: 980px) {
+  .loginPage {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .loginShell {
+    width: calc(100vw - 28px);
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .loginIntro {
+    min-height: auto;
+    padding: 34px 28px;
+  }
+
+  .loginLogoGroup,
+  .loginHero,
+  .loginFeatureList {
+    position: static;
+  }
+
+  .loginLogoGroup {
+    margin-bottom: 44px;
+  }
+
+  .loginHero {
+    margin-bottom: 28px;
+  }
+
+  .loginMascot,
+  .loginMascotShadow,
+  .loginCircle {
+    display: none;
+  }
+
+  .loginFeatureList {
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .loginRight {
+    padding: 28px;
+  }
+
+  .loginCard {
+    width: min(620px, 100%);
+    height: auto;
+    padding: 42px 34px;
+  }
+}
+
+/* 로그인 입력 아이콘 */
+.loginInput .inputIcon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  position: relative !important;
+}
+
+.loginInput .inputIcon.userIcon::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #5b4b8a;
+  border-radius: 50%;
+}
+
+.loginInput .inputIcon.userIcon::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 17px;
+  width: 16px;
+  height: 8px;
+  border: 2px solid #5b4b8a;
+  border-radius: 999px 999px 5px 5px;
+}
+
+.loginInput .inputIcon.lockIcon::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 14px;
+  width: 16px;
+  height: 11px;
+  border: 2px solid #ffb02e;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.loginInput .inputIcon.lockIcon::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 3px;
+  width: 8px;
+  height: 10px;
+  border: 2px solid #ffb02e;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+}
+
+/* 작은 화면에서 로봇이 카드랑 겹치지 않게 분리 */
+@media (max-width: 1500px),
+(max-height: 900px) {
+  .loginMascot {
+    width: 240px !important;
+    left: 54px !important;
+    bottom: 62px !important;
+  }
+
+  .loginCircle {
+    width: 390px !important;
+    height: 390px !important;
+    left: -120px !important;
+    bottom: -105px !important;
+  }
+
+  .loginFeatureList {
+    left: 330px !important;
+    right: auto !important;
+    bottom: 58px !important;
+    width: 350px !important;
+    gap: 12px !important;
+  }
+
+  .loginFeature {
+    height: 78px !important;
+  }
+}
