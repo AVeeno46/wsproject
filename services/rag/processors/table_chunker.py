@@ -93,39 +93,58 @@ class _HtmlRowParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.rows = []
-        self._in_row = False
-        self._in_cell = False
-        self._current_row = []
-        self._current_cell = []
+        self._table_depth = 0
+        self._row_stack = []
+        self._cell_stack = []
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
-        if tag == "tr":
-            self._in_row = True
-            self._current_row = []
-        elif tag in {"td", "th"} and self._in_row:
-            self._in_cell = True
-            self._current_cell = []
-        elif tag == "br" and self._in_cell:
-            self._current_cell.append(" ")
+        if tag == "table":
+            if self._table_depth > 0:
+                self._flush_active_cell_text_as_row()
+            self._table_depth += 1
+        elif tag == "tr" and self._table_depth > 0:
+            self._row_stack.append({"cells": []})
+        elif tag in {"td", "th"} and self._row_stack:
+            self._cell_stack.append({"text": []})
+        elif tag == "br" and self._cell_stack:
+            self._cell_stack[-1]["text"].append(" ")
 
     def handle_endtag(self, tag):
         tag = tag.lower()
-        if tag in {"td", "th"} and self._in_cell:
-            text = self._normalize_text("".join(self._current_cell))
-            if text:
-                self._current_row.append(text)
-            self._current_cell = []
-            self._in_cell = False
-        elif tag == "tr" and self._in_row:
-            if self._current_row:
-                self.rows.append(self._current_row)
-            self._current_row = []
-            self._in_row = False
+        if tag in {"td", "th"} and self._cell_stack:
+            cell = self._cell_stack.pop()
+            text = self._normalize_text("".join(cell["text"]))
+            if text and self._row_stack:
+                self._row_stack[-1]["cells"].append(text)
+        elif tag == "tr" and self._row_stack:
+            row = self._row_stack.pop()
+            if row["cells"]:
+                self.rows.append(row["cells"])
+        elif tag == "table" and self._table_depth > 0:
+            self._table_depth -= 1
 
     def handle_data(self, data):
-        if self._in_cell:
-            self._current_cell.append(data)
+        if self._cell_stack:
+            self._cell_stack[-1]["text"].append(data)
+
+    def _flush_active_cell_text_as_row(self):
+        if not self._cell_stack:
+            return
+
+        text = self._normalize_text("".join(self._cell_stack[-1]["text"]))
+        row = []
+
+        if self._row_stack:
+            row.extend(self._row_stack[-1]["cells"])
+            self._row_stack[-1]["cells"] = []
+
+        if text:
+            row.append(text)
+            self._cell_stack[-1]["text"] = []
+
+        if row:
+            self.rows.append(row)
 
     @staticmethod
     def _normalize_text(text: str) -> str:
@@ -212,7 +231,13 @@ class TableChunker:
 
     def _split_description_rows(self, rows: list[list[str]]) -> list[dict]:
         parts = []
-        data_rows = rows[1:] if rows and self._looks_like_header(rows[0]) else rows
+        should_skip_header = (
+            rows
+            and len(rows[0]) > 1
+            and self._looks_like_header(rows[0])
+            and not self._header_row_has_content(rows[0])
+        )
+        data_rows = rows[1:] if should_skip_header else rows
 
         for row in data_rows:
             if not row:
@@ -227,12 +252,40 @@ class TableChunker:
 
         return parts
 
+    def _header_row_has_content(self, row: list[str]) -> bool:
+        if len(row) <= 1:
+            return False
+        header_keywords = (
+            set(DESCRIPTION_HEADERS)
+            | set(NUMERIC_HEADERS)
+            | set(LABEL_HEADERS)
+            | set(AMOUNT_HEADERS)
+            | set(RATE_HEADERS)
+        )
+        return any(self._header_cell_has_content(cell, header_keywords) for cell in row)
+
+    def _header_cell_has_content(self, cell: str, header_keywords: set[str]) -> bool:
+        text = re.sub(r"\s+", " ", str(cell or "")).strip()
+        if not text:
+            return False
+
+        structure_headers = set(LABEL_HEADERS) | set(DESCRIPTION_HEADERS)
+        if self._is_exact_keyword(text, structure_headers):
+            return False
+        if self._is_header_like_numeric_cell(text):
+            return False
+        if self._is_exact_keyword(text, header_keywords):
+            return False
+        return True
+
     def _split_numeric_rows(self, rows: list[list[str]]) -> list[dict]:
         if not rows:
             return []
 
         parts = []
         header = []
+        pending_header_context = []
+        header_has_emitted_part = False
         current_section = ""
         for row_index, row in enumerate(rows):
             if not row:
@@ -241,9 +294,16 @@ class TableChunker:
             header_info = self._numeric_header_info(row)
             row_numeric_count = sum(1 for cell in row if self._contains_number(cell))
             if header_info and row_numeric_count <= 2:
-                next_section, header = header_info
+                if header and not header_has_emitted_part:
+                    pending_header_context = self._extend_pending_header_context(
+                        pending_header_context,
+                        header,
+                    )
+                next_section, next_header = header_info
                 if next_section:
                     current_section = next_section
+                header = next_header
+                header_has_emitted_part = False
                 continue
 
             if row_index == 0 and self._looks_like_header(row):
@@ -258,44 +318,165 @@ class TableChunker:
                 body = " ".join(row[1:]).strip()
                 text = f"{section_title}\n{body}".strip()
                 row_parts = self._split_numbered_text(text, section_title)
+                pending_header_context = self._prepend_pending_header_context(
+                    row_parts,
+                    pending_header_context,
+                )
                 for part in row_parts:
                     part["markdown_table"] = self._row_markdown(["section", "content"], [section_title, body])
                 parts.extend(row_parts)
                 continue
 
             if header and row_numeric_count > 0:
-                parts.append(self._numeric_row_part(current_section, header, row))
+                row_parts = [self._numeric_row_part(current_section, header, row)]
+                pending_header_context = self._prepend_pending_header_context(
+                    row_parts,
+                    pending_header_context,
+                )
+                parts.extend(row_parts)
+                header_has_emitted_part = True
                 continue
 
             if row_numeric_count == 0 and len(row) > 1:
                 section_title = row[0]
                 body = " ".join(row[1:]).strip()
-                parts.append(
+                row_parts = [
                     {
                         "section_title": section_title,
                         "content": f"{section_title}\n{body}".strip(),
                         "markdown_table": self._row_markdown(["section", "content"], [section_title, body]),
                     }
+                ]
+                pending_header_context = self._prepend_pending_header_context(
+                    row_parts,
+                    pending_header_context,
                 )
+                parts.extend(row_parts)
 
         return parts or self._split_description_rows(rows)
+
+    def _extend_pending_header_context(
+        self,
+        pending_context: list[str],
+        header: list[str],
+    ) -> list[str]:
+        context = self._header_context_text(header)
+        if not context:
+            return pending_context
+
+        result = list(pending_context)
+        existing = {self._normalize_key(line) for line in result}
+        for line in context.splitlines():
+            line = line.strip()
+            key = self._normalize_key(line)
+            if line and key not in existing:
+                result.append(line)
+                existing.add(key)
+        return result
+
+    def _prepend_pending_header_context(
+        self,
+        parts: list[dict],
+        pending_context: list[str],
+    ) -> list[str]:
+        if not parts or not pending_context:
+            return pending_context
+
+        context = "\n".join(line for line in pending_context if line).strip()
+        if not context:
+            return []
+
+        original = str(parts[0].get("content", "")).strip()
+        if not original:
+            return pending_context
+
+        normalized_content = self._normalize_key(original)
+        normalized_context = self._normalize_key(context)
+        if normalized_context not in normalized_content:
+            parts[0] = parts[0].copy()
+            parts[0]["content"] = f"{context}\n{original}".strip()
+        return []
+
+    def _header_context_text(self, header: list[str]) -> str:
+        cells = [str(cell or "").strip() for cell in header if str(cell or "").strip()]
+        if (
+            len(cells) > 1
+            and self._is_exact_keyword(
+                self._strip_header_annotation(cells[0]),
+                set(LABEL_HEADERS) | set(DESCRIPTION_HEADERS),
+            )
+        ):
+            cells = cells[1:]
+        return " | ".join(cells)
 
     def _numeric_header_info(self, row: list[str]) -> tuple[str, list[str]] | None:
         if not row:
             return None
 
-        keyword_count = sum(1 for cell in row if self._has_any(cell, NUMERIC_HEADERS))
-        has_label_header = any(self._has_any(cell, LABEL_HEADERS) for cell in row)
-        has_amount_or_rate = any(
-            self._has_any(cell, AMOUNT_HEADERS | RATE_HEADERS)
-            for cell in row
+        description_only_headers = set(LABEL_HEADERS) | set(DESCRIPTION_HEADERS)
+        is_description_only_header = (
+            len(row) > 1
+            and all(
+                self._is_exact_keyword(cell, description_only_headers)
+                for cell in row
+            )
         )
-        if keyword_count < 2 and not (has_label_header and has_amount_or_rate):
+        if is_description_only_header:
             return None
 
-        if len(row) > 1 and not self._is_exact_keyword(row[0], LABEL_HEADERS | AMOUNT_HEADERS | RATE_HEADERS):
+        header_like_count = sum(
+            1 for cell in row
+            if self._is_header_like_numeric_cell(cell)
+        )
+        has_label_header = any(
+            self._is_exact_keyword(
+                self._strip_header_annotation(cell),
+                description_only_headers,
+            )
+            for cell in row
+        )
+        has_value_header = any(
+            self._is_header_like_numeric_cell(cell)
+            for cell in row[1:]
+        )
+        if header_like_count < 2 and not (has_label_header and has_value_header):
+            return None
+
+        first_cell_base = self._strip_header_annotation(row[0])
+        if len(row) > 1 and not self._is_exact_keyword(first_cell_base, set(LABEL_HEADERS) | set(AMOUNT_HEADERS) | set(RATE_HEADERS)):
             return row[0], row[1:]
         return "", row
+
+    def _is_header_like_numeric_cell(self, cell: str) -> bool:
+        cell = str(cell or "").strip()
+        if not cell:
+            return False
+
+        base = self._strip_header_annotation(cell)
+        header_keywords = set(NUMERIC_HEADERS) | set(AMOUNT_HEADERS) | set(RATE_HEADERS) | set(LABEL_HEADERS)
+        if self._is_exact_keyword(base, header_keywords):
+            return True
+        return self._is_time_axis_header_cell(base)
+
+    @staticmethod
+    def _strip_header_annotation(cell: str) -> str:
+        text = re.sub(r"\s+", " ", str(cell or "")).strip()
+        previous = None
+        while previous != text:
+            previous = text
+            text = re.sub(r"\s*\([^()\n]{1,30}\)\s*$", "", text).strip()
+        return text
+
+    @staticmethod
+    def _is_time_axis_header_cell(cell: str) -> bool:
+        text = str(cell or "").strip()
+        return bool(
+            re.fullmatch(r"\d{4}년?", text)
+            or re.fullmatch(r"\d+차년도", text)
+            or re.fullmatch(r"\d+분기", text)
+            or re.fullmatch(r"\d+월", text)
+            or re.fullmatch(r"\d+년차", text)
+        )
 
     def _numeric_row_part(self, table_section: str, header: list[str], row: list[str]) -> dict:
         row_label = row[0] if row else ""
