@@ -1,14 +1,13 @@
 export function DocViewer({ source }) {
-  const fileName = source.file_name || source.name || "파일";
+  const fileName = source.name || source.filename || "파일";
   const ext = fileName.split(".").pop().toLowerCase();
-  const fileUrl = source.file_url || source.fileUrl;
 
   return (
     <div className="docPreviewBox">
-      {fileUrl ? (
+      {ext === "pdf" && source.fileUrl ? (
         <iframe
           className="docViewer"
-          src={fileUrl}
+          src={source.fileUrl}
           title={fileName}
         />
       ) : (

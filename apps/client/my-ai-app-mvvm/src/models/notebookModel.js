@@ -9,61 +9,87 @@ const saveLocalNotebooks = (list) => localStorage.setItem(LS_KEY, JSON.stringify
 export const fetchNotebooksRequest = async () => {
     if (IS_LOCAL) return getLocalNotebooks();
 
-    const response = await fetch(`${API_URL}/dashboard/individual/get-all`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({}),
+    const response = await fetch(`${API_URL}/notebooks`, {
+        method: 'GET',
+        headers: { ...getAuthHeader() },
     });
     if (response.status === 401) return handleUnauthorized();
     if (!response.ok) throw new Error('노트북 목록을 불러오지 못했습니다.');
-    return response.json(); // [{ dashboard_name, dashboard_id }]
+    return response.json();
 };
 
 export const createNotebookRequest = async (title) => {
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
-        const newNotebook = { dashboard_id: Date.now(), dashboard_name: title, createdAt: new Date().toISOString() };
+        const newNotebook = { id: Date.now().toString(), title, createdAt: new Date().toISOString() };
         saveLocalNotebooks([...notebooks, newNotebook]);
         return newNotebook;
     }
 
-    const response = await fetch(`${API_URL}/dashboard/individual/create`, {
+    const response = await fetch(`${API_URL}/notebooks/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ dashboard_name: title }),
+        body: JSON.stringify({ title }),
     });
     if (response.status === 401) return handleUnauthorized();
     if (!response.ok) throw new Error('노트북 생성에 실패했습니다.');
-    return response.json(); // { dashboard_id }
+    return response.json();
 };
 
 export const deleteNotebookRequest = async (notebookId) => {
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
-        saveLocalNotebooks(notebooks.filter((n) => n.dashboard_id !== notebookId));
+        saveLocalNotebooks(notebooks.filter((n) => n.id !== notebookId));
         return true;
     }
 
-    const response = await fetch(`${API_URL}/dashboard/individual/delete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ dashboard_id: notebookId }),
+    const response = await fetch(`${API_URL}/notebooks/${notebookId}`, {
+        method: 'DELETE',
+        headers: { ...getAuthHeader() },
     });
     if (response.status === 401) return handleUnauthorized();
     return response.ok;
 };
 
-// 서버 엔드포인트 미정 — 현재 로컬 처리만
+export const fetchNotebookByIdRequest = async (notebookId) => {
+    if (IS_LOCAL) {
+        const notebooks = getLocalNotebooks();
+        return notebooks.find((n) => String(n.id) === String(notebookId)) || null;
+    }
+
+    const response = await fetch(`${API_URL}/notebooks/${notebookId}`, {
+        method: 'GET',
+        headers: { ...getAuthHeader() },
+    });
+
+    if (response.status === 401) return handleUnauthorized();
+    if (!response.ok) throw new Error('노트북 정보를 불러오지 못했습니다.');
+    return response.json();
+};
+
 export const updateNotebookTitleRequest = async (notebookId, title) => {
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
-        saveLocalNotebooks(
-            notebooks.map((n) =>
-                n.dashboard_id === notebookId ? { ...n, dashboard_name: title } : n
-            )
+
+        const updatedNotebooks = notebooks.map((n) =>
+            String(n.id) === String(notebookId)
+                ? { ...n, title, updatedAt: new Date().toISOString() }
+                : n
         );
-        return { id: notebookId, title };
+
+        saveLocalNotebooks(updatedNotebooks);
+
+        return updatedNotebooks.find((n) => String(n.id) === String(notebookId));
     }
-    // TODO: 서버 엔드포인트 추가 후 연결
-    return { id: notebookId, title };
+
+    const response = await fetch(`${API_URL}/notebooks/${notebookId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ title }),
+    });
+
+    if (response.status === 401) return handleUnauthorized();
+    if (!response.ok) throw new Error('노트북 제목 수정에 실패했습니다.');
+    return response.json();
 };
+

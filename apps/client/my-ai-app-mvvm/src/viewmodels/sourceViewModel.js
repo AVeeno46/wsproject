@@ -1,80 +1,78 @@
-import { useState, useEffect } from 'react';
-import { fetchSourcesRequest, uploadSourceRequest, openSourceRequest, selectDocumentRequest, deleteSourceRequest } from '../models/sourceModel';
+import { useEffect, useState } from "react";
+import {
+  fetchSourcesRequest,
+  uploadSourceRequest,
+} from "../models/sourceModel";
 
-export const useSourceViewModel = (notebookId) => {
-    const [sources, setSources] = useState([]);
-    const [isUploading, setIsUploading] = useState(false);
-    const [isSearching, setIsSearching] = useState(false);
-    const [searchResult, setSearchResult] = useState(null);
-    const [error, setError] = useState(null);
+export function useSourceViewModel(notebookId) {
+  const [sources, setSources] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
 
-    const fetchSources = async () => {
-        try {
-            const data = await fetchSourcesRequest(notebookId);
-            setSources(data);
-        } catch (err) {
-            setError(err.message);
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSources = async () => {
+      if (!notebookId) {
+        if (isMounted) setSources([]);
+        return;
+      }
+
+      try {
+        const data = await fetchSourcesRequest(notebookId);
+
+        if (isMounted) {
+          setSources(Array.isArray(data) ? data : []);
         }
-    };
+      } catch (error) {
+        console.error("소스 목록 불러오기 실패:", error);
 
-    const uploadFile = async (fileObject) => {
-        setIsUploading(true);
-        try {
-            const newSource = await uploadSourceRequest(notebookId, fileObject);
-            setSources((prev) => [...prev, newSource]);
-            return true;
-        } catch (err) {
-            setError(err.message);
-            return false;
-        } finally {
-            setIsUploading(false);
+        if (isMounted) {
+          setSources([]);
         }
+      }
     };
 
-    const selectDocument = async (question) => {
-        setIsSearching(true);
-        setSearchResult(null);
-        try {
-            const result = await selectDocumentRequest(notebookId, question);
-            setSearchResult(result); // { file_text, file_name, file_id }
-            return result;
-        } catch (err) {
-            setError(err.message);
-            return null;
-        } finally {
-            setIsSearching(false);
-        }
-    };
+    loadSources();
 
-    const openSource = async (source) => {
-        try {
-            const data = await openSourceRequest(notebookId, source.file_id);
-            return { ...source, file_url: data?.file_url ?? null };
-        } catch (err) {
-            setError(err.message);
-            return source;
-        }
+    return () => {
+      isMounted = false;
     };
+  }, [notebookId]);
 
-    const removeSource = async (fileId) => {
-        const success = await deleteSourceRequest(notebookId, fileId);
-        if (success) setSources((prev) => prev.filter((s) => s.file_id !== fileId));
-    };
+  const uploadFile = async (file) => {
+    if (!notebookId || !file) {
+      console.error("업로드 실패: notebookId 또는 file 없음", {
+        notebookId,
+        file,
+      });
+      return null;
+    }
 
-    useEffect(() => {
-        if (notebookId) fetchSources();
-    }, [notebookId]);
+    setIsUploading(true);
 
-    return {
-        sources,
-        isUploading,
-        isSearching,
-        searchResult,
-        error,
-        uploadFile,
-        openSource,
-        selectDocument,
-        removeSource,
-        refresh: fetchSources,
-    };
-};
+    try {
+      const newSource = await uploadSourceRequest(notebookId, file);
+
+      setSources((prev) => {
+        const exists = prev.some((source) => source.id === newSource.id);
+
+        if (exists) return prev;
+
+return [...prev, newSource];      });
+
+      return newSource;
+    } catch (error) {
+      console.error("파일 업로드 실패:", error);
+      alert(error.message || "파일 업로드에 실패했습니다.");
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return {
+    sources,
+    isUploading,
+    uploadFile,
+  };
+}

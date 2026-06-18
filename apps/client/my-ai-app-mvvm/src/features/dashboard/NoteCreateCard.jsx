@@ -5,8 +5,8 @@ export function NoteCreateCard({ onClick }) {
         <div className="folderTab"></div>
         <div className="folderBody"><span>＋</span></div>
       </div>
-      <p>새 노트북 생성</p>
-      <span>제목을 입력하면 노트북이 생성됩니다</span>
+      <p>새 폴더 생성</p>
+      <span>제목을 입력하면 폴더가 생성됩니다</span>
     </button>
   );
 }

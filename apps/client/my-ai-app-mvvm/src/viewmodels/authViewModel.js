@@ -1,20 +1,18 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../core/AuthContext';
-import { loginRequest, logoutRequest } from '../models/authModel';
-import { IS_LOCAL } from '../constants/constants';
+import { loginRequest } from '../models/authModel';
 
 export const useAuthViewModel = () => {
     const { login, logout, user, token } = useContext(AuthContext);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
 
-    const requestLogin = async (id, password) => {
+    const requestLogin = async (email, password) => {
         setIsSubmitting(true);
         setError(null);
         try {
-            const data = await loginRequest(id, password);
-            // 서버 스펙: { token } (GUID)
-            login(data.token, { id });
+            const data = await loginRequest(email, password);
+            login(data.accessToken, data.user);
             return true;
         } catch (err) {
             setError(err.message);
@@ -24,20 +22,13 @@ export const useAuthViewModel = () => {
         }
     };
 
-    const requestLogout = async () => {
-        if (!IS_LOCAL && user?.id) {
-            await logoutRequest(user.id);
-        }
-        logout();
-    };
-
     const bypassLogin = () => {
-        login('admin-token', { id: 'admin', name: '관리자', role: 'admin' });
+        login('admin-token', { name: '관리자', role: 'admin' });
     };
 
     return {
         requestLogin,
-        requestLogout,
+        requestLogout: logout,
         bypassLogin,
         isSubmitting,
         error,

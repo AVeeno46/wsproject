@@ -51,20 +51,28 @@
 }
 
 .chatPage .toggleBtn {
-  width: 34px;
-  height: 34px;
-  border: 1px solid #cfdff2;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #1167ee;
-  font-size: 22px;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 6px 16px rgba(30, 80, 150, 0.14);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #cfdff2;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #1167ee;
+    font-size: 22px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(30, 80, 150, 0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* 다크모드일 때만 색 변경 */
+.app.chatPage.dark .toggleBtn {
+    background: #111827;
+    color: #93c5fd;
+    border: 1px solid #334155;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.28);
 }
 
 .chatPage .sidebar.closed .toggleBtn {
@@ -79,16 +87,6 @@
   background: transparent url("/assets/logo.png") center / 54px auto no-repeat;
   color: transparent;
   box-shadow: none;
-}
-
-.chatPage .sidebar.closed .toggleBtn:hover {
-  width: 34px;
-  height: 34px;
-  border: 1px solid #cfdff2;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #1167ee;
-  box-shadow: 0 6px 16px rgba(30, 80, 150, 0.14);
 }
 
 /* view toggle */
@@ -639,7 +637,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 14px;
 }
 
@@ -822,13 +820,7 @@
 }
 
 .chatPage .topSettingBtn::before {
-  content: "";
-  position: absolute;
-  left: -12px;
-  top: 8px;
-  width: 1px;
-  height: 20px;
-  background: #d8e5f5;
+  display: none !important;
 }
 
 /* right chat */
@@ -1538,7 +1530,6 @@
   background: #1f252c;
 }
 
-
 /* drag upload guide */
 .chatPage .sidebar {
   position: relative;
@@ -1781,4 +1772,862 @@
     width: 46px;
     height: 46px;
   }
+}
+
+.sourceItemContextWrap {
+  display: contents;
+}
+
+.sourceContextMenu {
+  position: fixed;
+  width: 128px;
+  padding: 8px;
+  border: 1px solid #d8e5f5;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(20, 40, 80, 0.16);
+  z-index: 9999;
+}
+
+.sourceContextMenu button {
+  width: 100%;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.sourceContextMenu button:hover {
+  background: #fff1f2;
+  color: #ef4444;
+}
+
+.sourceDeleteModalBg {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.46);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.sourceDeleteModal {
+  width: min(420px, calc(100vw - 48px));
+  border-radius: 22px;
+  background: #ffffff;
+  padding: 30px 30px 24px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+  animation: sourceDeletePop 0.16s ease-out;
+}
+
+.sourceDeleteModal h2 {
+  margin: 0 0 18px;
+  color: #0f1f33;
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.sourceDeleteModal p {
+  margin: 0;
+  color: #708099;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.sourceDeleteModal p strong {
+  color: #263954;
+  font-weight: 900;
+}
+
+.sourceDeleteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.sourceDeleteActions button {
+  min-width: 120px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.sourceDeleteActions button:first-child {
+  border: 1px solid #d7e5f6;
+  background: #ffffff;
+  color: #16263d;
+}
+
+.sourceDeleteActions button:last-child {
+  border: none;
+  background: #f4474c;
+  color: #ffffff;
+}
+
+.sourceDeleteActions button:first-child:hover {
+  background: #f6faff;
+}
+
+.sourceDeleteActions button:last-child:hover {
+  background: #e7373d;
+}
+
+@keyframes sourceDeletePop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 파일명만 ... 처리, 날짜 위치는 그대로 유지 */
+.sidebar .uploadedFileArea.list .fileName {
+  display: block;
+  max-width: 260px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 그리드 모드에서는 2줄까지만 보이고 ... */
+.sidebar .uploadedFileArea.grid .fileName {
+  display: -webkit-box;
+  width: 120px;
+  max-width: 120px;
+  overflow: hidden;
+  white-space: normal;
+  word-break: break-all;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 접힌 사이드바에서 로고 자리는 로고만 보이게 */
+.chatPage .sidebar.closed .toggleBtn {
+  background: transparent url("/assets/logo.png") center / 54px auto no-repeat !important;
+  color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 접힌 사이드바 로고 hover 색 강제 수정 */
+.app.chatPage.dark .sidebar.closed .toggleBtn:hover {
+  width: 34px !important;
+  height: 34px !important;
+  border: 1px solid #334155 !important;
+  border-radius: 50% !important;
+  background: #111827 !important;
+  color: #93c5fd !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28) !important;
+}
+
+/* 라이트 모드: 기존 동그라미 모양 유지 */
+.chatPage .sidebar.closed .toggleBtn:hover {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  border: 1px solid #cfdff2 !important;
+  background: #ffffff !important;
+  color: #1167ee !important;
+  box-shadow: 0 6px 16px rgba(30, 80, 150, 0.14) !important;
+}
+
+/* 다크 모드: 모양 그대로, 색만 다크 */
+.app.chatPage.dark .sidebar.closed .toggleBtn:hover {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  border: 1px solid #334155 !important;
+  background: #111827 !important;
+  color: #93c5fd !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28) !important;
+}
+
+.chatPage .workspaceBody {
+  grid-template-columns: minmax(0, 1fr) 420px !important;
+}
+
+.chatPage .workspaceTop {
+  grid-template-columns: minmax(0, 1fr) 420px !important;
+}
+
+/* SourceItem 파일 타입 아이콘 */
+.chatPage .uploadedFileItem .fileTypeIcon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 8px 16px rgba(15, 31, 51, 0.14);
+  position: relative;
+  overflow: hidden;
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  background: rgba(255, 255, 255, 0.38);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon span {
+  position: relative;
+  z-index: 1;
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon.pdf {
+  background: #ef4444;
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon.hwp {
+  background: #0ea5e9;
+  font-size: 18px;
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon.word {
+  background: #2563eb;
+  font-size: 17px;
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon.excel {
+  background: #22c55e;
+  font-size: 17px;
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon.ppt {
+  background: #f97316;
+  font-size: 17px;
+}
+
+.chatPage .uploadedFileItem .fileTypeIcon.file {
+  background: #64748b;
+  font-size: 17px;
+}
+
+/* 기존 폴더 아이콘 CSS 영향 제거 */
+.chatPage .uploadedFileItem .fileTypeIcon .folderShape,
+.chatPage .uploadedFileItem .fileTypeIcon .fileBadge {
+  display: none !important;
+}
+
+/* 그리드 모드 정렬 */
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTypeIcon {
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTypeIcon.pdf {
+  font-size: 13px;
+}
+
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTypeIcon.hwp,
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTypeIcon.word,
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTypeIcon.excel,
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTypeIcon.ppt,
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTypeIcon.file {
+  font-size: 24px;
+}
+
+/* 리스트 모드 정렬 */
+.chatPage .uploadedFileArea.list .uploadedFileItem {
+  grid-template-columns: 38px minmax(0, 1fr);
+}
+
+.chatPage .uploadedFileArea.list .uploadedFileItem .fileTypeIcon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+}
+
+.chatPage .chatBubble.bot {
+  transform: translateX(-22px);
+}
+
+/* 다크모드 사용자 말풍선 색 */
+.app.chatPage.dark .chatBubble.user {
+  background: #1e3a8a !important;
+  color: #ffffff !important;
+}
+
+/* 긴 문장/문자열 말풍선 밖으로 안 튀어나가게 */
+.chatPage .chatBubble {
+  max-width: 78% !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  white-space: pre-wrap !important;
+}
+
+.chatPage .chatBubble.user {
+  max-width: 72% !important;
+}
+
+.chatPage .chatBubbleRow {
+  min-width: 0 !important;
+}
+
+.chatPage .chatBubbleList {
+  overflow-x: hidden !important;
+}
+
+.chatPage .topUserDivider {
+  width: 1px;
+  height: 22px;
+  background: #d8e5f5;
+  margin: 0 4px;
+}
+
+.app.chatPage.dark .topUserDivider {
+  background: #334155;
+}
+
+/* 상단 사용자 영역: 관리자 | 공유 설정 */
+.chatPage .chatTopUserArea {
+  gap: 10px !important;
+}
+
+.chatPage .topUserDivider {
+  width: 1px;
+  height: 22px;
+  background: #d8e5f5;
+  margin: 0 2px 0 4px;
+  flex-shrink: 0;
+}
+
+.app.chatPage.dark .topUserDivider {
+  background: #334155;
+}
+
+.chatPage .topShareBtn {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d8e5f5;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #24384f;
+  font-size: 14px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(30, 80, 150, 0.06);
+  flex-shrink: 0;
+}
+
+.chatPage .topShareBtn:hover {
+  background: #f3f8ff;
+}
+
+.app.chatPage.dark .topShareBtn {
+  background: #111827;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+.app.chatPage.dark .topShareBtn:hover {
+  background: #1e293b;
+  border-color: #60a5fa;
+}
+
+/* 설정 버튼 앞에 생기던 선 제거 */
+.chatPage .topSettingBtn {
+  margin-left: 0 !important;
+}
+
+.chatPage .topShareSvg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .topShareSvg circle {
+  fill: none;
+}
+
+.chatPage .thinkingRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chatPage .thinkingText {
+  color: #94a3b8;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  animation: thinkingBlink 1s infinite ease-in-out;
+}
+
+@keyframes thinkingBlink {
+  0%, 100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.app.chatPage.dark .thinkingText {
+  color: #93c5fd;
+}
+
+.chatPage .uploadedFileArea.grid .uploadedFileItem {
+  position: relative !important;
+  height: 130px !important;
+  justify-content: flex-start !important;
+  padding-top: 8px !important;
+}
+
+.chatPage .uploadedFileArea.grid .sourceFileIcon {
+  width: 140px !important;
+  height: 140px !important;
+  object-fit: contain !important;
+  position: absolute !important;
+  top: 12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.chatPage .uploadedFileArea.grid .fileTextBox {
+  position: absolute !important;
+  top: 122px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 120px !important;
+}
+
+.chatPage .uploadedFileArea.list .sourceFileIcon {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.chatPage .uploadedFileArea.grid {
+  padding-top: 0 !important;
+}
+
+.chatPage .uploadedFileArea.grid .uploadedFileItem {
+  transform: translateY(-24px) !important;
+}
+
+.chatPage .uploadedFileArea.grid .uploadedFileItem:hover,
+.chatPage .uploadedFileArea.grid .uploadedFileItem.active {
+  transform: translateY(-16px) !important;
+}
+
+/* 내 폴더 상세 페이지: 공유 버튼 모달 */
+.shareConfirmBox {
+  margin: 12px 0 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f3f7ff;
+  border: 1px solid #d8e5f5;
+}
+
+.shareConfirmBox strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #1479ff;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.shareConfirmBox p {
+  margin: 0;
+  color: #687789;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notebookPage.dark .shareConfirmBox,
+.chatPage.dark .shareConfirmBox {
+  background: #111827;
+  border-color: #334155;
+}
+
+.notebookPage.dark .shareConfirmBox strong,
+.chatPage.dark .shareConfirmBox strong {
+  color: #9ec5ff;
+}
+
+.notebookPage.dark .shareConfirmBox p,
+.chatPage.dark .shareConfirmBox p {
+  color: #cbd5e1;
+}
+
+/* ============================= */
+/* 왼쪽 문서 목록 그리드 아이콘 크기 최종 보정 */
+/* ============================= */
+
+/* 기존 140px 아이콘을 조금 작게 줄임 */
+.chatPage .uploadedFileArea.grid .uploadedFileItem .sourceFileIcon,
+.chatPage .uploadedFileArea.grid .sourceFileIcon {
+  width: 120px !important;
+  height: 120px !important;
+  object-fit: contain !important;
+  top: 6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+/* 아이콘이 줄어든 만큼 파일명 위치도 위로 올림 */
+.chatPage .uploadedFileArea.grid .uploadedFileItem .fileTextBox,
+.chatPage .uploadedFileArea.grid .fileTextBox {
+  top: 98px !important;
+  width: 120px !important;
+}
+
+/* 카드 자체가 너무 위로 밀리는 값 완화 */
+.chatPage .uploadedFileArea.grid .uploadedFileItem {
+  height: 126px !important;
+  transform: translateY(-12px) !important;
+}
+
+.chatPage .uploadedFileArea.grid .uploadedFileItem:hover,
+.chatPage .uploadedFileArea.grid .uploadedFileItem.active {
+  transform: translateY(-8px) !important;
+}
+
+.inputArea.compactInput {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: 160px !important;
+  padding: 8px 10px 8px 16px !important;
+  border-radius: 24px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  overflow: hidden !important;
+}
+
+
+
+.inputArea.compactInput .chatInputTextarea {
+  flex: 1 !important;
+  width: 100% !important;
+
+  height: 22px;
+  min-height: 22px !important;
+  max-height: 132px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+
+  background: transparent !important;
+  color: inherit !important;
+
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 22px !important;
+
+  white-space: pre-wrap !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  overflow-y: auto !important;
+}
+
+.inputArea.compactInput .sendBtn {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  align-self: center !important;
+}
+
+/* 채팅 입력바: textarea + 오른쪽 아래 전송 버튼 */
+.inputArea.compactInput {
+  position: relative !important;
+
+  height: auto !important;
+  min-height: 50px !important;
+  max-height: 154px !important;
+
+  padding: 13px 12px 13px 18px !important;
+  border-radius: 26px !important;
+
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.inputArea.compactInput .chatInputTextarea {
+  width: 100% !important;
+
+  height: 22px;
+  min-height: 22px !important;
+  max-height: 140px !important;
+
+  padding: 0 58px 0 0 !important;
+  margin: 0 !important;
+
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+
+  background: transparent !important;
+  color: inherit !important;
+
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 22px !important;
+
+  white-space: pre-wrap !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+
+  scrollbar-width: thin !important;
+  scrollbar-color: #475569 transparent !important;
+}
+
+.inputArea.compactInput .sendBtn {
+  position: absolute !important;
+  right: 10px !important;
+  bottom: 8px !important;
+
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+
+  flex: none !important;
+  z-index: 3 !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+  border-radius: 999px !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+.chatPage.dark .inputArea.compactInput .chatInputTextarea {
+  color: #f8fafc !important;
+}
+
+.chatPage.dark .inputArea.compactInput .chatInputTextarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* 채팅 입력바: textarea + 오른쪽 아래 전송 버튼 */
+.inputArea.compactInput {
+  position: relative !important;
+
+  height: auto !important;
+  min-height: 50px !important;
+  max-height: 154px !important;
+
+  padding: 13px 12px 13px 18px !important;
+  border-radius: 26px !important;
+
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.inputArea.compactInput .chatInputTextarea {
+  width: 100% !important;
+
+  height: 22px;
+  min-height: 22px !important;
+  max-height: 104px !important;
+
+  padding: 0 58px 0 0 !important;
+  margin: 0 !important;
+
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+
+  background: transparent !important;
+  color: inherit !important;
+
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 22px !important;
+
+  white-space: pre-wrap !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+
+  scrollbar-width: thin !important;
+  scrollbar-color: #475569 transparent !important;
+}
+
+.inputArea.compactInput .sendBtn {
+  position: absolute !important;
+  right: 10px !important;
+  bottom: 8px !important;
+
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+
+  flex: none !important;
+  z-index: 3 !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+  border-radius: 999px !important;
+}
+
+.inputArea.compactInput .chatInputTextarea::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+.chatPage.dark .inputArea.compactInput .chatInputTextarea {
+  color: #f8fafc !important;
+}
+
+.chatPage.dark .inputArea.compactInput .chatInputTextarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* 진짜 textarea 스크롤바는 숨김: 글자 폭 안 줄어들게 */
+.rightChatPanel .inputArea.compactInput.chatComposer .chatInputTextarea {
+max-height: 154px !important;
+}
+
+
+.rightChatPanel .inputArea.compactInput.chatComposer {
+  max-height: 230px !important;
+}
+
+/* 한 줄 상태에서는 가짜 스크롤바 안 보이게 */
+.rightChatPanel .inputArea.compactInput.chatComposer:not(.expanded)::after {
+  display: none !important;
+}
+
+/* 입력값이 있을 때 오른쪽에 가짜 스크롤바 표시 */
+.rightChatPanel .inputArea.compactInput.chatComposer:has(.chatInputTextarea:not(:placeholder-shown))::after {
+  content: "" !important;
+  position: absolute !important;
+
+  right: 14px !important;
+  top: 18px !important;
+  bottom: 58px !important;
+
+  width: 4px !important;
+  border-radius: 999px !important;
+  background: #475569 !important;
+
+  pointer-events: none !important;
+  z-index: 5 !important;
+}
+
+/* 한 줄 입력바일 때는 너무 거슬리니까 숨김 */
+.rightChatPanel .inputArea.compactInput.chatComposer:not(.expanded)::after {
+  display: none !important;
+}
+
+/* 진짜 움직이는 textarea 스크롤바 */
+.rightChatPanel .inputArea.compactInput.chatComposer .chatInputTextarea {
+  overflow-y: auto !important;
+
+  /* 스크롤바 공간을 처음부터 잡아둬서 글자 폭이 갑자기 안 줄어듦 */
+  scrollbar-gutter: stable !important;
+
+  /* Firefox */
+  scrollbar-width: thin !important;
+  scrollbar-color: #475569 transparent !important;
+}
+
+.rightChatPanel .inputArea.compactInput.chatComposer .chatInputTextarea::-webkit-scrollbar {
+  display: block !important;
+  width: 6px !important;
+}
+
+.rightChatPanel .inputArea.compactInput.chatComposer .chatInputTextarea::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.rightChatPanel .inputArea.compactInput.chatComposer .chatInputTextarea::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+  border-radius: 999px !important;
+}
+
+.rightChatPanel .inputArea.compactInput.chatComposer .chatInputTextarea::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+/* 가짜 스크롤바 완전 제거 */
+.rightChatPanel .inputArea.compactInput.chatComposer.scrollable::after,
+.rightChatPanel .inputArea.compactInput.chatComposer::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* 전송 버튼 왼쪽으로 이동 */
+.rightChatPanel .inputArea.compactInput.chatComposer:not(.expanded) .sendBtn {
+  right: 34px !important;
+}
+
+/* 글 길어져서 아래 버튼줄 생겼을 때도 왼쪽으로 이동 */
+.rightChatPanel .inputArea.compactInput.chatComposer.expanded .sendBtn {
+  margin-right: 15px !important;
+}
+
+/* 한 줄 입력창 상태 전송 버튼 왼쪽으로 이동 */
+.rightChatPanel .inputArea.compactInput.chatComposer:not(.expanded) .sendBtn {
+  right: 25px !important;
 }

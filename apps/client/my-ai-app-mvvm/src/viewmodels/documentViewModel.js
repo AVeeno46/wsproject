@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { reviewSourceRequest } from '../models/sourceModel';
+import { fetchDocumentTextRequest } from '../models/sourceModel';
 
-export const useDocumentViewModel = (notebookId) => {
+export const useDocumentViewModel = () => {
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const viewDocument = async (fileId) => {
+    const viewDocument = async (sourceId) => {
         setIsLoading(true);
         try {
-            const data = await reviewSourceRequest(notebookId, fileId);
+            const data = await fetchDocumentTextRequest(sourceId);
             setSelectedDoc(data);
         } catch (err) {
             setError(err.message);

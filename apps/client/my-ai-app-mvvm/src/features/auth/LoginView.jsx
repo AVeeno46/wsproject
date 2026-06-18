@@ -3,12 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";
 import "../../styles/LoginPage.css";
 
-const ADMIN_ID = "admin";
-const ADMIN_PW = "alskdj13@";
-
 export function LoginView() {
   const navigate = useNavigate();
-  const { requestLogin, bypassLogin, isSubmitting, error } = useAuthViewModel();
+  const { requestLogin, isSubmitting, error } = useAuthViewModel();
 
   const [loginId, setLoginId] = useState("");
   const [loginPw, setLoginPw] = useState("");
@@ -18,50 +15,58 @@ export function LoginView() {
   useEffect(() => {
     const savedId = localStorage.getItem("savedLoginId");
     const savedPw = localStorage.getItem("savedLoginPw");
-    if (savedId && savedPw) {
+
+    if (savedId) {
       setLoginId(savedId);
-      setLoginPw(savedPw);
       setKeepLogin(true);
+    }
+
+    if (savedPw) {
+      setLoginPw(savedPw);
     }
   }, []);
 
+  const saveLoginInfo = (passwordForLogin) => {
+    if (keepLogin) {
+      localStorage.setItem("savedLoginId", loginId);
+
+      if (loginType === "normal") {
+        localStorage.setItem("savedLoginPw", passwordForLogin);
+      } else {
+        localStorage.removeItem("savedLoginPw");
+      }
+
+      return;
+    }
+
+    localStorage.removeItem("savedLoginId");
+    localStorage.removeItem("savedLoginPw");
+  };
+
   const handleLogin = async () => {
+    const id = loginId.trim();
+    const pw = loginPw.trim();
+
     if (loginType === "simple") {
-      if (!loginId.trim()) {
+      if (!id) {
         alert("아이디를 입력해주세요.");
         return;
       }
     } else {
-      if (!loginId.trim() || !loginPw.trim()) {
+      if (!id || !pw) {
         alert("아이디와 비밀번호를 입력해주세요.");
         return;
       }
     }
 
-    // 관리자 계정 로컬 처리
-    if (loginId === ADMIN_ID && loginPw === ADMIN_PW) {
-      if (keepLogin) {
-        localStorage.setItem("savedLoginId", loginId);
-        localStorage.setItem("savedLoginPw", loginPw);
-      } else {
-        localStorage.removeItem("savedLoginId");
-        localStorage.removeItem("savedLoginPw");
-      }
-      bypassLogin();
-      navigate("/dashboard");
-      return;
-    }
+    // 간편 로그인은 테스트용 기본 비밀번호 1234로 로그인합니다.
+    // qwer 계정은 간편 로그인에서도 바로 테스트할 수 있습니다.
+    const passwordForLogin = loginType === "simple" ? "1234" : pw;
 
-    // 일반 계정 서버 로그인
-    const success = await requestLogin(loginId, loginPw);
+    const success = await requestLogin(id, passwordForLogin);
+
     if (success) {
-      if (keepLogin) {
-        localStorage.setItem("savedLoginId", loginId);
-        localStorage.setItem("savedLoginPw", loginPw);
-      } else {
-        localStorage.removeItem("savedLoginId");
-        localStorage.removeItem("savedLoginPw");
-      }
+      saveLoginInfo(passwordForLogin);
       navigate("/dashboard");
     }
   };
@@ -75,8 +80,16 @@ export function LoginView() {
       <section className="loginShell">
         <div className="loginIntro">
           <div className="loginLogoGroup">
-            <img className="loginLogoMark" src="/assets/logo.png" alt="우송대학교 심볼" />
-            <img className="loginLogoText" src="/assets/logo2.png" alt="우송대학교 로고 텍스트" />
+            <img
+              className="loginLogoMark"
+              src="/assets/logo.png"
+              alt="우송대학교 심볼"
+            />
+            <img
+              className="loginLogoText"
+              src="/assets/logo2.png"
+              alt="우송대학교 로고 텍스트"
+            />
           </div>
 
           <div className="loginHero">
@@ -103,6 +116,7 @@ export function LoginView() {
                 <span>반복적인 문서 업무를 자동으로 처리해드려요</span>
               </div>
             </div>
+
             <div className="loginFeature">
               <div className="featureIcon green">🔍</div>
               <div>
@@ -110,6 +124,7 @@ export function LoginView() {
                 <span>원하는 정보를 빠르게 찾아드려요</span>
               </div>
             </div>
+
             <div className="loginFeature">
               <div className="featureIcon purple">💬</div>
               <div>
@@ -126,12 +141,15 @@ export function LoginView() {
               <button
                 className={loginType === "normal" ? "active" : ""}
                 onClick={() => setLoginType("normal")}
+                type="button"
               >
                 교번 로그인
               </button>
+
               <button
                 className={loginType === "simple" ? "active" : ""}
                 onClick={() => setLoginType("simple")}
+                type="button"
               >
                 간편 로그인
               </button>
@@ -173,16 +191,23 @@ export function LoginView() {
                   <span>로그인 상태 유지</span>
                 </label>
 
-                {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
+                {error && (
+                  <p style={{ color: "red", fontSize: "14px" }}>{error}</p>
+                )}
 
-                <button className="loginBtn" onClick={handleLogin} disabled={isSubmitting}>
+                <button
+                  className="loginBtn"
+                  onClick={handleLogin}
+                  disabled={isSubmitting}
+                  type="button"
+                >
                   {isSubmitting ? "로그인 중..." : "로그인"}
                 </button>
 
                 <div className="loginLinks">
-                  <button>아이디 찾기</button>
+                  <button type="button">아이디 찾기</button>
                   <span>|</span>
-                  <button>비밀번호 찾기</button>
+                  <button type="button">비밀번호 찾기</button>
                 </div>
               </>
             ) : (
@@ -209,16 +234,23 @@ export function LoginView() {
                   <span>아이디 저장</span>
                 </label>
 
-                {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
+                {error && (
+                  <p style={{ color: "red", fontSize: "14px" }}>{error}</p>
+                )}
 
-                <button className="loginBtn" onClick={handleLogin} disabled={isSubmitting}>
+                <button
+                  className="loginBtn"
+                  onClick={handleLogin}
+                  disabled={isSubmitting}
+                  type="button"
+                >
                   {isSubmitting ? "로그인 중..." : "로그인"}
                 </button>
 
                 <div className="loginLinks">
-                  <button>아이디 찾기</button>
+                  <button type="button">아이디 찾기</button>
                   <span>|</span>
-                  <button>비밀번호 재설정</button>
+                  <button type="button">비밀번호 재설정</button>
                 </div>
               </>
             )}

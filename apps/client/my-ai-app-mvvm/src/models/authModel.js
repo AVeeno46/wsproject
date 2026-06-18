@@ -1,28 +1,50 @@
-import { API_URL, IS_LOCAL } from '../constants/constants';
+import { API_URL } from "../constants/constants";
 
-export const loginRequest = async (id, password) => {
-    if (IS_LOCAL) {
-        // 로컬 모드: 서버 없이 입력한 아이디로 임시 로그인
-        return { token: `local-token-${id}` };
-    }
+const TEST_USERS = [
+  {
+    email: "admin",
+    password: "alskdj13@",
+    accessToken: "mock-admin-token",
+    user: {
+      id: "admin",
+      name: "관리자",
+      role: "관리자",
+    },
+  },
+  {
+    email: "qwer",
+    password: "1234",
+    accessToken: "mock-user-token",
+    user: {
+      id: "qwer",
+      name: "최서연",
+      role: "학생",
+    },
+  },
+];
 
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, password }),
-    });
-    if (!response.ok) throw new Error('아이디 또는 비밀번호가 올바르지 않습니다.');
-    return response.json(); // { token }
-};
+// id or email?
+export const loginRequest = async (email, password) => {
+  const testUser = TEST_USERS.find(
+    (user) => user.email === email && user.password === password
+  );
 
-export const logoutRequest = async (id) => {
-    if (IS_LOCAL) return true;
+  if (testUser) {
+    return {
+      accessToken: testUser.accessToken,
+      user: testUser.user,
+    };
+  }
 
-    const token = localStorage.getItem('accessToken');
-    const response = await fetch(`${API_URL}/auth/logout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ id }),
-    });
-    return response.ok;
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error("아이디 또는 비밀번호가 올바르지 않습니다.");
+  }
+
+  return response.json(); // { accessToken, user }
 };

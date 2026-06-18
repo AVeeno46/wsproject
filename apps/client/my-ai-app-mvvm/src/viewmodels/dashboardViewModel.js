@@ -6,13 +6,6 @@ import {
     updateNotebookTitleRequest,
 } from '../models/notebookModel';
 
-// 서버 필드(dashboard_id, dashboard_name)를 뷰 필드(id, title)로 매핑
-const mapNotebook = (n) => ({
-    ...n,
-    id: n.dashboard_id ?? n.id,
-    title: n.dashboard_name ?? n.title,
-});
-
 export const useDashboardViewModel = () => {
     const [notebooks, setNotebooks] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -22,7 +15,7 @@ export const useDashboardViewModel = () => {
         setLoading(true);
         try {
             const data = await fetchNotebooksRequest();
-            setNotebooks(data.map(mapNotebook));
+            setNotebooks(data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -34,7 +27,7 @@ export const useDashboardViewModel = () => {
         try {
             const newNotebook = await createNotebookRequest(title);
             await fetchNotebooks();
-            return mapNotebook(newNotebook);
+            return newNotebook;
         } catch (err) {
             setError(err.message);
             return null;
@@ -52,15 +45,17 @@ export const useDashboardViewModel = () => {
 
     const updateNotebookTitle = async (notebookId, title) => {
         try {
-            const updated = await updateNotebookTitleRequest(notebookId, title);
+            const updatedNotebook = await updateNotebookTitleRequest(notebookId, title);
+
             setNotebooks((prev) =>
-                prev.map((n) =>
-                    String(n.id) === String(notebookId)
-                        ? { ...n, title: updated?.title || title }
-                        : n
+                prev.map((note) =>
+                    String(note.id) === String(notebookId)
+                        ? { ...note, title: updatedNotebook?.title || title }
+                        : note
                 )
             );
-            return updated;
+
+            return updatedNotebook;
         } catch (err) {
             setError(err.message);
             return null;
