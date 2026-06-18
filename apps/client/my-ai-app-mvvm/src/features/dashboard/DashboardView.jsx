@@ -67,7 +67,10 @@ export function DashboardView() {
 
     const newNotebook = await createNotebook(title);
     closeCreateModal();
-    if (newNotebook?.id) navigate(`/notebook/${newNotebook.id}`);
+    if (newNotebook?.id) {
+      localStorage.setItem(`notebookTitle:${newNotebook.id}`, newNotebook.title || title);
+      navigate(`/notebook/${newNotebook.id}`, { state: { title: newNotebook.title || title } });
+    }
   };
 
   const handleRenameOpen = (note) => {
@@ -200,7 +203,7 @@ export function DashboardView() {
                 viewMode="grid"
                 openMenuId={openMenuId}
                 setOpenMenuId={setOpenMenuId}
-                onOpen={(n) => navigate(`/notebook/${n.id}`)}
+                onOpen={(n) => navigate(`/notebook/${n.id}`, { state: { title: n.title } })}
                 onDelete={(n) => { setDeleteTarget(n); setOpenMenuId(null); }}
                 onRename={handleRenameOpen}
                 onPin={handlePin}
@@ -223,7 +226,7 @@ export function DashboardView() {
                 viewMode="list"
                 openMenuId={openMenuId}
                 setOpenMenuId={setOpenMenuId}
-                onOpen={(n) => navigate(`/notebook/${n.id}`)}
+                onOpen={(n) => navigate(`/notebook/${n.id}`, { state: { title: n.title } })}
                 onDelete={(n) => { setDeleteTarget(n); setOpenMenuId(null); }}
                 onRename={handleRenameOpen}
                 onPin={handlePin}
