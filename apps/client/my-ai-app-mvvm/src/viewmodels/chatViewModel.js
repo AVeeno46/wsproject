@@ -1,3 +1,6 @@
+// [ViewModel] 채팅 화면의 상태와 로직을 담는 hook.
+// 대화 목록(chatHistory) 관리, 메시지 전송, 스트리밍 응답을 화면 상태로 반영합니다.
+// model(chatModel)에서 데이터를 가져오고, View(ChatPanel)는 이 hook만 사용합니다.
 import { useEffect, useState } from "react";
 import { fetchChatHistoryRequest, streamChatRequest } from "../models/chatModel";
 

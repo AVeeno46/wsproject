@@ -1,5 +1,7 @@
+// [View] 노트 상세 화면 (3분할: 왼쪽 소스 / 가운데 문서 / 오른쪽 채팅).
+// 여러 ViewModel(소스·채팅 등)을 연결해 화면을 구성하는 메인 작업 공간입니다.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useSourceViewModel } from "../../viewmodels/sourceViewModel";
 import { useChatViewModel } from "../../viewmodels/chatViewModel";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";
@@ -36,10 +38,6 @@ const getSourceKeys = (source) => {
   return [...new Set(keys.filter(Boolean))];
 };
 
-const getSourceKey = (source) => {
-  return getSourceKeys(source)[0] || "";
-};
-
 const isDeletedSource = (source, deletedKeys) => {
   const sourceKeys = getSourceKeys(source);
   return sourceKeys.some((key) => deletedKeys.includes(key));
@@ -51,7 +49,6 @@ const getSourceName = (source) => {
 
 export function NoteDetailView() {
   const { notebookId } = useParams();
-  const navigate = useNavigate();
   const location = useLocation();
 
   const isSharedFolder =
@@ -118,7 +115,7 @@ export function NoteDetailView() {
   const sharedFolderMeta = getSharedFolderMeta();
   const sourceNotebookId = sharedFolderMeta?.sourceNotebookId || notebookId;
 
-  const { sources, isUploading, uploadFile } =
+  const { sources, isUploading, uploadError, clearUploadError, uploadFile } =
     useSourceViewModel(sourceNotebookId);
 
   const chatRoomId = sourceNotebookId || notebookId;
@@ -539,6 +536,8 @@ const isCurrentNotebookAlreadyShared = (() => {
       <SourceSidebar
         sources={visibleSources}
         isUploading={isUploading}
+        uploadError={uploadError}
+        clearUploadError={clearUploadError}
         uploadFile={uploadFile}
         activeSource={activeSource}
         setActiveSource={setActiveSource}

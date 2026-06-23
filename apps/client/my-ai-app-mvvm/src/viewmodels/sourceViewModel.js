@@ -1,3 +1,5 @@
+// [ViewModel] 소스(파일) 영역의 상태와 로직을 담는 hook.
+// 노트북별 파일 목록 로딩과 업로드를 처리하고, 업로드 중/에러 상태를 관리합니다.
 import { useEffect, useState } from "react";
 import {
   fetchSourcesRequest,
@@ -7,6 +9,7 @@ import {
 export function useSourceViewModel(notebookId) {
   const [sources, setSources] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -49,6 +52,7 @@ export function useSourceViewModel(notebookId) {
     }
 
     setIsUploading(true);
+    setUploadError(null);
 
     try {
       const newSource = await uploadSourceRequest(notebookId, file);
@@ -63,16 +67,20 @@ return [...prev, newSource];      });
       return newSource;
     } catch (error) {
       console.error("파일 업로드 실패:", error);
-      alert(error.message || "파일 업로드에 실패했습니다.");
+      setUploadError(error.message || "파일 업로드에 실패했습니다.");
       return null;
     } finally {
       setIsUploading(false);
     }
   };
 
+  const clearUploadError = () => setUploadError(null);
+
   return {
     sources,
     isUploading,
+    uploadError,
+    clearUploadError,
     uploadFile,
   };
 }

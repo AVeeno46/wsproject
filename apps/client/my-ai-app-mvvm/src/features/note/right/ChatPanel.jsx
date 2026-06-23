@@ -1,3 +1,5 @@
+// [View] 오른쪽 채팅 패널.
+// 대화 목록을 그리고 입력창을 제공하며, 전송 시 sendMessage(ViewModel)를 호출합니다.
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "./ChatMessage";
 

@@ -1,3 +1,6 @@
+// [ViewModel] 인증 화면의 상태와 로직을 담는 hook.
+// 로그인/로그아웃 동작과 진행상태(isSubmitting)·에러를 관리하고,
+// 실제 로그인 정보는 AuthContext(전역 상태)에 저장합니다.
 import { useContext, useState } from 'react';
 import { AuthContext } from '../core/AuthContext';
 import { loginRequest } from '../models/authModel';

@@ -1,3 +1,6 @@
+// [View] 로그인 화면.
+// 입력값(아이디/비밀번호) 같은 화면 상태만 직접 들고,
+// 실제 로그인 처리는 useAuthViewModel(ViewModel)에 맡깁니다.
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";

@@ -1,3 +1,5 @@
+// [ViewModel] 대시보드 화면의 상태와 로직을 담는 hook.
+// 노트북 목록 로딩/생성/삭제/제목수정을 처리하고 loading·error 상태를 관리합니다.
 import { useState, useEffect } from 'react';
 import {
     fetchNotebooksRequest,
@@ -35,11 +37,15 @@ export const useDashboardViewModel = () => {
     };
 
     const removeNotebook = async (notebookId) => {
-        const success = await deleteNotebookRequest(notebookId);
-        if (success) {
-            setNotebooks((prev) => prev.filter((n) => n.id !== notebookId));
-        } else {
-            setError('삭제에 실패했습니다.');
+        try {
+            const success = await deleteNotebookRequest(notebookId);
+            if (success) {
+                setNotebooks((prev) => prev.filter((n) => n.id !== notebookId));
+            } else {
+                setError('삭제에 실패했습니다.');
+            }
+        } catch (err) {
+            setError(err.message);
         }
     };
 

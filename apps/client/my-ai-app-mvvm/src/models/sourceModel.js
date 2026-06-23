@@ -1,5 +1,8 @@
+// [Model] 소스(업로드 파일) 데이터 계층.
+// 파일 목록 조회/업로드, 문서 텍스트 조회를 담당합니다.
+// IS_LOCAL이면 서버 대신 localStorage에 저장합니다.
 import { API_URL, IS_LOCAL, MAX_FILE_SIZE_MB } from "../constants/constants";
-import { getAuthHeader, handleUnauthorized } from "./modelUtils";
+import { apiFetch, getAuthHeader, handleUnauthorized } from "./modelUtils";
 
 const lsKey = (notebookId) => `local_sources_${notebookId}`;
 
@@ -12,7 +15,11 @@ const getLocalSources = (notebookId) => {
 };
 
 const saveLocalSources = (notebookId, list) => {
-  localStorage.setItem(lsKey(notebookId), JSON.stringify(list));
+  try {
+    localStorage.setItem(lsKey(notebookId), JSON.stringify(list));
+  } catch {
+    // localStorage 사용 불가(용량 초과/시크릿 모드) 시 새로고침 후 초기화됩니다.
+  }
 };
 
 // 대시보드 카드의 "소스 개수" 계산용 — 삭제된 소스를 제외한 로컬 소스 수.
@@ -58,7 +65,7 @@ export const getLocalSourceCount = (notebookId) => {
 export const fetchSourcesRequest = async (notebookId) => {
   if (IS_LOCAL) return getLocalSources(notebookId);
 
-  const response = await fetch(`${API_URL}/source?notebookId=${notebookId}`, {
+  const response = await apiFetch(`${API_URL}/source?notebookId=${notebookId}`, {
     method: "GET",
     headers: { ...getAuthHeader() },
   });
@@ -102,7 +109,7 @@ saveLocalSources(notebookId, [...sources, newSource]);
   formData.append("file", fileObject);
   formData.append("notebookId", notebookId);
 
-  const response = await fetch(`${API_URL}/source/upload`, {
+  const response = await apiFetch(`${API_URL}/source/upload`, {
     method: "POST",
     headers: { ...getAuthHeader() },
     body: formData,
@@ -117,7 +124,7 @@ saveLocalSources(notebookId, [...sources, newSource]);
 export const fetchDocumentTextRequest = async (sourceId) => {
   if (IS_LOCAL) return "로컬 모드에서는 문서 텍스트를 불러올 수 없습니다.";
 
-  const response = await fetch(`${API_URL}/source/${sourceId}/text`, {
+  const response = await apiFetch(`${API_URL}/source/${sourceId}/text`, {
     method: "GET",
     headers: { ...getAuthHeader() },
   });

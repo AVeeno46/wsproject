@@ -1,3 +1,5 @@
+// [ViewModel] 문서 뷰어의 상태와 로직을 담는 hook.
+// 선택한 소스의 텍스트를 불러와 화면에 표시하고 로딩/에러 상태를 관리합니다.
 import { useState } from 'react';
 import { fetchDocumentTextRequest } from '../models/sourceModel';
 

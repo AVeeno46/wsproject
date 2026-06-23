@@ -1,3 +1,5 @@
+// [View] 왼쪽 소스(파일) 사이드바.
+// 업로드한 파일 목록을 보여주고, 파일 추가(업로드)·삭제 동작을 처리합니다.
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SourceItem } from "./SourceItem";
@@ -5,6 +7,8 @@ import { SourceItem } from "./SourceItem";
 export function SourceSidebar({
   sources,
   isUploading,
+  uploadError,
+  clearUploadError,
   uploadFile,
   activeSource,
   setActiveSource,
@@ -262,6 +266,20 @@ const handleFileChange = async (e) => {
       )}
 
       <div className="bottomMenu">
+        {uploadError && isSidebarOpen && (
+          <div className="uploadErrorBanner" role="alert">
+            <span>{uploadError}</span>
+            <button
+              type="button"
+              className="uploadErrorClose"
+              onClick={() => clearUploadError?.()}
+              aria-label="에러 메시지 닫기"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
         <button
           className="menuBtn"
           type="button"

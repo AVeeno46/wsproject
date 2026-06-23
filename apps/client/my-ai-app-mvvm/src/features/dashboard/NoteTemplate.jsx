@@ -57,7 +57,7 @@ export function NoteTemplate({
     onDelete?.(note);
   };
 
-  const ContextMenu = () => (
+  const contextMenu = (
     <div
       className={`notebookMenu ${viewMode === "list" ? "listMenu" : ""}`}
       onClick={(e) => e.stopPropagation()}
@@ -113,7 +113,7 @@ export function NoteTemplate({
             ⋮
           </button>
 
-          {isMenuOpen && <ContextMenu />}
+          {isMenuOpen && contextMenu}
         </div>
       </div>
     );
@@ -132,7 +132,7 @@ export function NoteTemplate({
         ⋮
       </button>
 
-      {isMenuOpen && <ContextMenu />}
+      {isMenuOpen && contextMenu}
 
       {note.pinned && (
         <div className="pinBadge">

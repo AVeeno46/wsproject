@@ -1,10 +1,12 @@
+// [Model] 채팅(AI 챗봇) 데이터 계층.
+// 채팅 히스토리 조회와, AI 답변을 스트리밍으로 받아오는 요청을 담당합니다.
 import { API_URL, IS_LOCAL } from '../constants/constants';
-import { getAuthHeader, handleUnauthorized } from './modelUtils';
+import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 
 export const fetchChatHistoryRequest = async (notebookId) => {
     if (IS_LOCAL) return [];
 
-    const response = await fetch(`${API_URL}/chat/history?notebookId=${notebookId}`, {
+    const response = await apiFetch(`${API_URL}/chat/history?notebookId=${notebookId}`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
     });
@@ -13,7 +15,9 @@ export const fetchChatHistoryRequest = async (notebookId) => {
     return response.json();
 };
 
+// AI 답변을 스트리밍으로 받아오며, 도착하는 조각마다 onChunk(text)를 호출합니다.
 export const streamChatRequest = async (notebookId, query, onChunk) => {
+    // [로컬 모드] 서버 없이 고정 문자열을 한 글자씩 흘려보내 스트리밍을 흉내냅니다.
     if (IS_LOCAL) {
         const reply = `[로컬 테스트] "${query}"에 대한 답변입니다. 서버 연결 후 실제 AI 응답이 표시됩니다.`;
         for (const char of reply) {
@@ -23,7 +27,9 @@ export const streamChatRequest = async (notebookId, query, onChunk) => {
         return;
     }
 
-    const response = await fetch(`${API_URL}/chat/stream`, {
+    // [서버 모드] 실제 HTTP 스트림을 청크 단위로 읽어 SSE 포맷(data:)을 파싱합니다.
+
+    const response = await apiFetch(`${API_URL}/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({ notebookId, query }),

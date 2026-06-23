@@ -1,3 +1,6 @@
+// [Core] 다크/라이트 테마를 앱 전역에서 공유하는 Context.
+// 선택한 테마는 localStorage에 저장해 새로고침 후에도 유지됩니다.
+// 화면에서는 useTheme() 한 줄로 현재 테마와 변경 함수를 꺼내 씁니다.
 import { createContext, useContext, useState } from 'react';
 
 const ThemeContext = createContext(null);

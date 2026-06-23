@@ -1,3 +1,6 @@
+// [View] 대시보드 화면.
+// 내 노트북 목록과 공유폴더를 보여주고, 생성/삭제/공유 등의 동작을
+// ViewModel(useDashboardViewModel / useSharedFolderViewModel)에 위임합니다.
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDashboardViewModel } from "../../viewmodels/dashboardViewModel";

@@ -1,15 +1,31 @@
 import { API_URL, IS_LOCAL } from '../constants/constants';
-import { getAuthHeader, handleUnauthorized } from './modelUtils';
+// [Model] 노트북(폴더) 데이터 계층.
+// 노트북 목록 조회/생성/삭제/제목수정(CRUD)을 담당합니다.
+// IS_LOCAL이면 서버 대신 localStorage에 저장합니다.
+import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 
-const LS_KEY = 'local_notebooks';
+const LS_KEY = 'local_notebooks'; // 로컬 모드에서 노트북 목록을 저장하는 키
 
-const getLocalNotebooks = () => JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-const saveLocalNotebooks = (list) => localStorage.setItem(LS_KEY, JSON.stringify(list));
+const getLocalNotebooks = () => {
+    try {
+        return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    } catch {
+        return [];
+    }
+};
+
+const saveLocalNotebooks = (list) => {
+    try {
+        localStorage.setItem(LS_KEY, JSON.stringify(list));
+    } catch {
+        // localStorage 사용 불가(용량 초과/시크릿 모드) 시 새로고침 후 초기화됩니다.
+    }
+};
 
 export const fetchNotebooksRequest = async () => {
     if (IS_LOCAL) return getLocalNotebooks();
 
-    const response = await fetch(`${API_URL}/notebooks`, {
+    const response = await apiFetch(`${API_URL}/notebooks`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
     });
@@ -26,7 +42,7 @@ export const createNotebookRequest = async (title) => {
         return newNotebook;
     }
 
-    const response = await fetch(`${API_URL}/notebooks/create`, {
+    const response = await apiFetch(`${API_URL}/notebooks/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({ title }),
@@ -43,7 +59,7 @@ export const deleteNotebookRequest = async (notebookId) => {
         return true;
     }
 
-    const response = await fetch(`${API_URL}/notebooks/${notebookId}`, {
+    const response = await apiFetch(`${API_URL}/notebooks/${notebookId}`, {
         method: 'DELETE',
         headers: { ...getAuthHeader() },
     });
@@ -57,7 +73,7 @@ export const fetchNotebookByIdRequest = async (notebookId) => {
         return notebooks.find((n) => String(n.id) === String(notebookId)) || null;
     }
 
-    const response = await fetch(`${API_URL}/notebooks/${notebookId}`, {
+    const response = await apiFetch(`${API_URL}/notebooks/${notebookId}`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
     });
@@ -82,7 +98,7 @@ export const updateNotebookTitleRequest = async (notebookId, title) => {
         return updatedNotebooks.find((n) => String(n.id) === String(notebookId));
     }
 
-    const response = await fetch(`${API_URL}/notebooks/${notebookId}`, {
+    const response = await apiFetch(`${API_URL}/notebooks/${notebookId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({ title }),

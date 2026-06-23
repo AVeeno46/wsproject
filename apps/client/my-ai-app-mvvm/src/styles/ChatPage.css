@@ -488,6 +488,43 @@
   margin-top: 0;
 }
 
+/* 파일 업로드 에러 배너 (이전 alert 대체) */
+.chatPage .uploadErrorBanner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px solid #f3c2c2;
+  border-radius: 8px;
+  background: #fdecec;
+  color: #b42318;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.chatPage .uploadErrorClose {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #b42318;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.app.chatPage.dark .uploadErrorBanner {
+  border-color: #5a2a2a;
+  background: #2a1414;
+  color: #f3b4b4;
+}
+
+.app.chatPage.dark .uploadErrorClose {
+  color: #f3b4b4;
+}
+
 .chatPage .sidebar.closed .bottomMenu {
   margin-top: auto;
   padding: 18px 0;
