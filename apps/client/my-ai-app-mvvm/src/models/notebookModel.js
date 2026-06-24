@@ -1,10 +1,11 @@
-import { API_URL, IS_LOCAL } from '../constants/constants';
-// [Model] 노트북(폴더) 데이터 계층.
-// 노트북 목록 조회/생성/삭제/제목수정(CRUD)을 담당합니다.
+import { SERVER_URL, IS_LOCAL } from '../constants/constants';
+// [Model] 개인폴더 데이터 계층.
+// 폴더 목록 조회/생성/삭제/제목수정(CRUD)을 담당합니다.
 // IS_LOCAL이면 서버 대신 localStorage에 저장합니다.
 import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 
 const LS_KEY = 'local_notebooks'; // 로컬 모드에서 노트북 목록을 저장하는 키
+const BASE = `${SERVER_URL}/dashboard/individual`;
 
 const getLocalNotebooks = () => {
     try {
@@ -22,16 +23,20 @@ const saveLocalNotebooks = (list) => {
     }
 };
 
+// 서버 응답 필드(folder_id, folder_name)를 클라이언트 필드(id, title)로 변환
+const toClient = (folder) => ({ id: String(folder.folder_id), title: folder.folder_name });
+
 export const fetchNotebooksRequest = async () => {
     if (IS_LOCAL) return getLocalNotebooks();
 
-    const response = await apiFetch(`${API_URL}/notebooks`, {
+    const response = await apiFetch(`${BASE}/get-all`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
     });
     if (response.status === 401) return handleUnauthorized();
-    if (!response.ok) throw new Error('노트북 목록을 불러오지 못했습니다.');
-    return response.json();
+    if (!response.ok) throw new Error('폴더 목록을 불러오지 못했습니다.');
+    const data = await response.json();
+    return data.map(toClient);
 };
 
 export const createNotebookRequest = async (title) => {
@@ -42,14 +47,14 @@ export const createNotebookRequest = async (title) => {
         return newNotebook;
     }
 
-    const response = await apiFetch(`${API_URL}/notebooks/create`, {
+    const response = await apiFetch(`${BASE}/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ name: title }),
     });
     if (response.status === 401) return handleUnauthorized();
-    if (!response.ok) throw new Error('노트북 생성에 실패했습니다.');
-    return response.json();
+    if (!response.ok) throw new Error('폴더 생성에 실패했습니다.');
+    return toClient(await response.json());
 };
 
 export const deleteNotebookRequest = async (notebookId) => {
@@ -59,9 +64,10 @@ export const deleteNotebookRequest = async (notebookId) => {
         return true;
     }
 
-    const response = await apiFetch(`${API_URL}/notebooks/${notebookId}`, {
+    const response = await apiFetch(`${BASE}/delete`, {
         method: 'DELETE',
-        headers: { ...getAuthHeader() },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ folder_id: Number(notebookId) }),
     });
     if (response.status === 401) return handleUnauthorized();
     return response.ok;
@@ -73,39 +79,35 @@ export const fetchNotebookByIdRequest = async (notebookId) => {
         return notebooks.find((n) => String(n.id) === String(notebookId)) || null;
     }
 
-    const response = await apiFetch(`${API_URL}/notebooks/${notebookId}`, {
+    const allResponse = await apiFetch(`${BASE}/get-all`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
     });
-
-    if (response.status === 401) return handleUnauthorized();
-    if (!response.ok) throw new Error('노트북 정보를 불러오지 못했습니다.');
-    return response.json();
+    if (allResponse.status === 401) return handleUnauthorized();
+    if (!allResponse.ok) throw new Error('폴더 정보를 불러오지 못했습니다.');
+    const data = await allResponse.json();
+    const found = data.find((f) => String(f.folder_id) === String(notebookId));
+    return found ? toClient(found) : null;
 };
 
 export const updateNotebookTitleRequest = async (notebookId, title) => {
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
-
         const updatedNotebooks = notebooks.map((n) =>
             String(n.id) === String(notebookId)
                 ? { ...n, title, updatedAt: new Date().toISOString() }
                 : n
         );
-
         saveLocalNotebooks(updatedNotebooks);
-
         return updatedNotebooks.find((n) => String(n.id) === String(notebookId));
     }
 
-    const response = await apiFetch(`${API_URL}/notebooks/${notebookId}`, {
+    const response = await apiFetch(`${BASE}/update`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ folder_id: Number(notebookId), name: title }),
     });
-
     if (response.status === 401) return handleUnauthorized();
-    if (!response.ok) throw new Error('노트북 제목 수정에 실패했습니다.');
-    return response.json();
+    if (!response.ok) throw new Error('폴더 제목 수정에 실패했습니다.');
+    return toClient(await response.json());
 };
-

@@ -1,12 +1,9 @@
 // [Model] 인증(로그인) 데이터 계층.
 // 1) /token/creation-refresh-token 으로 로그인 → access token + refresh-token 쿠키 수령
-// 2) /member/me 로 유저 정보 조회 → { accessToken, user } 조합 반환
+// 2) /member/my-name 으로 유저 이름 조회
 // 3) /token/creation-access-token 으로 토큰 갱신 (refresh-token 쿠키 자동 전송)
 import { SERVER_URL } from "../constants/constants";
 import { apiFetch } from "./modelUtils";
-
-// ⚠️ 서버 유저 정보 엔드포인트 — 실제 경로 확인 후 수정
-const USER_PROFILE_URL = `${SERVER_URL}/member/me`;
 
 // 서버 미연결 상태에서 로그인 테스트용으로 쓰는 가짜 계정 목록
 const TEST_USERS = [
@@ -46,21 +43,17 @@ export const loginRequest = async (email, password) => {
 
   const accessToken = await loginResponse.text();
 
-  // 2단계: 발급된 토큰으로 유저 정보 조회
-  const profileResponse = await apiFetch(USER_PROFILE_URL, {
+  const nameResponse = await apiFetch(`${SERVER_URL}/member/my-name`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
+  if (!nameResponse.ok) throw new Error("유저 정보를 불러오지 못했습니다.");
+  const { name } = await nameResponse.json();
 
-  if (!profileResponse.ok) {
-    throw new Error("유저 정보를 불러오지 못했습니다.");
-  }
-
-  const user = await profileResponse.json();
-
-  return { accessToken, user };
+  return { accessToken, user: { name } };
 };
 
 // 만료된 access token + refresh-token 쿠키로 새 access token 발급
+// 자동 재발급은 modelUtils.js의 apiFetch()가 처리하므로 직접 호출할 일은 거의 없음
 export const refreshTokenRequest = async (expiredToken) => {
   const response = await apiFetch(`${SERVER_URL}/token/creation-access-token`, {
     method: "POST",

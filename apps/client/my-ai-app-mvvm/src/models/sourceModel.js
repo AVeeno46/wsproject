@@ -105,14 +105,15 @@ saveLocalSources(notebookId, [...sources, newSource]);
     return newSource;
   }
 
-  const formData = new FormData();
-  formData.append("file", fileObject);
-  formData.append("notebookId", notebookId);
-
   const response = await apiFetch(`${API_URL}/source/upload`, {
     method: "POST",
-    headers: { ...getAuthHeader() },
-    body: formData,
+    headers: {
+      "Content-Type": "application/octet-stream",
+      "X-File-Name": encodeURIComponent(fileObject.name),
+      "X-Notebook-Id": String(notebookId),
+      ...getAuthHeader(),
+    },
+    body: fileObject,
   });
 
   if (response.status === 401) return handleUnauthorized();
