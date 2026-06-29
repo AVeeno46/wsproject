@@ -26,13 +26,20 @@ export const useDashboardViewModel = () => {
     };
 
     const createNotebook = async (title) => {
+        const trimmed = title.trim().toLowerCase();
+        const isDuplicate = notebooks.some((n) => n.title.trim().toLowerCase() === trimmed);
+        if (isDuplicate) {
+            const err = new Error('같은 이름의 폴더가 이미 있습니다.');
+            setError(err.message);
+            throw err;
+        }
         try {
             const newNotebook = await createNotebookRequest(title);
             await fetchNotebooks();
             return newNotebook;
         } catch (err) {
             setError(err.message);
-            return null;
+            throw err;
         }
     };
 
@@ -42,14 +49,26 @@ export const useDashboardViewModel = () => {
             if (success) {
                 setNotebooks((prev) => prev.filter((n) => n.id !== notebookId));
             } else {
-                setError('삭제에 실패했습니다.');
+                const err = new Error('삭제에 실패했습니다.');
+                setError(err.message);
+                throw err;
             }
         } catch (err) {
             setError(err.message);
+            throw err;
         }
     };
 
     const updateNotebookTitle = async (notebookId, title) => {
+        const trimmed = title.trim().toLowerCase();
+        const isDuplicate = notebooks.some(
+            (n) => String(n.id) !== String(notebookId) && n.title.trim().toLowerCase() === trimmed
+        );
+        if (isDuplicate) {
+            const err = new Error('같은 이름의 폴더가 이미 있습니다.');
+            setError(err.message);
+            throw err;
+        }
         try {
             const updatedNotebook = await updateNotebookTitleRequest(notebookId, title);
 
@@ -64,7 +83,7 @@ export const useDashboardViewModel = () => {
             return updatedNotebook;
         } catch (err) {
             setError(err.message);
-            return null;
+            throw err;
         }
     };
 

@@ -1,41 +1,42 @@
 import { useState, useEffect, useCallback } from 'react';
+import { IS_LOCAL } from '../constants/constants';
 import * as sharedFolderModel from '../models/sharedFolderModel';
 
 // 공유폴더 상태와 비즈니스 로직을 담당하는 ViewModel.
 // 모달/메뉴 같은 순수 UI 상태는 View(DashboardView)에 남겨둡니다.
 export const useSharedFolderViewModel = ({ currentUserId, profileName }) => {
-    const [joinedSharedFolders, setJoinedSharedFolders] = useState(() =>
-        sharedFolderModel.loadJoinedSharedFolders(currentUserId)
-    );
-    const [ownedSharedFolders, setOwnedSharedFolders] = useState(() =>
-        sharedFolderModel.loadOwnedSharedFolders(currentUserId)
-    );
-    const [allSharedFolders, setAllSharedFolders] = useState(() =>
-        sharedFolderModel.loadAllSharedFolders()
-    );
+    const [joinedSharedFolders, setJoinedSharedFolders] = useState([]);
+    const [ownedSharedFolders, setOwnedSharedFolders] = useState([]);
+    const [allSharedFolders, setAllSharedFolders] = useState([]);
     const [sharedSearchResults, setSharedSearchResults] = useState([]);
     const [isSharedSearching, setIsSharedSearching] = useState(false);
 
-    // 로그인 계정이 바뀌면 해당 계정의 목록으로 다시 로드합니다.
+    // 마운트 / 계정 변경 시 서버(또는 localStorage)에서 목록 로드
     useEffect(() => {
-        setJoinedSharedFolders(sharedFolderModel.loadJoinedSharedFolders(currentUserId));
-        setOwnedSharedFolders(sharedFolderModel.loadOwnedSharedFolders(currentUserId));
-        setAllSharedFolders(sharedFolderModel.loadAllSharedFolders());
+        if (!currentUserId) return;
+        sharedFolderModel.fetchAllSharedFoldersRequest(currentUserId).then(({ owned, joined, all }) => {
+            setOwnedSharedFolders(owned);
+            setJoinedSharedFolders(joined);
+            setAllSharedFolders(all);
+        });
     }, [currentUserId]);
 
+    // [로컬] 상태 변경 시 localStorage에 동기화 (서버 모드에서는 서버가 source of truth)
     useEffect(() => {
+        if (!IS_LOCAL) return;
         sharedFolderModel.persistJoinedSharedFolders(currentUserId, joinedSharedFolders);
     }, [joinedSharedFolders, currentUserId]);
 
     useEffect(() => {
+        if (!IS_LOCAL) return;
         sharedFolderModel.persistOwnedSharedFolders(currentUserId, ownedSharedFolders);
-        // 내가 만든 공유폴더도 검색용 전체 목록에 같이 살려둡니다.
         setAllSharedFolders((prev) =>
             sharedFolderModel.dedupeFolders([...prev, ...ownedSharedFolders])
         );
     }, [ownedSharedFolders, currentUserId]);
 
     useEffect(() => {
+        if (!IS_LOCAL) return;
         sharedFolderModel.persistAllSharedFolders(allSharedFolders);
     }, [allSharedFolders]);
 
@@ -54,30 +55,28 @@ export const useSharedFolderViewModel = ({ currentUserId, profileName }) => {
         return [folder, ...list];
     };
 
-    // 공유폴더 신규 생성 (제목 + 암호). 생성된 폴더를 반환합니다.
+    // 공유폴더 신규 생성. 성공 시 생성된 폴더를 반환합니다.
     const createSharedFolder = useCallback(
-        (title, password) => {
-            const newSharedFolder = {
-                id: `owned-shared-${Date.now()}`,
-                title,
-                owner: profileName,
-                ownerId: currentUserId,
-                department: '우송대학교',
-                members: 1,
-                code: sharedFolderModel.makeSharedCode(),
-                description: `${profileName}님이 만든 공유폴더입니다.`,
-                createdAt: sharedFolderModel.getTodayText(),
+        async (title, password) => {
+            const trimmed = title.trim().toLowerCase();
+            const isDuplicate = ownedSharedFolders.some((f) => f.title.trim().toLowerCase() === trimmed);
+            if (isDuplicate) throw new Error('같은 이름의 공유폴더가 이미 있습니다.');
+
+            const newFolder = await sharedFolderModel.createSharedFolderRequest(title, password);
+            const folderWithMeta = {
+                ...newFolder,
+                owner: newFolder.owner || profileName,
+                ownerId: newFolder.ownerId || currentUserId,
+                description: newFolder.description || `${profileName}님이 만든 공유폴더입니다.`,
                 lastAccess: '방금 전',
-                hasPassword: true,
-                // 프론트 임시 테스트용. 실제 서버에서는 해시 저장으로 바꿔야 합니다.
-                password,
+                isOwner: true,
             };
 
-            sharedFolderModel.setSharedFolderTitle(newSharedFolder.id, newSharedFolder.title);
-            setOwnedSharedFolders((prev) => [newSharedFolder, ...prev]);
-            setAllSharedFolders((prev) => [newSharedFolder, ...prev]);
+            if (IS_LOCAL) sharedFolderModel.setSharedFolderTitle(folderWithMeta.id, folderWithMeta.title);
+            setOwnedSharedFolders((prev) => [folderWithMeta, ...prev]);
+            setAllSharedFolders((prev) => [folderWithMeta, ...prev]);
 
-            return newSharedFolder;
+            return folderWithMeta;
         },
         [currentUserId, profileName]
     );
@@ -102,40 +101,46 @@ export const useSharedFolderViewModel = ({ currentUserId, profileName }) => {
             const notebookId = String(note.id);
             return (
                 note.isShared ||
-                localStorage.getItem(`notebookShared:${notebookId}`) === 'true' ||
+                (IS_LOCAL && localStorage.getItem(`notebookShared:${notebookId}`) === 'true') ||
                 Boolean(findSharedFolderForNotebook(notebookId))
             );
         },
         [findSharedFolderForNotebook]
     );
 
-    // 내 폴더를 공유폴더로 추가. 성공 시 { sourceNotebookId, title } 반환.
+    // 내 개인폴더를 공유폴더로 등록. 성공 시 { sourceNotebookId, title } 반환.
     const shareNotebookAsFolder = useCallback(
-        (notebook, password) => {
+        async (notebook, password) => {
             const sourceNotebookId = notebook.id;
             const sharedTitle = notebook.title?.trim() || '새 폴더';
 
             const alreadySharedFolder = findSharedFolderForNotebook(sourceNotebookId);
 
+            const created = await sharedFolderModel.createSharedFolderRequest(
+                sharedTitle,
+                password,
+                sourceNotebookId
+            );
+
             const nextSharedFolder = {
-                id: alreadySharedFolder?.id || `owned-shared-${Date.now()}`,
+                ...created,
+                id: alreadySharedFolder?.id || created.id,
                 sourceNotebookId,
                 originalNotebookId: sourceNotebookId,
-                title: sharedTitle,
-                owner: profileName,
-                ownerId: currentUserId,
-                department: '우송대학교',
-                members: alreadySharedFolder?.members || 1,
-                code: alreadySharedFolder?.code || sharedFolderModel.makeSharedCode(),
-                description: `${profileName}님이 만든 공유폴더입니다.`,
-                createdAt: alreadySharedFolder?.createdAt || sharedFolderModel.getTodayText(),
+                owner: created.owner || profileName,
+                ownerId: created.ownerId || currentUserId,
+                members: alreadySharedFolder?.members || created.members,
+                code: alreadySharedFolder?.code || created.code,
+                description: created.description || `${profileName}님이 만든 공유폴더입니다.`,
+                createdAt: alreadySharedFolder?.createdAt || created.createdAt,
                 lastAccess: '방금 전',
-                hasPassword: true,
-                password,
+                isOwner: true,
             };
 
-            sharedFolderModel.setSharedFolderTitle(nextSharedFolder.id, nextSharedFolder.title);
-            sharedFolderModel.markNotebookShared(sourceNotebookId);
+            if (IS_LOCAL) {
+                sharedFolderModel.setSharedFolderTitle(nextSharedFolder.id, nextSharedFolder.title);
+                sharedFolderModel.markNotebookShared(sourceNotebookId);
+            }
 
             setOwnedSharedFolders((prev) => upsertSharedFolder(prev, nextSharedFolder));
             setAllSharedFolders((prev) => upsertSharedFolder(prev, nextSharedFolder));
@@ -145,7 +150,15 @@ export const useSharedFolderViewModel = ({ currentUserId, profileName }) => {
         [currentUserId, profileName, findSharedFolderForNotebook]
     );
 
-    const updateOwnedSharedFolderTitle = useCallback((folderId, nextTitle) => {
+    const updateOwnedSharedFolderTitle = useCallback(async (folderId, nextTitle) => {
+        const trimmed = nextTitle.trim().toLowerCase();
+        const isDuplicate = ownedSharedFolders.some(
+            (f) => String(f.id) !== String(folderId) && f.title.trim().toLowerCase() === trimmed
+        );
+        if (isDuplicate) throw new Error('같은 이름의 공유폴더가 이미 있습니다.');
+
+        await sharedFolderModel.updateSharedFolderRequest(folderId, nextTitle);
+
         sharedFolderModel.setSharedFolderTitle(folderId, nextTitle);
 
         const applyTitle = (list) =>
@@ -156,18 +169,19 @@ export const useSharedFolderViewModel = ({ currentUserId, profileName }) => {
         setOwnedSharedFolders(applyTitle);
         setSharedSearchResults(applyTitle);
         setAllSharedFolders(applyTitle);
-    }, []);
+    }, [ownedSharedFolders]);
 
     const deleteOwnedSharedFolder = useCallback(
-        (folderId) => {
+        async (folderId) => {
             const targetFolder =
                 ownedSharedFolders.find((f) => String(f.id) === String(folderId)) ||
                 allSharedFolders.find((f) => String(f.id) === String(folderId)) ||
                 sharedSearchResults.find((f) => String(f.id) === String(folderId)) ||
                 { id: folderId };
 
-            // 공유폴더 삭제 시: 내가 만든 목록 + 다른 계정 참가 목록 + 원본 "공유 중" 배지까지 제거
-            sharedFolderModel.removeSharedFolderFromStorage(targetFolder);
+            await sharedFolderModel.deleteSharedFolderRequest(folderId);
+
+            if (IS_LOCAL) sharedFolderModel.removeSharedFolderFromStorage(targetFolder);
 
             const shouldKeepFolder = (folder) => {
                 const sameId = String(folder.id) === String(targetFolder.id);
@@ -188,35 +202,44 @@ export const useSharedFolderViewModel = ({ currentUserId, profileName }) => {
         [ownedSharedFolders, allSharedFolders, sharedSearchResults]
     );
 
-    const leaveJoinedSharedFolder = useCallback((folderId) => {
+    const leaveJoinedSharedFolder = useCallback(async (folderId) => {
+        await sharedFolderModel.leaveSharedFolderRequest(folderId);
         setJoinedSharedFolders((prev) => prev.filter((folder) => folder.id !== folderId));
     }, []);
 
     // 공유폴더 참여. 성공 시 입장할 폴더를 반환, 실패 시 throw.
     const joinSharedFolder = useCallback(
-        (folderId, inputPassword) => {
-            const target = sharedSearchResults.find((folder) => folder.id === folderId);
-
-            if (!target) throw new Error('공유폴더를 찾을 수 없습니다.');
-            if (target.password && target.password !== inputPassword) {
-                throw new Error('암호가 틀렸습니다.');
+        async (folderId, inputPassword) => {
+            // [로컬] 검색 결과에서 직접 암호 검증
+            if (IS_LOCAL) {
+                const target = sharedSearchResults.find((folder) => folder.id === folderId);
+                if (!target) throw new Error('공유폴더를 찾을 수 없습니다.');
+                if (target.password && target.password !== inputPassword) {
+                    throw new Error('암호가 틀렸습니다.');
+                }
+                setJoinedSharedFolders((prev) => {
+                    const alreadyJoined = prev.some((item) => item.id === target.id);
+                    if (alreadyJoined) return prev;
+                    return [target, ...prev];
+                });
+                sharedFolderModel.setSharedFolderTitle(target.id, target.title);
+                return target;
             }
 
+            // [서버] 서버가 암호 검증 (403이면 throw)
+            const joined = await sharedFolderModel.joinSharedFolderRequest(folderId, inputPassword);
             setJoinedSharedFolders((prev) => {
-                const alreadyJoined = prev.some((item) => item.id === target.id);
+                const alreadyJoined = prev.some((item) => item.id === joined.id);
                 if (alreadyJoined) return prev;
-                return [target, ...prev];
+                return [joined, ...prev];
             });
-
-            sharedFolderModel.setSharedFolderTitle(target.id, target.title);
-
-            return target;
+            return joined;
         },
         [sharedSearchResults]
     );
 
     const searchSharedFolders = useCallback(
-        (keyword) => {
+        async (keyword) => {
             const trimmed = keyword.trim();
 
             if (!trimmed) {
@@ -225,13 +248,20 @@ export const useSharedFolderViewModel = ({ currentUserId, profileName }) => {
                 return;
             }
 
-            // 서버 연결 전 임시 검색 — 전체/예전/계정별 저장소를 모두 뒤져서 찾습니다.
+            // [서버] API 검색
+            const serverResults = await sharedFolderModel.searchSharedFoldersRequest(trimmed);
+            if (serverResults !== null) {
+                setSharedSearchResults(serverResults);
+                setIsSharedSearching(false);
+                return;
+            }
+
+            // [로컬] 로컬 데이터에서 검색
             const searchable = sharedFolderModel.getSearchableSharedFolders(currentUserId, [
                 ...allSharedFolders,
                 ...ownedSharedFolders,
                 ...joinedSharedFolders,
             ]);
-
             const lowered = trimmed.toLowerCase();
             const results = sharedFolderModel
                 .syncSharedFolderTitles(searchable)

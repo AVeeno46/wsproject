@@ -1,6 +1,24 @@
-// 공유폴더 관련 localStorage 데이터 접근 계층.
-// 현재는 서버 엔드포인트가 없어 localStorage로 처리하며,
-// 추후 .NET 서버 연동 시 이 파일의 함수만 fetch 기반으로 교체하면 됩니다.
+// 공유폴더 데이터 계층.
+// IS_LOCAL이면 localStorage, 서버 모드면 /dashboard/public/* API를 호출합니다.
+import { SERVER_URL, IS_LOCAL } from '../constants/constants';
+import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
+
+const BASE = `${SERVER_URL}/dashboard/public`;
+
+// 서버 응답 필드(folder_id, folder_name 등)를 클라이언트 필드로 변환
+const toClient = (folder) => ({
+    id: String(folder.folder_id),
+    title: folder.folder_name,
+    owner: folder.owner || '',
+    ownerId: String(folder.owner_id || ''),
+    isOwner: folder.is_owner ?? false,
+    members: folder.members || 1,
+    code: folder.code || '',
+    createdAt: folder.created_at || '',
+    department: folder.department || '우송대학교',
+    hasPassword: folder.has_password ?? true,
+    description: folder.description || '',
+});
 
 const ownedKey = (userId) => `ownedSharedFolders:${userId}`;
 const joinedKey = (userId) => `joinedSharedFolders:${userId}`;
@@ -243,3 +261,154 @@ export const getTodayText = () =>
         .toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
         .replace(/\.\s?/g, '.')
         .replace(/\.$/, '');
+
+// ---- 서버 API 요청 함수 ----
+
+// GET /dashboard/public/get-all
+// is_owner: true → 내가 만든 폴더, false → 참여한 폴더
+export const fetchAllSharedFoldersRequest = async (currentUserId) => {
+    // [로컬] localStorage에서 owned/joined/all 분리 반환
+    if (IS_LOCAL) {
+        return {
+            owned: loadOwnedSharedFolders(currentUserId),
+            joined: loadJoinedSharedFolders(currentUserId),
+            all: loadAllSharedFolders(),
+        };
+    }
+    // [서버] is_owner 필드로 owned/joined 구분
+    const response = await apiFetch(`${BASE}/get-all`, {
+        method: 'GET',
+        headers: { ...getAuthHeader() },
+    });
+    if (response.status === 401) return handleUnauthorized();
+    if (!response.ok) throw new Error('공유폴더 목록을 불러오지 못했습니다.');
+    const data = await response.json();
+    const folders = data.map(toClient);
+    return {
+        owned: folders.filter((f) => f.isOwner),
+        joined: folders.filter((f) => !f.isOwner),
+        all: folders,
+    };
+};
+
+// POST /dashboard/public/create
+// notebookId: 내 개인폴더를 공유폴더로 등록할 때 전달 (선택)
+export const createSharedFolderRequest = async (name, password, notebookId = null) => {
+    // [로컬] 프론트에서 ID/코드를 직접 생성해서 반환
+    if (IS_LOCAL) {
+        return {
+            id: `owned-shared-${Date.now()}`,
+            title: name,
+            owner: '',
+            ownerId: '',
+            isOwner: true,
+            members: 1,
+            code: makeSharedCode(),
+            createdAt: getTodayText(),
+            department: '우송대학교',
+            hasPassword: !!password,
+            description: '',
+        };
+    }
+    // [서버] 서버가 ID/코드 생성 후 반환
+    const body = { name, password };
+    if (notebookId) body.notebook_id = Number(notebookId);
+    const response = await apiFetch(`${BASE}/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify(body),
+    });
+    if (response.status === 401) return handleUnauthorized();
+    if (!response.ok) throw new Error('공유폴더 생성에 실패했습니다.');
+    return toClient(await response.json());
+};
+
+// DELETE /dashboard/public/delete
+export const deleteSharedFolderRequest = async (folderId) => {
+    // [로컬] ViewModel에서 removeSharedFolderFromStorage() 호출로 처리
+    if (IS_LOCAL) return true;
+    // [서버]
+    const response = await apiFetch(`${BASE}/delete`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ folder_id: Number(folderId) }),
+    });
+    if (response.status === 401) return handleUnauthorized();
+    return response.ok;
+};
+
+// POST /dashboard/public/enter — 참여 (서버가 암호 검증, 실패 시 403)
+export const joinSharedFolderRequest = async (folderId, password) => {
+    // [로컬] ViewModel에서 직접 암호 검증 (null 반환으로 알림)
+    if (IS_LOCAL) return null;
+    // [서버] 서버가 암호 검증, 실패 시 403
+    const response = await apiFetch(`${BASE}/enter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ folder_id: Number(folderId), password }),
+    });
+    if (response.status === 401) return handleUnauthorized();
+    if (response.status === 403) throw new Error('암호가 틀렸습니다.');
+    if (!response.ok) throw new Error('공유폴더 참여에 실패했습니다.');
+    return toClient(await response.json());
+};
+
+// POST /dashboard/public/leave — 나가기
+export const leaveSharedFolderRequest = async (folderId) => {
+    // [로컬] ViewModel에서 상태만 제거
+    if (IS_LOCAL) return true;
+    // [서버]
+    const response = await apiFetch(`${BASE}/leave`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ folder_id: Number(folderId) }),
+    });
+    if (response.status === 401) return handleUnauthorized();
+    return response.ok;
+};
+
+// POST /dashboard/public/select — 전체 공유폴더 검색
+// IS_LOCAL이면 null 반환 → ViewModel이 로컬 검색으로 처리
+export const searchSharedFoldersRequest = async (keyword) => {
+    // [로컬] null 반환 → ViewModel이 로컬 데이터에서 직접 검색
+    if (IS_LOCAL) return null;
+    // [서버]
+    const response = await apiFetch(`${BASE}/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ keyword }),
+    });
+    if (response.status === 401) return handleUnauthorized();
+    if (!response.ok) throw new Error('공유폴더 검색에 실패했습니다.');
+    const data = await response.json();
+    return data.map(toClient);
+};
+
+// PATCH /dashboard/public/update — 제목 수정
+export const updateSharedFolderRequest = async (folderId, name) => {
+    // [로컬] localStorage 제목만 변경
+    if (IS_LOCAL) return true;
+    // [서버]
+    const response = await apiFetch(`${BASE}/update`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ folder_id: Number(folderId), name }),
+    });
+    if (response.status === 401) return handleUnauthorized();
+    if (!response.ok) throw new Error('공유폴더 제목 수정에 실패했습니다.');
+    return true;
+};
+
+// GET /dashboard/public/open?folderId=1 — 폴더 상세
+export const fetchSharedFolderDetailRequest = async (folderId) => {
+    // [로컬] 미지원
+    if (IS_LOCAL) return null;
+    // [서버]
+    const response = await apiFetch(`${BASE}/open?folderId=${folderId}`, {
+        method: 'GET',
+        headers: { ...getAuthHeader() },
+    });
+    if (response.status === 401) return handleUnauthorized();
+    if (!response.ok) throw new Error('공유폴더 정보를 불러오지 못했습니다.');
+    return toClient(await response.json());
+};

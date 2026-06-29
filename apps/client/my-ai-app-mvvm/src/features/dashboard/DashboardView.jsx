@@ -174,21 +174,26 @@ export function DashboardView() {
         return;
       }
 
-      createSharedFolder(title, password);
-      setSharedFolderFilter("owned");
-      closeCreateModal();
+      try {
+        await createSharedFolder(title, password);
+        setSharedFolderFilter("owned");
+        closeCreateModal();
+      } catch {
+        alert("공유폴더 생성에 실패했습니다.");
+      }
       return;
     }
 
-    const newNotebook = await createNotebook(title);
-
-    if (newNotebook?.id) {
-      setNotebookOwner(newNotebook.id, currentUserId);
+    try {
+      const newNotebook = await createNotebook(title);
+      if (newNotebook?.id) {
+        setNotebookOwner(newNotebook.id, currentUserId);
+      }
+      closeCreateModal();
+      if (newNotebook?.id) navigate(`/notebook/${newNotebook.id}`);
+    } catch {
+      alert("폴더 생성에 실패했습니다.");
     }
-
-    closeCreateModal();
-
-    if (newNotebook?.id) navigate(`/notebook/${newNotebook.id}`);
   };
 
   const handleRenameOpen = (note) => {
@@ -217,7 +222,7 @@ export function DashboardView() {
     setShareError("");
   };
 
-  const handleShareCreate = () => {
+  const handleShareCreate = async () => {
     if (!shareTarget) return;
 
     const password = sharePassword.trim();
@@ -232,15 +237,19 @@ export function DashboardView() {
       return;
     }
 
-    const { sourceNotebookId, title } = shareNotebookAsFolder(shareTarget, password);
+    try {
+      const { sourceNotebookId, title } = await shareNotebookAsFolder(shareTarget, password);
 
-    // localStorage만 바꾸면 즉시 리렌더가 안 될 수 있어서 카드 상태를 한 번 갱신합니다.
-    setTitleOverrides((prev) => ({ ...prev, [sourceNotebookId]: title }));
+      // localStorage만 바꾸면 즉시 리렌더가 안 될 수 있어서 카드 상태를 한 번 갱신합니다.
+      setTitleOverrides((prev) => ({ ...prev, [sourceNotebookId]: title }));
 
-    setShareSuccessMessage("공유폴더에 추가되었습니다.");
-    setTimeout(() => setShareSuccessMessage(""), 1500);
+      setShareSuccessMessage("공유폴더에 추가되었습니다.");
+      setTimeout(() => setShareSuccessMessage(""), 1500);
 
-    closeShareModal();
+      closeShareModal();
+    } catch {
+      setShareError("공유폴더 등록에 실패했습니다.");
+    }
   };
 
   const handleRenameSave = async () => {
@@ -248,14 +257,13 @@ export function DashboardView() {
 
     const nextTitle = renameTitle.trim();
 
-    await updateNotebookTitle(renameTarget.id, nextTitle);
-
-    setTitleOverrides((prev) => ({
-      ...prev,
-      [renameTarget.id]: nextTitle,
-    }));
-
-    setRenameTarget(null);
+    try {
+      await updateNotebookTitle(renameTarget.id, nextTitle);
+      setTitleOverrides((prev) => ({ ...prev, [renameTarget.id]: nextTitle }));
+      setRenameTarget(null);
+    } catch {
+      alert("제목 수정에 실패했습니다.");
+    }
   };
 
   const handlePin = (note) => {
@@ -529,7 +537,7 @@ export function DashboardView() {
             onDeleteOwnedSharedFolder={deleteOwnedSharedFolder}
             onLeaveJoinedSharedFolder={leaveJoinedSharedFolder}
             onJoinSharedFolder={async (folderId, inputPassword) => {
-              const target = joinSharedFolder(folderId, inputPassword);
+              const target = await joinSharedFolder(folderId, inputPassword);
 
               navigate(`/notebook/${target.id}`, {
                 state: {
@@ -920,10 +928,14 @@ export function DashboardView() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  removeNotebookOwner(deleteTarget.id);
-                  removeNotebook(deleteTarget.id);
-                  setDeleteTarget(null);
+                onClick={async () => {
+                  try {
+                    await removeNotebook(deleteTarget.id);
+                    removeNotebookOwner(deleteTarget.id);
+                    setDeleteTarget(null);
+                  } catch {
+                    // removeNotebook 내부에서 error 상태로 처리됨
+                  }
                 }}
               >
                 삭제

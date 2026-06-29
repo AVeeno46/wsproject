@@ -39,8 +39,8 @@ const getSourceKeys = (source) => {
 };
 
 const isDeletedSource = (source, deletedKeys) => {
-  const sourceKeys = getSourceKeys(source);
-  return sourceKeys.some((key) => deletedKeys.includes(key));
+  const id = String(source?.id || '');
+  return id ? deletedKeys.includes(id) : false;
 };
 
 const getSourceName = (source) => {
@@ -244,24 +244,22 @@ export function NoteDetailView() {
     setDeleteSourceTarget(targetSource);
   };
 
+  const handleSourceUploaded = (newSource) => {
+    const id = String(newSource?.id || '');
+    if (id) setDeletedSourceKeys((prev) => prev.filter((k) => k !== id));
+  };
+
   const confirmDeleteSource = () => {
     if (!deleteSourceTarget) return;
 
-    const targetKeys = getSourceKeys(deleteSourceTarget);
+    const targetId = String(deleteSourceTarget.id || '');
 
-    setDeletedSourceKeys((prev) => {
-      return [...new Set([...prev, ...targetKeys])];
-    });
+    if (targetId) {
+      setDeletedSourceKeys((prev) => [...new Set([...prev, targetId])]);
+    }
 
-    if (
-      activeSource &&
-      getSourceKeys(activeSource).some((key) => targetKeys.includes(key))
-    ) {
-      const nextSource =
-        visibleSources.find(
-          (source) =>
-            !getSourceKeys(source).some((key) => targetKeys.includes(key))
-        ) || null;
+    if (activeSource && String(activeSource.id) === targetId) {
+      const nextSource = visibleSources.find((s) => String(s.id) !== targetId) || null;
       setActiveSource(nextSource);
     }
 
@@ -542,6 +540,7 @@ const isCurrentNotebookAlreadyShared = (() => {
         activeSource={activeSource}
         setActiveSource={setActiveSource}
         onDeleteSource={openDeleteSourceModal}
+        onSourceUploaded={handleSourceUploaded}
       />
 
       <main

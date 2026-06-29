@@ -727,6 +727,259 @@
   background: white;
 }
 
+/* ── .hwpx 텍스트 편집기 ───────────────────────── */
+.chatPage .hwpxEditor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chatPage .hwpxToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.chatPage .hwpxToolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.chatPage .hwpxFileName {
+  font-size: 15px;
+  color: #0f1f33;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatPage .hwpxCount {
+  font-size: 12px;
+  color: #5b6b80;
+  background: #eef4fc;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.chatPage .hwpxDirty {
+  font-size: 12px;
+  color: #d97706;
+}
+
+.chatPage .hwpxToolbarRight {
+  display: flex;
+  gap: 8px;
+}
+
+.chatPage .hwpxGhostBtn,
+.chatPage .hwpxPrimaryBtn,
+.chatPage .hwpxOpenBtn {
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid #cbdcf4;
+  background: #ffffff;
+  color: #0f1f33;
+}
+
+.chatPage .hwpxPrimaryBtn {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.chatPage .hwpxPrimaryBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.chatPage .hwpxOpenBtn {
+  margin-top: 14px;
+  padding: 10px 18px;
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.chatPage .hwpxError {
+  margin: 0;
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.chatPage .hwpxFields {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid #e3edfa;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.chatPage .hwpxBlockGap {
+  height: 10px;
+  border-bottom: 1px dashed #dbe7f7;
+  margin: 2px 0;
+}
+
+.chatPage .hwpxField {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.chatPage .hwpxFieldId {
+  flex: 0 0 52px;
+  font-size: 10px;
+  color: #9aa7b8;
+  font-family: ui-monospace, monospace;
+  padding-top: 8px;
+  user-select: none;
+}
+
+.chatPage .hwpxInput {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #d8e5f5;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  color: #0f1f33;
+  background: #ffffff;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.chatPage .hwpxInput:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.chatPage .hwpxInput.blank {
+  background: #fffdf5;
+  border-style: dashed;
+}
+
+/* ── 문서 렌더러 (HwpxDocView) ─────────────────────────── */
+.chatPage .hwpxDocScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: #e8edf2;
+  padding: 24px 16px;
+}
+
+.chatPage .hwpxDocPages {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chatPage .hwpxDocPage {
+  background: #ffffff;
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 56px 64px;
+  box-sizing: border-box;
+  font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+  font-size: 10pt;
+  line-height: 1.7;
+  color: #111;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  min-height: 400px;
+  position: relative;
+}
+
+.chatPage .hwpxDocPara {
+  margin: 2px 0;
+  padding: 0;
+  min-height: 1.4em;
+  word-break: break-all;
+}
+
+.chatPage .hwpxDocParaEmpty {
+  min-height: 0.6em;
+}
+
+.chatPage .hwpxDocImg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 4px 0;
+}
+
+.chatPage .hwpxDocTable {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 4px 0;
+  table-layout: fixed;
+}
+
+.chatPage .hwpxDocCell {
+  border: 0.75px solid #555;
+  padding: 4px 8px;
+  vertical-align: middle;
+  min-height: 1.4em;
+  word-break: break-all;
+}
+
+.chatPage .hwpxDocCellEmpty {
+  background: #f5faff;
+}
+
+.chatPage .hwpxCellPara {
+  margin: 0;
+  min-height: 1em;
+  line-height: 1.5;
+}
+
+/* 편집 가능한 텍스트 세그먼트 */
+.chatPage .hwpxSeg {
+  outline: none;
+  display: inline;
+  white-space: pre-wrap;
+  cursor: text;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+
+.chatPage .hwpxSeg:hover {
+  background: rgba(37, 99, 235, 0.07);
+}
+
+.chatPage .hwpxSeg:focus {
+  background: #fffde7;
+  outline: 1.5px solid #f59e0b;
+  border-radius: 2px;
+}
+
+/* 빈 세그먼트 — 입력 유도 표시 */
+.chatPage .hwpxSegEmpty {
+  display: inline-block;
+  min-width: 60px;
+  min-height: 1em;
+  border-bottom: 1.5px dashed #93bbf0;
+}
+
+.chatPage .hwpxSegEmpty:hover {
+  background: #e8f0fe;
+  border-bottom-color: #2563eb;
+}
+
 /* title top */
 .chatPage .notebookTitleBar {
   display: flex !important;

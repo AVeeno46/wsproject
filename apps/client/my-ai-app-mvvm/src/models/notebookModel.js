@@ -23,12 +23,13 @@ const saveLocalNotebooks = (list) => {
     }
 };
 
-// 서버 응답 필드(folder_id, folder_name)를 클라이언트 필드(id, title)로 변환
-const toClient = (folder) => ({ id: String(folder.folder_id), title: folder.folder_name });
+// 서버 응답 필드(dashboard_id, dashboard_name)를 클라이언트 필드(id, title)로 변환
+const toClient = (folder) => ({ id: String(folder.dashboard_id), title: folder.dashboard_name });
 
 export const fetchNotebooksRequest = async () => {
+    // [로컬]
     if (IS_LOCAL) return getLocalNotebooks();
-
+    // [서버]
     const response = await apiFetch(`${BASE}/get-all`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
@@ -40,13 +41,14 @@ export const fetchNotebooksRequest = async () => {
 };
 
 export const createNotebookRequest = async (title) => {
+    // [로컬]
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
         const newNotebook = { id: Date.now().toString(), title, createdAt: new Date().toISOString() };
         saveLocalNotebooks([...notebooks, newNotebook]);
         return newNotebook;
     }
-
+    // [서버]
     const response = await apiFetch(`${BASE}/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
@@ -58,27 +60,28 @@ export const createNotebookRequest = async (title) => {
 };
 
 export const deleteNotebookRequest = async (notebookId) => {
+    // [로컬]
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
         saveLocalNotebooks(notebooks.filter((n) => n.id !== notebookId));
         return true;
     }
-
-    const response = await apiFetch(`${BASE}/delete`, {
+    // [서버]
+    const response = await apiFetch(`${BASE}/delete/${notebookId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ folder_id: Number(notebookId) }),
+        headers: { ...getAuthHeader() },
     });
     if (response.status === 401) return handleUnauthorized();
     return response.ok;
 };
 
 export const fetchNotebookByIdRequest = async (notebookId) => {
+    // [로컬]
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
         return notebooks.find((n) => String(n.id) === String(notebookId)) || null;
     }
-
+    // [서버]
     const allResponse = await apiFetch(`${BASE}/get-all`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
@@ -86,11 +89,12 @@ export const fetchNotebookByIdRequest = async (notebookId) => {
     if (allResponse.status === 401) return handleUnauthorized();
     if (!allResponse.ok) throw new Error('폴더 정보를 불러오지 못했습니다.');
     const data = await allResponse.json();
-    const found = data.find((f) => String(f.folder_id) === String(notebookId));
+    const found = data.find((f) => String(f.dashboard_id) === String(notebookId));
     return found ? toClient(found) : null;
 };
 
 export const updateNotebookTitleRequest = async (notebookId, title) => {
+    // [로컬]
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
         const updatedNotebooks = notebooks.map((n) =>
@@ -101,11 +105,11 @@ export const updateNotebookTitleRequest = async (notebookId, title) => {
         saveLocalNotebooks(updatedNotebooks);
         return updatedNotebooks.find((n) => String(n.id) === String(notebookId));
     }
-
+    // [서버]
     const response = await apiFetch(`${BASE}/update`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ folder_id: Number(notebookId), name: title }),
+        body: JSON.stringify({ dashboard_id: Number(notebookId), dashboard_name: title }),
     });
     if (response.status === 401) return handleUnauthorized();
     if (!response.ok) throw new Error('폴더 제목 수정에 실패했습니다.');

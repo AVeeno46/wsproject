@@ -13,6 +13,7 @@ export function SourceSidebar({
   activeSource,
   setActiveSource,
   onDeleteSource,
+  onSourceUploaded,
 }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -72,7 +73,8 @@ export function SourceSidebar({
 
     for (const file of files) {
       try {
-        await uploadFile(file);
+        const newSource = await uploadFile(file);
+        if (newSource) onSourceUploaded?.(newSource);
       } catch (error) {
         console.error("파일 업로드 실패:", file.name, error);
       }
@@ -86,7 +88,8 @@ const handleFileChange = async (e) => {
   if (files.length === 0) return;
 
   for (const file of files) {
-    await uploadFile(file);
+    const newSource = await uploadFile(file);
+    if (newSource) onSourceUploaded?.(newSource);
   }
 
   inputEl.value = "";

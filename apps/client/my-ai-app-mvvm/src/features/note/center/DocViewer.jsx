@@ -1,6 +1,13 @@
+import { HwpxEditor } from "./HwpxEditor";
+
 export function DocViewer({ source }) {
   const fileName = source.name || source.filename || "파일";
   const ext = fileName.split(".").pop().toLowerCase();
+
+  // 한글 .hwpx → 텍스트 편집기로 분기
+  if (ext === "hwpx") {
+    return <HwpxEditor source={source} />;
+  }
 
   return (
     <div className="docPreviewBox">

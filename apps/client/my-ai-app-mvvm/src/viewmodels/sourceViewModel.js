@@ -55,14 +55,17 @@ export function useSourceViewModel(notebookId) {
     setUploadError(null);
 
     try {
-      const newSource = await uploadSourceRequest(notebookId, file);
+      const uploaded = await uploadSourceRequest(notebookId, file);
+      // File 객체를 인메모리로 붙여 HwpxEditor 자동 로드에 사용 (세션 내에서만 유효)
+      const newSource = { ...uploaded, file };
 
       setSources((prev) => {
         const exists = prev.some((source) => source.id === newSource.id);
 
         if (exists) return prev;
 
-return [...prev, newSource];      });
+        return [...prev, newSource];
+      });
 
       return newSource;
     } catch (error) {

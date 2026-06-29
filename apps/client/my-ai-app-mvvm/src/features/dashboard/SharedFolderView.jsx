@@ -294,15 +294,19 @@ const allModalFolders = [...visibleSharedFolders]
     setOpenOwnedMenuId(null);
   };
 
-  const handleRenameSave = () => {
+  const handleRenameSave = async () => {
     const nextTitle = renameValue.trim();
 
     if (!renameTarget || !nextTitle) {
       return;
     }
 
-    onUpdateOwnedSharedFolderTitle?.(renameTarget.id, nextTitle);
-    closeRenameModal();
+    try {
+      await onUpdateOwnedSharedFolderTitle?.(renameTarget.id, nextTitle);
+      closeRenameModal();
+    } catch {
+      showToast("제목 수정에 실패했습니다.");
+    }
   };
 
   const handlePasswordCheckOpen = (folder) => {
@@ -315,12 +319,16 @@ const allModalFolders = [...visibleSharedFolders]
     setOpenOwnedMenuId(null);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
 
-    onDeleteOwnedSharedFolder?.(deleteTarget.id);
-    setDeleteTarget(null);
-    showToast("공유폴더가 삭제되었습니다.");
+    try {
+      await onDeleteOwnedSharedFolder?.(deleteTarget.id);
+      setDeleteTarget(null);
+      showToast("공유폴더가 삭제되었습니다.");
+    } catch {
+      showToast("공유폴더 삭제에 실패했습니다.");
+    }
   };
 
   const handleLeaveOpen = (folder) => {
@@ -328,12 +336,16 @@ const allModalFolders = [...visibleSharedFolders]
     setOpenOwnedMenuId(null);
   };
 
-  const handleLeaveConfirm = () => {
+  const handleLeaveConfirm = async () => {
     if (!leaveTarget) return;
 
-    onLeaveJoinedSharedFolder?.(leaveTarget.id);
-    setLeaveTarget(null);
-    showToast("공유폴더에서 탈퇴했습니다.");
+    try {
+      await onLeaveJoinedSharedFolder?.(leaveTarget.id);
+      setLeaveTarget(null);
+      showToast("공유폴더에서 탈퇴했습니다.");
+    } catch {
+      showToast("공유폴더 탈퇴에 실패했습니다.");
+    }
   };
 
   const handleEnterFolder = async () => {

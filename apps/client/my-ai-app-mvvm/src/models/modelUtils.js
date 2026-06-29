@@ -12,50 +12,56 @@ export const handleUnauthorized = () => {
   throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
 };
 
-const refreshTokenRequest = async (expiredToken) => {
+const refreshTokenRequest = async (expiredToken, retryCount = 0) => {
   const response = await fetch(`${SERVER_URL}/token/creation-access-token`, {
     method: "POST",
     headers: { Authorization: `Bearer ${expiredToken}` },
     credentials: "include",
   });
 
+  // 409: JWT 생성 동시 시도 — 잠깐 기다렸다가 재시도 (최대 3회)
+  if (response.status === 409) {
+    if (retryCount >= 3) throw new Error("토큰 재발급 실패 (동시 요청 충돌)");
+    await new Promise((res) => setTimeout(res, 300 * (retryCount + 1)));
+    return refreshTokenRequest(expiredToken, retryCount + 1);
+  }
+
   if (!response.ok) throw new Error("토큰 재발급 실패");
 
   return response.text();
 };
 
-let isRefreshing = false;   // 재발급 중복 방지 플래그
+let refreshPromise = null;
 
 export const apiFetch = async (url, options = {}) => {
   try {
     const response = await fetch(url, options);
 
     if (response.status === 401 && !options._retry) {
-      if (isRefreshing) return handleUnauthorized();    // 이미 재발급 중이면 바로 로그아웃 처리
-
-      isRefreshing = true;
+      if (!refreshPromise) {
+        refreshPromise = refreshTokenRequest(localStorage.getItem("accessToken"))
+          .then((newToken) => {
+            localStorage.setItem("accessToken", newToken);
+            return newToken;
+          })
+          .finally(() => {
+            refreshPromise = null;
+          });
+      }
 
       try {
-        const expiredToken = localStorage.getItem("accessToken");
-        const newToken = await refreshTokenRequest(expiredToken);
-
-        localStorage.setItem("accessToken", newToken);
-
-        // 새 토큰으로 헤더 교체 후 원래 요청 재시도
+        const newToken = await refreshPromise;
         const retryOptions = {
           ...options,
-          _retry: true,   // 무한루프 방지
+          _retry: true,
           headers: {
             ...options.headers,
             Authorization: `Bearer ${newToken}`,
           },
         };
-
         return await fetch(url, retryOptions);
       } catch {
         handleUnauthorized();
-      } finally {
-        isRefreshing = false;
       }
     }
 

@@ -22,6 +22,7 @@ const TEST_USERS = [
 ];
 
 export const loginRequest = async (email, password) => {
+  // [로컬] TEST_USERS 계정이면 가짜 토큰 반환
   const testUser = TEST_USERS.find(
     (u) => u.email === email && u.password === password
   );
@@ -29,7 +30,7 @@ export const loginRequest = async (email, password) => {
     return { accessToken: testUser.accessToken, user: testUser.user };
   }
 
-  // 1단계: 로그인 → access token 수령 + refresh-token 쿠키 세팅
+  // [서버] 1단계: 로그인 → access token 수령 + refresh-token 쿠키 세팅
   const loginResponse = await apiFetch(`${SERVER_URL}/token/creation-refresh-token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -54,12 +55,19 @@ export const loginRequest = async (email, password) => {
 
 // 만료된 access token + refresh-token 쿠키로 새 access token 발급
 // 자동 재발급은 modelUtils.js의 apiFetch()가 처리하므로 직접 호출할 일은 거의 없음
-export const refreshTokenRequest = async (expiredToken) => {
+export const refreshTokenRequest = async (expiredToken, retryCount = 0) => {
   const response = await apiFetch(`${SERVER_URL}/token/creation-access-token`, {
     method: "POST",
     headers: { Authorization: `Bearer ${expiredToken}` },
     credentials: "include", // refresh-token 쿠키 자동 전송
   });
+
+  // 409: JWT 생성 동시 시도 — 잠깐 기다렸다가 재시도 (최대 3회)
+  if (response.status === 409) {
+    if (retryCount >= 3) throw new Error("토큰 재발급 실패 (동시 요청 충돌)");
+    await new Promise((res) => setTimeout(res, 300 * (retryCount + 1)));
+    return refreshTokenRequest(expiredToken, retryCount + 1);
+  }
 
   if (!response.ok) {
     throw new Error("토큰이 만료되었습니다. 다시 로그인해주세요.");

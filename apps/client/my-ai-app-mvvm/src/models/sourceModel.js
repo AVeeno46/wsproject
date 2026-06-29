@@ -63,7 +63,9 @@ export const getLocalSourceCount = (notebookId) => {
 };
 
 export const fetchSourcesRequest = async (notebookId) => {
+  // [로컬]
   if (IS_LOCAL) return getLocalSources(notebookId);
+  // [서버]
 
   const response = await apiFetch(`${API_URL}/source?notebookId=${notebookId}`, {
     method: "GET",
@@ -89,6 +91,7 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
     throw new Error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다.`);
   }
 
+  // [로컬]
   if (IS_LOCAL) {
     const sources = getLocalSources(notebookId);
 
@@ -104,7 +107,7 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
 saveLocalSources(notebookId, [...sources, newSource]);
     return newSource;
   }
-
+  // [서버]
   const response = await apiFetch(`${API_URL}/source/upload`, {
     method: "POST",
     headers: {
@@ -123,7 +126,9 @@ saveLocalSources(notebookId, [...sources, newSource]);
 };
 
 export const fetchDocumentTextRequest = async (sourceId) => {
+  // [로컬] 미지원
   if (IS_LOCAL) return "로컬 모드에서는 문서 텍스트를 불러올 수 없습니다.";
+  // [서버]
 
   const response = await apiFetch(`${API_URL}/source/${sourceId}/text`, {
     method: "GET",
