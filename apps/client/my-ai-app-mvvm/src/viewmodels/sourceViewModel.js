@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   fetchSourcesRequest,
   uploadSourceRequest,
+  deleteSourceRequest,
 } from "../models/sourceModel";
 
 export function useSourceViewModel(notebookId) {
@@ -77,6 +78,17 @@ export function useSourceViewModel(notebookId) {
     }
   };
 
+  const deleteSource = async (sourceId) => {
+    try {
+      await deleteSourceRequest(notebookId, sourceId);
+      setSources((prev) => prev.filter((s) => String(s.id) !== String(sourceId)));
+      return true;
+    } catch (error) {
+      console.error('파일 삭제 실패:', error);
+      return false;
+    }
+  };
+
   const clearUploadError = () => setUploadError(null);
 
   return {
@@ -85,5 +97,6 @@ export function useSourceViewModel(notebookId) {
     uploadError,
     clearUploadError,
     uploadFile,
+    deleteSource,
   };
 }

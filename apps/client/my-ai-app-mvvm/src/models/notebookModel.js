@@ -52,7 +52,7 @@ export const createNotebookRequest = async (title) => {
     const response = await apiFetch(`${BASE}/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ name: title }),
+        body: JSON.stringify({ dashboard_name: title }),
     });
     if (response.status === 401) return handleUnauthorized();
     if (!response.ok) throw new Error('폴더 생성에 실패했습니다.');

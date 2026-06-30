@@ -125,6 +125,23 @@ saveLocalSources(notebookId, [...sources, newSource]);
   return response.json();
 };
 
+export const deleteSourceRequest = async (notebookId, sourceId) => {
+  // [로컬]
+  if (IS_LOCAL) {
+    const sources = getLocalSources(notebookId);
+    saveLocalSources(notebookId, sources.filter((s) => String(s.id) !== String(sourceId)));
+    return true;
+  }
+  // [서버]
+  const response = await apiFetch(`${API_URL}/source/${sourceId}`, {
+    method: 'DELETE',
+    headers: { ...getAuthHeader() },
+  });
+  if (response.status === 401) return handleUnauthorized();
+  if (!response.ok) throw new Error('파일 삭제에 실패했습니다.');
+  return true;
+};
+
 export const fetchDocumentTextRequest = async (sourceId) => {
   // [로컬] 미지원
   if (IS_LOCAL) return "로컬 모드에서는 문서 텍스트를 불러올 수 없습니다.";

@@ -115,7 +115,7 @@ export function NoteDetailView() {
   const sharedFolderMeta = getSharedFolderMeta();
   const sourceNotebookId = sharedFolderMeta?.sourceNotebookId || notebookId;
 
-  const { sources, isUploading, uploadError, clearUploadError, uploadFile } =
+  const { sources, isUploading, uploadError, clearUploadError, uploadFile, deleteSource } =
     useSourceViewModel(sourceNotebookId);
 
   const chatRoomId = sourceNotebookId || notebookId;
@@ -249,10 +249,12 @@ export function NoteDetailView() {
     if (id) setDeletedSourceKeys((prev) => prev.filter((k) => k !== id));
   };
 
-  const confirmDeleteSource = () => {
+  const confirmDeleteSource = async () => {
     if (!deleteSourceTarget) return;
 
     const targetId = String(deleteSourceTarget.id || '');
+
+    await deleteSource(targetId);
 
     if (targetId) {
       setDeletedSourceKeys((prev) => [...new Set([...prev, targetId])]);
