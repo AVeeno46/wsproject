@@ -108,15 +108,14 @@ saveLocalSources(notebookId, [...sources, newSource]);
     return newSource;
   }
   // [서버]
+  const formData = new FormData();
+  formData.append('file', fileObject);
+  formData.append('notebookId', String(notebookId));
+
   const response = await apiFetch(`${API_URL}/source/upload`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/octet-stream",
-      "X-File-Name": encodeURIComponent(fileObject.name),
-      "X-Notebook-Id": String(notebookId),
-      ...getAuthHeader(),
-    },
-    body: fileObject,
+    headers: { ...getAuthHeader() }, // Content-Type은 FormData가 boundary 포함해 자동 설정
+    body: formData,
   });
 
   if (response.status === 401) return handleUnauthorized();

@@ -111,8 +111,11 @@ function cellHasText(blocks, valueMap) {
 
 // 표 블록 — cellAddr 기반이라 셀을 순서대로 출력하면 브라우저가 병합을 정렬
 function TblBlock({ block, valueMap, onChange }) {
+  const tblStyle = block.tblWidth > 0
+    ? { width: `${Math.round(block.tblWidth / 75)}px`, maxWidth: '100%' }
+    : { width: '100%' };
   return (
-    <table className="hwpxDocTable">
+    <table className="hwpxDocTable" style={tblStyle}>
       {block.colPcts.length > 0 && (
         <colgroup>
           {block.colPcts.map((pct, i) => (

@@ -339,6 +339,8 @@ const parseBlocks = (containerXml, sectionIndex, state, charPrMap) => {
 // 셀 내용은 parseBlocks 로 재귀 파싱해 중첩 표·다단락을 보존한다.
 const parseTblBlock = (tblOuter, tblInner, sectionIndex, state, charPrMap) => {
   const colCnt = parseInt(tblOuter.match(/colCnt="(\d+)"/)?.[1] || '0');
+  // 표 자체 너비(HWPUNIT) — ÷75 로 px 환산해 렌더에서 사용
+  const tblWidth = parseInt(tblOuter.match(/<hp:tblSz\b[^>]*\bwidth="(\d+)"/)?.[1] || '0');
   const colW = new Array(colCnt).fill(0);
   const rows = [];
 
@@ -367,7 +369,7 @@ const parseTblBlock = (tblOuter, tblInner, sectionIndex, state, charPrMap) => {
     colPcts = filled.map((w) => ((w / total) * 100).toFixed(2) + '%');
   }
 
-  return { type: 'tbl', colCnt, colPcts, rows };
+  return { type: 'tbl', colCnt, colPcts, tblWidth, rows };
 };
 
 // section XML 한 개 → 평탄한 블록 리스트 ({ blocks })
