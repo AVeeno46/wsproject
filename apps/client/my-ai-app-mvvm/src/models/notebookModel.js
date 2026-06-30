@@ -55,6 +55,7 @@ export const createNotebookRequest = async (title) => {
         body: JSON.stringify({ dashboard_name: title }),
     });
     if (response.status === 401) return handleUnauthorized();
+    if (response.status === 409) throw new Error('같은 이름의 폴더가 이미 있습니다.');
     if (!response.ok) throw new Error('폴더 생성에 실패했습니다.');
     return toClient(await response.json());
 };
@@ -112,6 +113,9 @@ export const updateNotebookTitleRequest = async (notebookId, title) => {
         body: JSON.stringify({ dashboard_id: Number(notebookId), dashboard_name: title }),
     });
     if (response.status === 401) return handleUnauthorized();
+    if (response.status === 404) throw new Error('폴더를 찾을 수 없거나 수정 권한이 없습니다.');
+    if (response.status === 409) throw new Error('같은 이름의 폴더가 이미 있습니다.');
+    if (response.status === 422) throw new Error('폴더 이름 또는 ID가 올바르지 않습니다.');
     if (!response.ok) throw new Error('폴더 제목 수정에 실패했습니다.');
-    return toClient(await response.json());
+    return { id: String(notebookId), title };
 };

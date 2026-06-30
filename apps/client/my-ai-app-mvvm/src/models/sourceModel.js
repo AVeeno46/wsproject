@@ -1,8 +1,10 @@
 // [Model] 소스(업로드 파일) 데이터 계층.
-// 파일 목록 조회/업로드, 문서 텍스트 조회를 담당합니다.
+// 파일 목록 조회/업로드/삭제/다운로드를 담당합니다.
 // IS_LOCAL이면 서버 대신 localStorage에 저장합니다.
 import { API_URL, IS_LOCAL, MAX_FILE_SIZE_MB } from "../constants/constants";
 import { apiFetch, getAuthHeader, handleUnauthorized } from "./modelUtils";
+
+const FILE_BASE = `${API_URL}/file`;
 
 const lsKey = (notebookId) => `local_sources_${notebookId}`;
 
@@ -22,6 +24,12 @@ const saveLocalSources = (notebookId, list) => {
   }
 };
 
+// 서버 응답 필드(file_id, file_name)를 클라이언트 필드(id, name)로 변환
+const toClient = (file) => ({
+  id: String(file.file_id),
+  name: file.file_name,
+});
+
 // 대시보드 카드의 "소스 개수" 계산용 — 삭제된 소스를 제외한 로컬 소스 수.
 const getSourceKeysForCount = (source) => {
   if (!source) return [];
@@ -31,8 +39,6 @@ const getSourceKeysForCount = (source) => {
   const size = source.size || source.file?.size || 0;
   const lastModified = source.lastModified || source.file?.lastModified || "";
 
-  // NoteDetailView에서 삭제 저장할 때 파일정보 기반 key를 먼저 저장하므로
-  // 목록의 "소스 개수" 계산도 같은 방식으로 비교해야 합니다.
   if (name || size || lastModified) {
     keys.push(`${name}-${size}-${lastModified}`);
   }
@@ -62,12 +68,12 @@ export const getLocalSourceCount = (notebookId) => {
   }
 };
 
+// GET /file/get-all/{dashboard_id} → [{ file_id, file_name }]
 export const fetchSourcesRequest = async (notebookId) => {
   // [로컬]
   if (IS_LOCAL) return getLocalSources(notebookId);
   // [서버]
-
-  const response = await apiFetch(`${API_URL}/source?notebookId=${notebookId}`, {
+  const response = await apiFetch(`${FILE_BASE}/get-all/${notebookId}`, {
     method: "GET",
     headers: { ...getAuthHeader() },
   });
@@ -75,18 +81,14 @@ export const fetchSourcesRequest = async (notebookId) => {
   if (response.status === 401) return handleUnauthorized();
   if (!response.ok) throw new Error("소스 목록을 불러오지 못했습니다.");
 
-  return response.json();
+  const data = await response.json();
+  return data.map(toClient);
 };
 
+// POST /file/upload — multipart: dashboard_id, file_name, file
 export const uploadSourceRequest = async (notebookId, fileObject) => {
-  if (!notebookId) {
-    throw new Error("폴더 ID가 없습니다.");
-  }
-
-  if (!fileObject) {
-    throw new Error("업로드할 파일이 없습니다.");
-  }
-
+  if (!notebookId) throw new Error("폴더 ID가 없습니다.");
+  if (!fileObject) throw new Error("업로드할 파일이 없습니다.");
   if (fileObject.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
     throw new Error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다.`);
   }
@@ -94,7 +96,6 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
   // [로컬]
   if (IS_LOCAL) {
     const sources = getLocalSources(notebookId);
-
     const newSource = {
       id: `source-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: fileObject.name,
@@ -103,16 +104,17 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
       lastModified: fileObject.lastModified || "",
       createdAt: new Date().toISOString(),
     };
-
-saveLocalSources(notebookId, [...sources, newSource]);
+    saveLocalSources(notebookId, [...sources, newSource]);
     return newSource;
   }
+
   // [서버]
   const formData = new FormData();
+  formData.append('dashboard_id', String(notebookId));
+  formData.append('file_name', fileObject.name);
   formData.append('file', fileObject);
-  formData.append('notebookId', String(notebookId));
 
-  const response = await apiFetch(`${API_URL}/source/upload`, {
+  const response = await apiFetch(`${FILE_BASE}/upload`, {
     method: "POST",
     headers: { ...getAuthHeader() }, // Content-Type은 FormData가 boundary 포함해 자동 설정
     body: formData,
@@ -121,9 +123,13 @@ saveLocalSources(notebookId, [...sources, newSource]);
   if (response.status === 401) return handleUnauthorized();
   if (!response.ok) throw new Error("파일 업로드에 실패했습니다.");
 
-  return response.json();
+  const data = await response.json();
+  // 서버 응답: [{ file_id }] 배열 → 첫 번째 항목 반환
+  const fileId = Array.isArray(data) ? data[0]?.file_id : data?.file_id;
+  return { id: String(fileId), name: fileObject.name };
 };
 
+// DELETE /file/delete/{file_id}
 export const deleteSourceRequest = async (notebookId, sourceId) => {
   // [로컬]
   if (IS_LOCAL) {
@@ -132,7 +138,7 @@ export const deleteSourceRequest = async (notebookId, sourceId) => {
     return true;
   }
   // [서버]
-  const response = await apiFetch(`${API_URL}/source/${sourceId}`, {
+  const response = await apiFetch(`${FILE_BASE}/delete/${sourceId}`, {
     method: 'DELETE',
     headers: { ...getAuthHeader() },
   });
@@ -141,18 +147,39 @@ export const deleteSourceRequest = async (notebookId, sourceId) => {
   return true;
 };
 
-export const fetchDocumentTextRequest = async (sourceId) => {
+// GET /file/get/{file_id} → stream(arraybuffer)
+export const fetchFileRequest = async (fileId) => {
   // [로컬] 미지원
-  if (IS_LOCAL) return "로컬 모드에서는 문서 텍스트를 불러올 수 없습니다.";
+  if (IS_LOCAL) return null;
   // [서버]
-
-  const response = await apiFetch(`${API_URL}/source/${sourceId}/text`, {
+  const response = await apiFetch(`${FILE_BASE}/get/${fileId}`, {
     method: "GET",
     headers: { ...getAuthHeader() },
   });
 
   if (response.status === 401) return handleUnauthorized();
-  if (!response.ok) throw new Error("문서 텍스트를 불러오지 못했습니다.");
+  if (!response.ok) throw new Error("파일을 불러오지 못했습니다.");
 
-  return response.text();
+  const fileName = response.headers.get('file_name') || '';
+
+  // 서버가 stream으로 전송 → 청크 단위로 읽어서 하나의 ArrayBuffer로 합침
+  const reader = response.body.getReader();
+  const chunks = [];
+  let totalLength = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    totalLength += value.length;
+  }
+
+  const buffer = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    buffer.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return { buffer: buffer.buffer, fileName };
 };

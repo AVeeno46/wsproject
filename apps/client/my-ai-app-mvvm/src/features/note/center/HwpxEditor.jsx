@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useHwpxEditorViewModel } from '../../../viewmodels/hwpxEditorViewModel';
 import { HwpxDocView } from './HwpxDocView';
+import { fetchFileRequest } from '../../../models/sourceModel';
 
 export function HwpxEditor({ source }) {
   const {
@@ -23,11 +24,10 @@ export function HwpxEditor({ source }) {
       return;
     }
 
-    // 서버 모드: fileUrl이 있으면 fetch 후 로드
-    if (source.fileUrl) {
-      fetch(source.fileUrl)
-        .then((r) => r.arrayBuffer())
-        .then((buf) => open(buf, name))
+    // 서버 모드: file_id(또는 id)로 서버에서 파일 로드
+    if (source.id) {
+      fetchFileRequest(source.id)
+        .then((res) => res && open(res.buffer, res.fileName || name))
         .catch(() => {});
     }
 
