@@ -85,7 +85,15 @@ export const fetchSourcesRequest = async (notebookId) => {
   return data.map(toClient);
 };
 
-// POST /file/upload — multipart: dashboard_id, file_name, file
+// fail_reason 코드 → 에러 메시지
+const FAIL_REASON_MESSAGES = {
+  400: '파일명이 없습니다.',
+  415: '지원하지 않는 확장자입니다.',
+  422: '파일 데이터가 누락되었습니다.',
+};
+
+// POST /file/upload — multipart: dashboard_id(1회), file(복수 가능)
+// file_name은 서버가 file에서 자동 추출하므로 별도 전송하지 않음
 export const uploadSourceRequest = async (notebookId, fileObject) => {
   if (!notebookId) throw new Error("폴더 ID가 없습니다.");
   if (!fileObject) throw new Error("업로드할 파일이 없습니다.");
@@ -111,7 +119,6 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
   // [서버]
   const formData = new FormData();
   formData.append('dashboard_id', String(notebookId));
-  formData.append('file_name', fileObject.name);
   formData.append('file', fileObject);
 
   const response = await apiFetch(`${FILE_BASE}/upload`, {
@@ -121,12 +128,20 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
   });
 
   if (response.status === 401) return handleUnauthorized();
+  if (response.status === 404) throw new Error('해당 폴더에 소속되어 있지 않습니다.');
+  if (response.status === 413) throw new Error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다.`);
+  if (response.status === 415) throw new Error('지원하지 않는 확장자입니다.');
+  if (response.status === 422) throw new Error('폴더 ID 또는 데이터가 올바르지 않습니다.');
   if (!response.ok) throw new Error("파일 업로드에 실패했습니다.");
 
   const data = await response.json();
-  // 서버 응답: [{ file_id }] 배열 → 첫 번째 항목 반환
-  const fileId = Array.isArray(data) ? data[0]?.file_id : data?.file_id;
-  return { id: String(fileId), name: fileObject.name };
+  // 서버 응답: [{ file_name, file_id, fail_reason }] 배열
+  const item = Array.isArray(data) ? data[0] : data;
+  if (item?.fail_reason && item.fail_reason !== 0) {
+    throw new Error(FAIL_REASON_MESSAGES[item.fail_reason] || '파일 업로드에 실패했습니다.');
+  }
+
+  return { id: String(item?.file_id), name: item?.file_name || fileObject.name };
 };
 
 // DELETE /file/delete/{file_id}
