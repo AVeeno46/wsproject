@@ -18,7 +18,7 @@ const getFileIcon = (name = "") => {
   return fileIcon;
 };
 
-  const fileName = source.name || source.filename || "파일";
+  const fileName = source.name || "파일";
 
   return (
     <button

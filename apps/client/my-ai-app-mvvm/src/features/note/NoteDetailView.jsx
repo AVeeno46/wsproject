@@ -16,28 +16,6 @@ import {
   updateNotebookTitleRequest,
 } from "../../models/notebookModel";
 
-const getSourceKeys = (source) => {
-  if (!source) return [];
-
-  const keys = [];
-
-  const name = source.name || source.file?.name || "";
-  const size = source.size || source.file?.size || 0;
-  const lastModified = source.lastModified || source.file?.lastModified || "";
-
-  // id가 화면마다 새로 만들어져도 삭제 기록이 유지되도록 파일 정보 기반 key를 먼저 사용합니다.
-  if (name || size || lastModified) {
-    keys.push(`${name}-${size}-${lastModified}`);
-  }
-
-  if (source.id) keys.push(String(source.id));
-  if (source.sourceId) keys.push(String(source.sourceId));
-  if (source.fileId) keys.push(String(source.fileId));
-  if (source.previewUrl) keys.push(String(source.previewUrl));
-
-  return [...new Set(keys.filter(Boolean))];
-};
-
 const isDeletedSource = (source, deletedKeys) => {
   const id = String(source?.id || '');
   return id ? deletedKeys.includes(id) : false;
@@ -263,10 +241,6 @@ export function NoteDetailView() {
     if (activeSource && String(activeSource.id) === targetId) {
       const nextSource = visibleSources.find((s) => String(s.id) !== targetId) || null;
       setActiveSource(nextSource);
-    }
-
-    if (deleteSourceTarget.previewUrl) {
-      URL.revokeObjectURL(deleteSourceTarget.previewUrl);
     }
 
     setDeleteSourceTarget(null);

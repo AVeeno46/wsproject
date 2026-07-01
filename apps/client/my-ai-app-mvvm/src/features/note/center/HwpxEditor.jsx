@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useHwpxEditorViewModel } from '../../../viewmodels/hwpxEditorViewModel';
 import { HwpxDocView } from './HwpxDocView';
-import { fetchFileRequest } from '../../../models/sourceModel';
+import { downloadSourceRequest } from '../../../models/sourceModel';
 
 export function HwpxEditor({ source }) {
   const {
@@ -16,7 +16,7 @@ export function HwpxEditor({ source }) {
     close();
     if (!source) return;
 
-    const name = source.name || source.filename || '문서.hwpx';
+    const name = source.name || '문서.hwpx';
 
     // 업로드 직후: 인메모리 File 객체가 있으면 바로 로드
     if (source.file instanceof File) {
@@ -24,9 +24,9 @@ export function HwpxEditor({ source }) {
       return;
     }
 
-    // 서버 모드: file_id(또는 id)로 서버에서 파일 로드
+    // 서버 모드: 소스 id로 서버에서 파일 로드
     if (source.id) {
-      fetchFileRequest(source.id)
+      downloadSourceRequest(source.id)
         .then((res) => res && open(res.buffer, res.fileName || name))
         .catch(() => {});
     }
@@ -77,8 +77,8 @@ export function HwpxEditor({ source }) {
   );
 
   if (!isOpen) {
-    const sourceName = source?.name || source?.filename || '한글 문서';
-    const needsManualPick = source && !(source.file instanceof File) && !source.fileUrl;
+    const sourceName = source?.name || '한글 문서';
+    const needsManualPick = source && !(source.file instanceof File);
 
     return (
       <div className="docPreviewBox">

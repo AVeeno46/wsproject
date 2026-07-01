@@ -44,9 +44,6 @@ const getSourceKeysForCount = (source) => {
   }
 
   if (source.id) keys.push(String(source.id));
-  if (source.sourceId) keys.push(String(source.sourceId));
-  if (source.fileId) keys.push(String(source.fileId));
-  if (source.previewUrl) keys.push(String(source.previewUrl));
 
   return [...new Set(keys.filter(Boolean))];
 };
@@ -163,11 +160,12 @@ export const deleteSourceRequest = async (notebookId, sourceId) => {
 };
 
 // GET /file/get/{file_id} → stream(arraybuffer)
-export const fetchFileRequest = async (fileId) => {
+// 소스의 실제 파일 바이트를 내려받아 ArrayBuffer로 합쳐 반환합니다.
+export const downloadSourceRequest = async (sourceId) => {
   // [로컬] 미지원
   if (IS_LOCAL) return null;
   // [서버]
-  const response = await apiFetch(`${FILE_BASE}/get/${fileId}`, {
+  const response = await apiFetch(`${FILE_BASE}/get/${sourceId}`, {
     method: "GET",
     headers: { ...getAuthHeader() },
   });
