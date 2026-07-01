@@ -3,6 +3,7 @@
 // ViewModel(useDashboardViewModel / useSharedFolderViewModel)에 위임합니다.
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IS_LOCAL } from "../../constants/constants";
 import { useDashboardViewModel } from "../../viewmodels/dashboardViewModel";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";
 import { useSharedFolderViewModel } from "../../viewmodels/sharedFolderViewModel";
@@ -96,8 +97,12 @@ export function DashboardView() {
 
   const sharedNotebookIds = getSharedNotebookIds();
 
-  const displayNotebooks = notebooks
-    .filter((n) => getNotebookOwnerId(n.id) === currentUserId)
+  // [로컬] IS_LOCAL 모드에서는 localStorage 소유자 기록으로 내 폴더만 걸러냄.
+  // [서버] /dashboard/individual/get-all이 이미 JWT 기준으로 본인 폴더만 내려주므로 추가 필터 불필요.
+  const displayNotebooks = (IS_LOCAL
+    ? notebooks.filter((n) => getNotebookOwnerId(n.id) === currentUserId)
+    : notebooks
+  )
     .map((n) => {
       const savedTitle = getNotebookTitle(n.id);
       const title = titleOverrides[n.id] || savedTitle || n.title;
@@ -190,7 +195,7 @@ export function DashboardView() {
         setNotebookOwner(newNotebook.id, currentUserId);
       }
       closeCreateModal();
-      if (newNotebook?.id) navigate(`/notebook/${newNotebook.id}`);
+      if (newNotebook?.id) navigate(`/workspace/${newNotebook.id}`);
     } catch {
       alert("폴더 생성에 실패했습니다.");
     }
@@ -525,7 +530,7 @@ export function DashboardView() {
             onOpenSharedFolder={(folder) => {
               setSharedFolderTitle(folder.id, folder.title);
 
-              navigate(`/notebook/${folder.id}`, {
+              navigate(`/workspace/${folder.id}`, {
                 state: {
                   title: folder.title,
                   isSharedFolder: true,
@@ -539,7 +544,7 @@ export function DashboardView() {
             onJoinSharedFolder={async (folderId, inputPassword) => {
               const target = await joinSharedFolder(folderId, inputPassword);
 
-              navigate(`/notebook/${target.id}`, {
+              navigate(`/workspace/${target.id}`, {
                 state: {
                   title: target.title,
                   isSharedFolder: true,
@@ -567,7 +572,7 @@ export function DashboardView() {
                     viewMode="grid"
                     openMenuId={openMenuId}
                     setOpenMenuId={setOpenMenuId}
-                    onOpen={(n) => navigate(`/notebook/${n.id}`)}
+                    onOpen={(n) => navigate(`/workspace/${n.id}`)}
                     onDelete={(n) => {
                       setDeleteTarget(n);
                       setOpenMenuId(null);
@@ -595,7 +600,7 @@ export function DashboardView() {
                     viewMode="list"
                     openMenuId={openMenuId}
                     setOpenMenuId={setOpenMenuId}
-                    onOpen={(n) => navigate(`/notebook/${n.id}`)}
+                    onOpen={(n) => navigate(`/workspace/${n.id}`)}
                     onDelete={(n) => {
                       setDeleteTarget(n);
                       setOpenMenuId(null);
