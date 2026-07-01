@@ -38,8 +38,11 @@ export const loginRequest = async (email, password) => {
     body: JSON.stringify({ login_id: email, login_password: password }),
   });
 
-  if (!loginResponse.ok) {
+  if (loginResponse.status === 401) {
     throw new Error("아이디 또는 비밀번호가 올바르지 않습니다.");
+  }
+  if (!loginResponse.ok) {
+    throw new Error("로그인 요청에 실패했습니다.");
   }
 
   const accessToken = await loginResponse.text();
