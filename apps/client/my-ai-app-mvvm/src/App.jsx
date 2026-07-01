@@ -1,6 +1,6 @@
 // 앱의 최상위 구성. 전역 Provider(에러 안전망/인증/테마)로 감싸고,
 // URL 경로에 따라 어떤 화면(View)을 보여줄지 라우팅을 정의합니다.
-//   /login → 로그인, /dashboard → 대시보드, /notebook/:id → 노트 상세
+//   /login → 로그인, /dashboard → 대시보드, /workspace/:id → 노트 상세
 // 로그인 안 한 상태로 보호된 경로에 들어오면 /login으로 보냅니다(ProtectedRoute).
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
@@ -34,7 +34,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/notebook/:notebookId"
+          <Route path="/workspace/:notebookId"
             element={
               <ProtectedRoute>
                 <NoteDetailView />
