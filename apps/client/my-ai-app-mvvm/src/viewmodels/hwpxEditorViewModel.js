@@ -46,7 +46,8 @@ export const useHwpxEditorViewModel = () => {
       setFileName(name || '문서.hwpx');
       setIsDirty(false);
       setUndoStack([]);
-    } catch {
+    } catch (err) {
+      console.error('hwpx 파싱 실패:', err);
       setError('이 파일을 열 수 없습니다. (.hwpx 형식인지 확인해 주세요)');
     }
   }, []);

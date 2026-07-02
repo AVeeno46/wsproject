@@ -3,7 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "./ChatMessage";
 
-export function ChatPanel({ chatHistory, isThinking, sendMessage }) {
+// cancelMessage/onOpenSourceRef/onApplyEdits 는 선택적 prop —
+// 안 넘기면 각각 중지 버튼/문서카드 클릭/편집 적용 기능 없이 기존과 동일하게 동작.
+export function ChatPanel({
+  chatHistory,
+  isThinking,
+  sendMessage,
+  cancelMessage,
+  onOpenSourceRef,
+  onApplyEdits,
+}) {
   const [chatInput, setChatInput] = useState("");
   const [isInputExpanded, setIsInputExpanded] = useState(false);
   const [isInputScrollable, setIsInputScrollable] = useState(false);
@@ -101,10 +110,12 @@ export function ChatPanel({ chatHistory, isThinking, sendMessage }) {
           <div className="chatBubbleList" ref={chatListRef}>
             {chatHistory.map((msg, index) => (
               <ChatMessage
-                key={index}
+                key={msg.id || index}
                 message={msg}
                 isLast={index === chatHistory.length - 1}
                 isThinking={isThinking}
+                onOpenSourceRef={onOpenSourceRef}
+                onApplyEdits={onApplyEdits}
               />
             ))}
 
@@ -164,14 +175,26 @@ export function ChatPanel({ chatHistory, isThinking, sendMessage }) {
         <div className="chatComposerBottom">
           <div className="chatComposerTools"></div>
 
-          <button
-            className="sendBtn"
-            type="button"
-            onClick={() => handleSend()}
-            disabled={isThinking}
-          >
-            ➤
-          </button>
+          {isThinking && cancelMessage ? (
+            // 답변 생성 중에는 전송 버튼 대신 중지 버튼 (ChatGPT 방식)
+            <button
+              className="sendBtn stopBtn"
+              type="button"
+              onClick={cancelMessage}
+              title="답변 생성 중지"
+            >
+              ■
+            </button>
+          ) : (
+            <button
+              className="sendBtn"
+              type="button"
+              onClick={() => handleSend()}
+              disabled={isThinking}
+            >
+              ➤
+            </button>
+          )}
         </div>
       </div>
 

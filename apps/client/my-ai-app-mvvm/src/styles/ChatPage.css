@@ -1404,6 +1404,181 @@
   box-shadow: 0 8px 20px rgba(30, 80, 150, 0.08);
 }
 
+/* AI 답변 마크다운 렌더링(react-markdown + remark-gfm) 최소 스타일.
+   최종 디자인은 UI 개발자가 다듬을 예정 — 지금은 가독성 확보용. */
+.chatPage .chatMarkdown {
+  white-space: normal;
+}
+
+.chatPage .chatMarkdown > *:first-child {
+  margin-top: 0;
+}
+
+.chatPage .chatMarkdown > *:last-child {
+  margin-bottom: 0;
+}
+
+.chatPage .chatMarkdown table {
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.chatPage .chatMarkdown th,
+.chatPage .chatMarkdown td {
+  border: 1px solid #d8e5f5;
+  padding: 6px 10px;
+}
+
+.chatPage .chatMarkdown th {
+  background: #f5faff;
+  font-weight: 700;
+}
+
+.chatPage .chatMarkdown code {
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+
+.chatPage .chatMarkdown pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.chatPage .chatMarkdown pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.chatPage .chatMarkdown img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.app.chatPage.dark .chatMarkdown th,
+.app.chatPage.dark .chatMarkdown td {
+  border-color: #334155;
+}
+
+.app.chatPage.dark .chatMarkdown th {
+  background: #1a2233;
+}
+
+.app.chatPage.dark .chatMarkdown code {
+  background: #1e293b;
+}
+
+/* ── 채팅 메시지 도구(복사) / 참조 문서 카드 / 편집 제안 카드 ──── */
+
+.chatPage .chatMsgTools {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.chatPage .chatCopyBtn {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.chatPage .chatCopyBtn:hover {
+  background: #f1f5f9;
+  color: #2563eb;
+}
+
+.chatPage .chatSourceRefs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chatPage .chatSourceRefCard {
+  border: 1px solid #d8e5f5;
+  background: #f5faff;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatPage .chatSourceRefCard:hover {
+  border-color: #2563eb;
+}
+
+.chatPage .chatEditProposal {
+  margin-top: 8px;
+  border: 1px solid #cbdcf4;
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 10px 12px;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.chatPage .chatEditProposalTitle {
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.chatPage .chatEditProposalList {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.chatPage .chatEditProposalList em {
+  color: #708099;
+  font-style: normal;
+}
+
+.chatPage .chatEditApplyBtn {
+  margin-top: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.chatPage .sendBtn.stopBtn {
+  background: #ef4444;
+}
+
+.app.chatPage.dark .chatCopyBtn:hover {
+  background: #1e293b;
+}
+
+.app.chatPage.dark .chatSourceRefCard {
+  background: #1a2233;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.app.chatPage.dark .chatEditProposal {
+  background: #16202f;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
 /* drop overlay */
 .chatPage .dropOverlay {
   position: absolute;

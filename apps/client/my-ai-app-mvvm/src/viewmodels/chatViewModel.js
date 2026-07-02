@@ -1,7 +1,7 @@
 // [ViewModel] 채팅 화면의 상태와 로직을 담는 hook.
 // 대화 목록(chatHistory) 관리, 메시지 전송, 스트리밍 응답을 화면 상태로 반영합니다.
 // model(chatModel)에서 데이터를 가져오고, View(ChatPanel)는 이 hook만 사용합니다.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchChatHistoryRequest, streamChatRequest } from "../models/chatModel";
 
 const getChatStorageKey = (notebookId) => `chat_history_${notebookId}`;
@@ -35,6 +35,8 @@ export const useChatViewModel = (notebookId) => {
   );
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState(null);
+  // 진행 중인 스트리밍 요청의 AbortController (질문 취소용)
+  const abortRef = useRef(null);
 
   const normalizeHistory = (data) => {
     if (!Array.isArray(data)) return [];
@@ -109,61 +111,85 @@ export const useChatViewModel = (notebookId) => {
 
     let accumulated = "";
 
-    try {
-      await streamChatRequest(notebookId, question, (chunk) => {
-        accumulated += chunk;
-        setIsThinking(false);
-
-        updateHistory((prev) => {
-          const updated = [...prev];
-          const lastIndex = updated.length - 1;
-
-          if (lastIndex >= 0 && updated[lastIndex].role === "ai") {
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              text: accumulated,
-            };
-          }
-
-          return updated;
-        });
-      });
-
-      if (!accumulated) {
-        updateHistory((prev) => {
-          const updated = [...prev];
-          const lastIndex = updated.length - 1;
-
-          if (lastIndex >= 0 && updated[lastIndex].role === "ai") {
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              text: "서버에서 빈 응답이 반환되었습니다.",
-            };
-          }
-
-          return updated;
-        });
-      }
-    } catch (err) {
-      const message = err?.message || "답변 생성에 실패했습니다.";
-      setError(message);
-
+    // 마지막 AI 메시지에 부분 갱신을 적용하는 공통 헬퍼
+    const patchLastAiMessage = (patch) => {
       updateHistory((prev) => {
         const updated = [...prev];
         const lastIndex = updated.length - 1;
 
         if (lastIndex >= 0 && updated[lastIndex].role === "ai") {
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            text: message,
-          };
+          updated[lastIndex] = { ...updated[lastIndex], ...patch };
         }
 
         return updated;
       });
+    };
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      await streamChatRequest(
+        notebookId,
+        question,
+        {
+          // 마크다운 텍스트 조각 — 이어붙여서 타이핑 효과
+          onText: (chunk) => {
+            accumulated += chunk;
+            setIsThinking(false);
+            patchLastAiMessage({ text: accumulated });
+          },
+          // AI 문서 편집 제안 — 메시지에 editProposal 필드로 부착 (렌더는 View 담당)
+          onEditProposal: (proposal) => {
+            setIsThinking(false);
+            patchLastAiMessage({ editProposal: proposal });
+          },
+          // 답변이 참조한 문서 — 여러 개 올 수 있어 배열로 누적
+          onSourceRef: (ref) => {
+            updateHistory((prev) => {
+              const updated = [...prev];
+              const lastIndex = updated.length - 1;
+
+              if (lastIndex >= 0 && updated[lastIndex].role === "ai") {
+                const prevRefs = updated[lastIndex].sourceRefs || [];
+                updated[lastIndex] = {
+                  ...updated[lastIndex],
+                  sourceRefs: [...prevRefs, ref],
+                };
+              }
+
+              return updated;
+            });
+          },
+        },
+        controller.signal
+      );
+
+      if (!accumulated) {
+        const wasCancelled = controller.signal.aborted;
+        patchLastAiMessage({
+          text: wasCancelled
+            ? "답변 생성이 취소되었습니다."
+            : "서버에서 빈 응답이 반환되었습니다.",
+        });
+      }
+    } catch (err) {
+      const message = err?.message || "답변 생성에 실패했습니다.";
+      setError(message);
+      patchLastAiMessage({ text: message });
     } finally {
+      abortRef.current = null;
       setIsThinking(false);
     }
+  };
+
+  // 진행 중인 답변 생성을 중단합니다.
+  // fetch 연결이 끊기면 서버도 CancellationToken으로 감지해 LLM 호출을 멈춥니다
+  // (docs/chat-image-api-contract.md §0-4). 이미 받은 부분 응답은 화면에 유지됩니다.
+  const cancelMessage = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsThinking(false);
   };
 
   useEffect(() => {
@@ -179,5 +205,6 @@ export const useChatViewModel = (notebookId) => {
     isThinking,
     error,
     sendMessage,
+    cancelMessage,
   };
 };
