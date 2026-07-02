@@ -70,7 +70,7 @@ export function LoginView() {
 
     if (success) {
       saveLoginInfo(passwordForLogin);
-      navigate("/dashboard");
+      navigate("/chat");
     }
   };
 

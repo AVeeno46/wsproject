@@ -1,6 +1,6 @@
 // 앱의 최상위 구성. 전역 Provider(에러 안전망/인증/테마)로 감싸고,
 // URL 경로에 따라 어떤 화면(View)을 보여줄지 라우팅을 정의합니다.
-//   /login → 로그인, /dashboard → 대시보드, /workspace/:id → 노트 상세
+//   /login → 로그인, /chat, /chat/:conversationId → 채팅 중심 메인 화면
 // 로그인 안 한 상태로 보호된 경로에 들어오면 /login으로 보냅니다(ProtectedRoute).
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
@@ -10,8 +10,7 @@ import { ErrorBoundary } from "./core/ErrorBoundary";
 import { useAuthViewModel as useAuth } from "./viewmodels/authViewModel";
 
 import { LoginView } from "./features/auth/LoginView";
-import { DashboardView } from "./features/dashboard/DashboardView";
-import { NoteDetailView } from "./features/note/NoteDetailView";
+import { ChatView } from "./features/chat/ChatView";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -27,17 +26,17 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginView />} />
-          <Route path="/dashboard"
-          element={
+          <Route path="/chat"
+            element={
               <ProtectedRoute>
-                <DashboardView />
+                <ChatView />
               </ProtectedRoute>
             }
           />
-          <Route path="/workspace/:notebookId"
+          <Route path="/chat/:conversationId"
             element={
               <ProtectedRoute>
-                <NoteDetailView />
+                <ChatView />
               </ProtectedRoute>
             }
           />

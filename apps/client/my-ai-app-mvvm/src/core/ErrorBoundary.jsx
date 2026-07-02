@@ -18,8 +18,8 @@ export class ErrorBoundary extends Component {
 
   handleReset = () => {
     this.setState({ hasError: false });
-    // 손상된 화면 상태를 버리고 대시보드로 복귀합니다.
-    window.location.href = "/dashboard";
+    // 손상된 화면 상태를 버리고 메인 화면으로 복귀합니다.
+    window.location.href = "/chat";
   };
 
   render() {

@@ -141,7 +141,7 @@ const handleFileChange = async (e) => {
             className="schoolLogo"
             src="/assets/logo.png"
             alt="우송대학교 로고"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/chat")}
             draggable={false}
             style={{ cursor: "pointer" }}
           />
