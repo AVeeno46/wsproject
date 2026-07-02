@@ -3,6 +3,14 @@
 > 중앙 작업공간에서 `.hwpx` 문서를 **수동 편집 + AI 편집**으로 수정하기 위한 3자 간 계약서.
 > 세 쪽(클라이언트 / 서버 / RAG)이 이 문서만 보고 **병렬로** 작업할 수 있도록 형식을 고정한다.
 
+> **[업데이트] AI 편집의 진입점이 바뀜.** 채팅 중심 UI로 전환하면서, 클라이언트는 더 이상
+> 아래 3.2(`/document/ai-edit`)를 직접 호출하지 않는다. 사용자는 채팅 입력창에 자연어로
+> 조회/편집을 섞어서 입력하고, **서버가 의도(조회 vs 편집)를 판단**해서 편집이면 이 문서의
+> `{id, newText}` 형식을 그대로 재사용해 채팅 응답 안에 `edit_proposal` 청크로 실어 보낸다.
+> 즉 **3.2는 이제 Server↔RAG 내부 계약**이 되고, Client-facing 진입점은
+> [chat-image-api-contract.md](./chat-image-api-contract.md)의 `POST /workspace/chat/stream`
+> 하나로 통합된다. 1단계(인제스트)·3단계(저장+재임베딩)는 기존 그대로 유효.
+
 **적용 범위 (1단계 = 텍스트 칸 채우기/고치기)**
 - 사용자가 올린 문서 편집 **+ 빈 양식(템플릿) 채우기 = "AI 문서 생성"** 모두 *이 한 가지 동작*으로 처리된다. (시작 파일이 사용자 파일이냐 템플릿이냐 차이뿐, 형식은 동일)
 - 새 문단·표를 **추가 생성**하는 작업(스켈레톤 클론, 2단계)은 이 명세 밖. 추후 `insert` 동작으로 확장한다.
@@ -28,12 +36,14 @@
  Server : 파일 저장 + segments 를 RAG로 전달
  RAG    : block(문단) 단위로 묶어 임베딩 (id 보존)        ← hwpx 안 만짐
 
-[② AI 편집]
- Client → Server :  { file_id, instruction }              (큰 문서라 칸 목록은 안 보냄)
- Server → RAG    :  { file_id, instruction }
+[② AI 편집 — 채팅을 통해 트리거됨, 상세는 chat-image-api-contract.md]
+ Client → Server :  POST /workspace/chat/stream { dashboard_id, query }  (자연어, file_id 지정 안 함)
+ Server          :  query 의도 판단(조회 vs 편집) — 편집이면 대상 file_id 도 RAG 검색으로 추정
+ Server → RAG    :  { file_id, instruction }                             (내부 호출, 3.2 참고)
  RAG    : 관련 segment 검색 → Claude(tool-use) → edits [{id, newText}]
- RAG → Server → Client :  { edits }
- Client : edits 의 id 로 해당 <hp:t> 교체 (미리보기 후 [적용])
+ RAG → Server → Client :  SSE 청크 { type: "edit_proposal", file_id, edits }
+ Client : 채팅 말풍선 안에 diff 카드로 표시 → [적용] 누르면 로컬 엔진(hwpxModel.js)으로
+          해당 파일을 열어 edits 의 id 로 <hp:t> 교체 (서버 재호출 없음)
 
 [③ 저장]
  Client : 수정본 hwpx 생성(엔진) → Server 업로드
@@ -91,15 +101,19 @@ POST  /document/ingest          (제안)
 - RAG: `block` 기준으로 인접 segment 를 묶어 임베딩하되, **각 청크가 포함한 `id` 목록을 보존**한다.
   (개별 `<hp:t>` 는 "3", "전공" 처럼 너무 짧아 단독 임베딩은 의미가 약함 → 문단 단위 묶기 권장)
 
-### 3.2 AI 편집 (② 단계)
+### 3.2 AI 편집 (② 단계) — **Server↔RAG 내부 계약** (Client는 직접 호출하지 않음)
+
+> Client가 실제로 호출하는 엔드포인트는 `POST /workspace/chat/stream`
+> ([chat-image-api-contract.md](./chat-image-api-contract.md) 참고) 하나뿐이다. 아래는 그
+> 요청을 처리하는 도중 서버가 RAG를 호출할 때 쓰는 내부 계약 — 필드 이름/형식(특히
+> `{id, newText}`)은 그대로 유지하고, 요청·응답 경로만 채팅 스트림 안으로 흡수된다.
 
 ```
-POST  /document/ai-edit         (제안)
-요청  {
+(Server → RAG, 내부 호출)  {
   "fileId": 123,
   "instruction": "신청학점을 6으로 올리고, 기수를 44기로 바꿔줘"
 }
-응답  {
+(RAG → Server, 내부 응답)  {
   "edits": [
     { "id": "s0:15", "newText": "6",                      "reason": "신청학점 칸" },
     { "id": "s0:13", "newText": "우송비트고급과정(44기)", "reason": "특별과정명 기수" }
@@ -107,10 +121,16 @@ POST  /document/ai-edit         (제안)
 }
 ```
 
-- 서버: 요청을 RAG로 중계, 응답을 그대로 클라에 반환.
+서버는 이 `edits`를 받으면 채팅 SSE 스트림에 다음 형태로 실어 클라이언트에 전달한다:
+```
+data: {"type":"edit_proposal","file_id":123,"edits":[{"id":"s0:15","newText":"6","reason":"신청학점 칸"}]}
+```
+
 - RAG: `instruction` 으로 관련 segment 검색 → **Claude tool-use** 로 `{id, newText}` 생성 (부록 A 스키마).
 - **응답에는 절대 hwpx/XML/문서 전문이 들어가지 않는다.** 오직 `edits` 배열.
-- 바꿀 게 없으면 `"edits": []`.
+- 바꿀 게 없으면(순수 조회 의도였던 경우) `edit_proposal` 청크 자체를 안 보내고 `text` 청크만 스트리밍.
+- **의도 판단(조회 vs 편집)은 서버 또는 RAG 쪽 책임** — 이 문서에서 별도로 규정하지 않음
+  (chat-image-api-contract.md 미정 항목 참고).
 
 ### 3.3 저장 + 재임베딩 (③ 단계)
 
@@ -164,12 +184,17 @@ AI 편집 요청: `"학점 6으로, 책임교수 홍길동으로"` →
 
 ## 6. 미정 / 확인 필요
 
-- [ ] 엔드포인트 경로 최종 확정 (서버 기존 `/workspace/...` 패밀리에 맞출지)
+- [ ] 인제스트(`/document/ingest`) 엔드포인트 경로 최종 확정 (서버 기존 `/workspace/...` 패밀리에 맞출지)
 - [ ] 인제스트를 업로드와 **합칠지**(한 번에) / **분리**할지(file_id 받은 뒤)
 - [ ] RAG 청크 단위: 문단(`block`) 기준이면 충분한지, 표/셀은 따로 다룰지
 - [ ] AI가 "새 행/새 문단 추가"를 요청받으면? → **이번 범위 밖(텍스트 교체만)**, 거절 또는 무시로 합의
 - [ ] 저장 방식: 클라가 완성본 업로드(현 설계) vs 서버가 edits 받아 적용(서버에 XML 로직 필요)
 - [ ] 재임베딩 트리거: 저장 시마다 vs 일정 주기
+- [ ] **[신규]** 채팅 의도 판단(조회 vs 편집)을 서버가 할지 RAG가 할지 — 결정 주체 확정 필요
+- [ ] **[신규]** 편집 대상 `file_id`를 사용자가 명시 안 했을 때(예: dashboard에 파일이 여러 개),
+      RAG가 어떤 파일을 고를지(가장 최근 언급된 파일? 질문과 가장 관련 있는 파일 검색?) 규칙 필요
+- [ ] **[신규]** `edit_proposal`을 채팅에서 [적용] 안 하고 넘어가면(무시) 그 상태를 서버가
+      알 필요가 있는지, 아니면 클라이언트 로컬 상태로만 남는지
 
 ---
 
