@@ -1,12 +1,11 @@
 // [Chat] 채팅 중심 UI의 루트 화면.
 // conversationId(=기존 notebookId) 유무에 따라 "대화 선택 대기" / "선택된 대화" 상태를 전환합니다.
 // 기존 ViewModel(useDashboardViewModel, useSourceViewModel, useChatViewModel,
-// useSharedFolderViewModel, useAuthViewModel)을 그대로 재사용하고, View만 새로 구성합니다.
+// useAuthViewModel)을 그대로 재사용하고, View만 새로 구성합니다.
 // 배치(그리드/위치)는 이 파일이 아니라 layout/ChatLayout.jsx가 담당합니다.
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDashboardViewModel } from "../../viewmodels/dashboardViewModel";
-import { useSharedFolderViewModel } from "../../viewmodels/sharedFolderViewModel";
 import { useSourceViewModel } from "../../viewmodels/sourceViewModel";
 import { useChatViewModel } from "../../viewmodels/chatViewModel";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";
@@ -15,7 +14,6 @@ import { DocPanelProvider, useDocPanel } from "./context/DocPanelContext";
 import { ChatLayout } from "./layout/ChatLayout";
 import { ConversationSidebar } from "./components/ConversationSidebar";
 import { ConversationTitleBar } from "./components/ConversationTitleBar";
-import { ShareConversationModal } from "./components/ShareConversationModal";
 import { DeleteConversationModal } from "./components/DeleteConversationModal";
 import { DeleteSourceModal } from "./components/DeleteSourceModal";
 import { SettingsDropdown } from "./components/SettingsDropdown";
@@ -38,10 +36,7 @@ function ChatViewInner() {
 
   const { notebooks, createNotebook, removeNotebook, updateNotebookTitle } = useDashboardViewModel();
 
-  const currentUserId = user?.id || "guest";
   const profileName = user?.name || "사용자";
-  const { ownedSharedFolders, joinedSharedFolders, isNotebookShared, shareNotebookAsFolder } =
-    useSharedFolderViewModel({ currentUserId, profileName });
 
   const { sources, isUploading, uploadError, clearUploadError, uploadFile, deleteSource } =
     useSourceViewModel(conversationId);
@@ -57,11 +52,6 @@ function ChatViewInner() {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const dragDepthRef = useRef(0);
-
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [shareStep, setShareStep] = useState("confirm");
-  const [sharePassword, setSharePassword] = useState("");
-  const [shareError, setShareError] = useState("");
 
   const activeConversation = notebooks.find((n) => String(n.id) === String(conversationId)) || null;
   const conversationTitle = activeConversation?.title || "새 대화";
@@ -151,49 +141,18 @@ function ChatViewInner() {
     setIsDragging(false);
   };
 
-  const handleFileDrop = (files) => {
-    files.forEach((file) => uploadFile(file));
-  };
-
-  // ---- 공유 ----
-
-  const isAlreadyShared = activeConversation ? isNotebookShared(activeConversation) : false;
-
-  const handleShare = () => {
-    setShareStep("confirm");
-    setSharePassword("");
-    setShareError("");
-    setIsShareModalOpen(true);
-  };
-  const handleShareNext = () => {
-    setShareStep("password");
-    setShareError("");
-  };
-  const handleShareCreate = async () => {
-    const password = sharePassword.trim();
-    if (!password) {
-      setShareError("공유 암호를 입력하세요.");
-      return;
-    }
-    if (password.length < 4) {
-      setShareError("암호는 4자리 이상 입력하세요.");
-      return;
-    }
-    try {
-      await shareNotebookAsFolder(activeConversation, password);
-      setIsShareModalOpen(false);
-    } catch (error) {
-      setShareError(error.message || "공유에 실패했습니다.");
+  // 여러 파일을 한꺼번에 드롭해도 순차 업로드(한 파일의 업로드 응답을 받은 뒤에
+  // 다음 파일을 보냄) — 서버가 업로드 응답을 임베딩 완료 시점에 돌려주는 구조와
+  // 맞물려, 클라이언트가 동시에 여러 문서를 임베딩 요청하지 않도록 보장한다.
+  const handleFileDrop = async (files) => {
+    for (const file of files) {
+      await uploadFile(file);
     }
   };
 
   // ---- 레이아웃 슬롯 구성 ----
 
   const conversations = notebooks.map((n) => ({ id: n.id, title: n.title }));
-  const sharedConversations = [...ownedSharedFolders, ...joinedSharedFolders].map((f) => ({
-    id: f.id,
-    title: f.title,
-  }));
 
   const sidebar = (
     <ConversationSidebar
@@ -202,7 +161,6 @@ function ChatViewInner() {
       onSelectConversation={(id) => navigate(`/chat/${id}`)}
       onCreateConversation={handleCreateConversation}
       onRequestDelete={setDeleteConversationTarget}
-      sharedConversations={sharedConversations}
       profileName={profileName}
       profileLabel={user?.name ? user.name[0] : "유"}
       onOpenSettings={() => setIsSettingOpen(true)}
@@ -219,8 +177,6 @@ function ChatViewInner() {
         setIsTitleEditing(true);
       }}
       onTitleSave={handleTitleSave}
-      isAlreadyShared={isAlreadyShared}
-      onShare={handleShare}
     />
   ) : null;
 
@@ -280,22 +236,6 @@ function ChatViewInner() {
         onWorkspaceDragLeave={handleWorkspaceDragLeave}
         onWorkspaceDrop={handleWorkspaceDrop}
         isDragging={isDragging}
-      />
-
-      <ShareConversationModal
-        isOpen={isShareModalOpen}
-        step={shareStep}
-        title={conversationTitle}
-        password={sharePassword}
-        onPasswordChange={(value) => {
-          setSharePassword(value);
-          setShareError("");
-        }}
-        error={shareError}
-        onNext={handleShareNext}
-        onBack={() => setShareStep("confirm")}
-        onCreate={handleShareCreate}
-        onClose={() => setIsShareModalOpen(false)}
       />
 
       <DeleteConversationModal

@@ -888,6 +888,35 @@
   gap: 24px;
 }
 
+/* ── PDF 뷰어 (PdfViewer) ─────────────────────────── */
+.chatPage .pdfPageNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chatPage .pdfPageInfo {
+  font-size: 13px;
+  color: #5b6b80;
+  min-width: 56px;
+  text-align: center;
+}
+
+.chatPage .pdfDocScroll {
+  display: flex;
+  justify-content: center;
+}
+
+.chatPage .pdfPage {
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+}
+
+.chatPage .pdfLoadingText {
+  text-align: center;
+  color: #5b6b80;
+  font-size: 14px;
+}
+
 .chatPage .hwpxDocPage {
   background: #ffffff;
   width: 100%;
@@ -2590,55 +2619,9 @@
   background: #334155;
 }
 
-.chatPage .topShareBtn {
-  height: 36px;
-  padding: 0 14px;
-  border: 1px solid #d8e5f5;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #24384f;
-  font-size: 14px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(30, 80, 150, 0.06);
-  flex-shrink: 0;
-}
-
-.chatPage .topShareBtn:hover {
-  background: #f3f8ff;
-}
-
-.app.chatPage.dark .topShareBtn {
-  background: #111827;
-  color: #f8fafc;
-  border-color: #334155;
-}
-
-.app.chatPage.dark .topShareBtn:hover {
-  background: #1e293b;
-  border-color: #60a5fa;
-}
-
 /* 설정 버튼 앞에 생기던 선 제거 */
 .chatPage .topSettingBtn {
   margin-left: 0 !important;
-}
-
-.chatPage .topShareSvg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.chatPage .topShareSvg circle {
-  fill: none;
 }
 
 .chatPage .thinkingRow {
@@ -2710,46 +2693,6 @@
 .chatPage .uploadedFileArea.grid .uploadedFileItem:hover,
 .chatPage .uploadedFileArea.grid .uploadedFileItem.active {
   transform: translateY(-16px) !important;
-}
-
-/* 내 폴더 상세 페이지: 공유 버튼 모달 */
-.shareConfirmBox {
-  margin: 12px 0 16px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: #f3f7ff;
-  border: 1px solid #d8e5f5;
-}
-
-.shareConfirmBox strong {
-  display: block;
-  margin-bottom: 6px;
-  color: #1479ff;
-  font-size: 17px;
-  font-weight: 900;
-}
-
-.shareConfirmBox p {
-  margin: 0;
-  color: #687789;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.notebookPage.dark .shareConfirmBox,
-.chatPage.dark .shareConfirmBox {
-  background: #111827;
-  border-color: #334155;
-}
-
-.notebookPage.dark .shareConfirmBox strong,
-.chatPage.dark .shareConfirmBox strong {
-  color: #9ec5ff;
-}
-
-.notebookPage.dark .shareConfirmBox p,
-.chatPage.dark .shareConfirmBox p {
-  color: #cbd5e1;
 }
 
 /* ============================= */

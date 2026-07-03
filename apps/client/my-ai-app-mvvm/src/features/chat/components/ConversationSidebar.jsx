@@ -1,5 +1,5 @@
 // [Chat] 좌측 사이드바 — 대화(기존 개인폴더/노트북) 목록.
-// 데이터/로직은 부모(ChatView.jsx)가 useDashboardViewModel/useSharedFolderViewModel로 준비해서
+// 데이터/로직은 부모(ChatView.jsx)가 useDashboardViewModel로 준비해서
 // props로 내려줍니다. 이 컴포넌트는 목록 표시와 선택/생성/삭제 트리거만 담당합니다.
 // 하단에 사용자 프로필 + 설정 트리거를 두는 ChatGPT식 배치.
 import { useState } from "react";
@@ -10,7 +10,6 @@ export function ConversationSidebar({
   onSelectConversation,
   onCreateConversation,
   onRequestDelete,
-  sharedConversations,
   isLoading,
   profileName,
   profileLabel,
@@ -75,25 +74,6 @@ export function ConversationSidebar({
               </div>
             ))}
           </div>
-
-          {sharedConversations && sharedConversations.length > 0 && (
-            <div className="conversationSharedSection">
-              <p className="conversationSidebarSectionTitle">공유된 대화</p>
-              {sharedConversations.map((conversation) => (
-                <button
-                  key={conversation.id}
-                  type="button"
-                  className={`conversationListItemBtn${
-                    String(conversation.id) === String(activeConversationId) ? " active" : ""
-                  }`}
-                  onClick={() => onSelectConversation(conversation.id)}
-                  title={conversation.title}
-                >
-                  {conversation.title}
-                </button>
-              ))}
-            </div>
-          )}
         </>
       )}
 

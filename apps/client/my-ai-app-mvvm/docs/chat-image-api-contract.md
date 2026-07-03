@@ -132,11 +132,10 @@ Status Code
   `![alt](url)`.
 - `edit_proposal`의 `edits` 배열 형식은 [hwpx-edit-contract.md](./hwpx-edit-contract.md)
   §3.2/부록 A와 동일 — 새로 정의하지 않고 그대로 재사용.
-- **클라이언트 반영 필요**: 기존 [chatModel.js](../src/models/chatModel.js)의
-  `streamChatRequest`는 `data:` 뒤를 순수 텍스트로 가정하고 있어서, 위 JSON 타입 구분을
-  파싱하도록 **수정이 필요함** (이전 버전 문서에서는 "수정 불필요"라고 썼었는데, 편집
-  제안/참조문서 청크가 추가되면서 이제는 파싱 로직 변경이 필요해짐 — 클라이언트 작업
-  목록에 반영).
+- **클라이언트 반영 완료**: [chatModel.js](../src/models/chatModel.js)의
+  `streamChatRequest`가 `data:` 뒤 JSON을 `type`별로 파싱해 `onText`/`onEditProposal`/
+  `onSourceRef` 콜백으로 분기하도록 구현됨(§5 참고). 서버가 위 3종 청크 형식으로만 보내주면
+  클라이언트 쪽 추가 작업 없이 그대로 동작한다.
 
 ### 2.2 채팅 히스토리 조회
 
@@ -230,20 +229,29 @@ Status Code
 
 ## 5. 클라이언트 상태
 
-**이미 준비된 것**
+**이미 준비된 것 (서버 스펙 없이도 목 데이터로 검증 완료)**
+- [chatModel.js](../src/models/chatModel.js)의 `streamChatRequest` — `data:` 뒤 JSON을
+  `parseChunk`로 파싱해 `type`별(`text`/`edit_proposal`/`source_ref`)로 콜백 분기 완료.
+  JSON이 아니면(구버전 서버 호환) `text` 청크로 폴백.
+- [chatViewModel.js](../src/viewmodels/chatViewModel.js) — 메시지 객체에 `editProposal`,
+  `sourceRefs`(배열) 필드 반영 완료. `cancelMessage()`로 `AbortController.abort()` 호출,
+  진행 중 응답은 부분 텍스트로 유지.
 - [ChatMessage.jsx](../src/features/note/right/ChatMessage.jsx) — `react-markdown` +
-  `remark-gfm` 적용 완료. `text` 청크 내용(마크다운 표/코드블록/이미지) 렌더링 확인됨.
-- 편집 diff 카드 UI 자리 — [AiDiffViewer.jsx](../src/features/note/center/AiDiffViewer.jsx)
-  스텁이 이 용도로 추정됨 (아직 `edit_proposal` 청크와 연결은 안 함).
+  `remark-gfm`으로 `text` 렌더링, `sourceRefs`는 클릭 가능한 문서 카드(📄)로, `editProposal`은
+  `edits` 목록 + `reason` + [적용] 버튼이 있는 diff 카드로 렌더링. 복사 버튼도 포함.
+  ([AiDiffViewer.jsx](../src/features/note/center/AiDiffViewer.jsx)는 미사용 스텁으로
+  남아있음 — 실제 diff UI는 이 파일 안에 인라인으로 구현됨)
+- 질문 취소 — `ChatPanel.jsx`에서 답변 생성 중 전송 버튼이 정지(■) 버튼으로 바뀌어
+  `cancelMessage`를 호출하도록 연결 완료.
 - 문서 캔버스 열기 — [DocPanelContext.jsx](../src/features/chat/context/DocPanelContext.jsx)
-  `open(source)`로 `source_ref` 클릭 시 캔버스 여는 구조 이미 준비됨.
+  `open(source)`로 `source_ref` 클릭 시 캔버스 여는 구조 준비됨.
 
-**서버 스펙 확정 후 클라이언트가 해야 할 것 (아직 안 함)**
-- [chatModel.js](../src/models/chatModel.js)의 `streamChatRequest` — `data:` 뒤를 순수
-  텍스트가 아니라 `{type, ...}` JSON으로 파싱하도록 수정, 타입별로 콜백 분기
-  (`onText`/`onEditProposal`/`onSourceRef` 등)
-- `chatViewModel.js` — 메시지 객체에 `editProposal`/`sourceRef` 필드 추가
-- `ChatMessage.jsx` — `editProposal` 있으면 diff 카드(+[적용] 버튼), `sourceRef` 있으면
-  문서 카드(+캔버스 열기) 렌더링 분기 추가
-- 질문 취소 — 클라이언트 쪽 `AbortController` 연동 (서버는 기존 `CancellationToken`
-  패턴만 지키면 자동 호환)
+**아직 안 한 것 (서버 스펙과 무관하게 클라이언트에서 마저 해야 할 실제 작업)**
+- **`editProposal`의 [적용] 버튼이 아직 어디에도 연결 안 됨.** `ChatMessage.jsx`는
+  `onApplyEdits` prop을 받게만 되어 있고, `ChatPanel.jsx`도 그 prop을 그대로 통과시키지만,
+  현재 [ChatView.jsx](../src/features/chat/ChatView.jsx)가 `ChatPanel`에 `onApplyEdits`를
+  넘기지 않아서 **[적용] 버튼을 눌러도 아무 동작도 안 함**. 실제로 `hwpxModel.js`의 편집
+  엔진(§0-3, `applyEdits`)을 호출해 열려 있는 hwpx 문서에 반영하는 핸들러를 `ChatView.jsx`
+  에 구현해서 내려줘야 §0-3 흐름(로컬 적용)이 완성됨.
+- 위 항목 때문에, 편집 제안이 와도 지금은 "읽기 전용 diff 카드"로만 보임 — 서버 스펙이
+  나와서 실제 `edit_proposal` 청크가 오기 전이라도 이 배선은 로컬 mock으로 먼저 검증 가능.

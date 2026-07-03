@@ -211,21 +211,6 @@
   padding: 4px 8px;
 }
 
-.conversationSharedSection {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.conversationSidebarSectionTitle {
-  font-size: 12px;
-  color: #708099;
-  margin: 0 0 4px 4px;
-}
-
 /* ── 대화 상단 바 ───────────────────────────────────────────── */
 
 .conversationTitleBar {
@@ -261,12 +246,6 @@
   color: #708099;
 }
 
-.conversationUserArea {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .conversationProfileAvatar {
   width: 28px;
   height: 28px;
@@ -278,13 +257,6 @@
   font-weight: 700;
 }
 
-.conversationUserDivider {
-  width: 1px;
-  height: 18px;
-  background: #d8e5f5;
-}
-
-.conversationShareBtn,
 .conversationSettingBtn {
   border: 1px solid #d8e5f5;
   border-radius: 999px;
@@ -296,22 +268,8 @@
   gap: 6px;
 }
 
-.conversationShareBtn.sharedDisabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* ── 삭제 모달 (레이아웃만, sourceDeleteModal*은 기존 전역 규칙 재사용) ── */
 
-.conversationShareSvg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-}
-
-/* ── 공유/삭제 모달 (레이아웃만, sourceDeleteModal*은 기존 전역 규칙 재사용) ── */
-
-.conversationModalBg,
 .conversationDeleteModalBg {
   position: fixed;
   inset: 0;
@@ -323,7 +281,6 @@
   padding: 24px;
 }
 
-.conversationModal,
 .conversationDeleteModal {
   width: min(420px, calc(100vw - 48px));
   border-radius: 22px;
@@ -332,7 +289,6 @@
   box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
 }
 
-.conversationModalActions,
 .conversationDeleteActions {
   display: flex;
   justify-content: flex-end;
@@ -340,7 +296,6 @@
   margin-top: 18px;
 }
 
-.conversationModalActions button,
 .conversationDeleteActions button {
   border: 1px solid #d8e5f5;
   border-radius: 8px;
@@ -431,7 +386,6 @@
   color: #e2e8f0;
 }
 
-.app.chatPage.dark .conversationModal,
 .app.chatPage.dark .conversationDeleteModal,
 .app.chatPage.dark .conversationSettingDropdown {
   background: #1a2233;

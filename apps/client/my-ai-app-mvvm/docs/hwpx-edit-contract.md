@@ -101,6 +101,48 @@ POST  /document/ingest          (제안)
 - RAG: `block` 기준으로 인접 segment 를 묶어 임베딩하되, **각 청크가 포함한 `id` 목록을 보존**한다.
   (개별 `<hp:t>` 는 "3", "전공" 처럼 너무 짧아 단독 임베딩은 의미가 약함 → 문단 단위 묶기 권장)
 
+### 3.1b 다중 문서 업로드 — 순차 처리 원칙 (교수님 요구사항)
+
+여러 문서를 한꺼번에 드래그앤드롭해도, **클라이언트는 요청을 하나씩 순차적으로 보낸다** —
+"문서1 전송 → 임베딩 완료 응답 → 문서2 전송 → …" 순서를 지킨다. 동시에 여러 요청을
+날리거나, 한 요청에 여러 파일을 묶어 보내지 않는다.
+
+**중요 — 서버가 이미 지원하는 기능과 다름**: 현재 `WorkspaceFileController.UploadFile`
+(`Network/WorkSpace/WorkspaceFileController.cs`)은 한 HTTP 요청의 multipart body 안에
+여러 파일 섹션이 들어와도 순회하며 다 처리하고 배열로 응답하는 구조다(`while (section !=
+null) { ... }`). **클라이언트는 이 다중파일 기능을 의도적으로 쓰지 않는다** — 항상 요청
+하나당 파일 하나만 보낸다. 서버팀은 이 다중파일 처리 코드를 유지하되, 클라이언트가 그
+경로를 타지 않는다는 걸 인지하고 있어야 한다.
+
+**서버 쪽 수정 필요 지점**: `POST /workspace/file/upload`의 응답이 지금은 파일 저장만
+끝나면 바로 돌아온다(`Orchestrator.cs` 158~212번째 줄, `RequestKind.WorkspaceFileUpload`
+케이스 — `_dataStorage.TryUploadFileAsync(...)` 완료 후 바로 `return`). **"임베딩 완료 =
+업로드 응답 수신"으로 클라이언트가 판단**하므로, 이 순서가 성립하려면 저 케이스 안에서
+파일 저장 성공 후 **RAG 임베딩 호출을 추가하고 그 완료까지 await한 뒤에 응답을 반환**하도록
+바뀌어야 한다:
+
+```csharp
+// Orchestrator.cs, RequestKind.WorkspaceFileUpload 케이스 (개념 스케치)
+var save = await _dataStorage.TryUploadFileAsync(...);
+if (save.isSuccess == false) { ... }
+
+// ↓ 신규 — 저장 후 임베딩 완료까지 기다렸다가 응답
+var embed = await _ragClient.EmbedFileAsync(save.fileId, ..., token);   // RAG 연동 클라이언트 신규 필요
+if (embed.isSuccess == false) { ... }
+
+return new (true, FailReason.None, save.fileId);   // 임베딩까지 끝난 뒤에만 응답
+```
+
+- 이 변경은 `WorkspaceFileController.cs`(HTTP 계층)는 건드릴 필요 없고, `Orchestrator.cs`의
+  해당 케이스 안에서만 RAG 호출 한 단계를 끼워 넣으면 됨.
+- 전제조건: 오케스트레이터가 RAG를 호출할 클라이언트(`_ragClient` 등, gRPC/HTTP 무엇이든)를
+  아직 갖고 있지 않음 — 이번에 RAG 연동을 처음 배선하는 거라면 여기서 같이 준비돼야 함.
+
+**클라이언트 구현 상태**: `ChatView.jsx`의 `handleFileDrop`, `SourceSidebar.jsx`의
+`uploadFiles` 둘 다 `for...of` + `await`로 순차 처리하도록 이미 반영됨. 파일 하나가
+실패해도(reject 아님, `uploadFile`이 내부에서 에러를 잡고 `null` 반환) 현재는 **나머지
+파일 업로드를 계속 진행**한다 — 실패 시 전체 중단이 필요하면 별도 정책 결정 필요(미정).
+
 ### 3.2 AI 편집 (② 단계) — **Server↔RAG 내부 계약** (Client는 직접 호출하지 않음)
 
 > Client가 실제로 호출하는 엔드포인트는 `POST /workspace/chat/stream`
@@ -195,6 +237,10 @@ AI 편집 요청: `"학점 6으로, 책임교수 홍길동으로"` →
       RAG가 어떤 파일을 고를지(가장 최근 언급된 파일? 질문과 가장 관련 있는 파일 검색?) 규칙 필요
 - [ ] **[신규]** `edit_proposal`을 채팅에서 [적용] 안 하고 넘어가면(무시) 그 상태를 서버가
       알 필요가 있는지, 아니면 클라이언트 로컬 상태로만 남는지
+- [ ] **[신규]** 다중 문서 순차 업로드 중 한 파일이 실패하면 나머지도 중단할지, 계속
+      진행할지 정책 결정 (§3.1b) — 클라이언트는 현재 "계속 진행"으로 동작
+- [ ] **[신규]** `Orchestrator.cs`의 RAG 임베딩 클라이언트(`_ragClient` 등) 배선 — 아직 없음,
+      §3.1b 참고
 
 ---
 
