@@ -91,10 +91,13 @@ export const useDashboardViewModel = () => {
         fetchNotebooks();
     }, []);
 
+    const clearError = () => setError(null);
+
     return {
         notebooks,
         loading,
         error,
+        clearError,
         createNotebook,
         removeNotebook,
         updateNotebookTitle,

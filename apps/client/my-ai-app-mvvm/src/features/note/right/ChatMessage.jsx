@@ -1,11 +1,30 @@
 // [View] 채팅 말풍선 하나.
 // AI 메시지는 마크다운으로 렌더링하고, 서버 계약(docs/chat-image-api-contract.md)의
 // 추가 청크(editProposal/sourceRefs)가 메시지에 붙어 있으면 카드로 함께 표시합니다.
-import { useState } from "react";
+import { memo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export function ChatMessage({ message, isLast, isThinking, onOpenSourceRef, onApplyEdits }) {
+// 마크다운 이미지 로드 실패 시 브라우저 기본 깨진 아이콘 대신 안내 박스로 대체.
+function MarkdownImage({ src, alt }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return <span className="chatImgFallback">🖼️ 이미지를 불러올 수 없습니다{alt ? ` (${alt})` : ""}</span>;
+  }
+
+  return <img src={src} alt={alt} onError={() => setFailed(true)} />;
+}
+
+// 스트리밍 중 매 청크마다 채팅 목록 전체가 리렌더링돼도, 내용이 안 바뀐
+// 이전 메시지들은 다시 그리지 않도록 memo로 감싼다(마크다운 재파싱 비용 절감).
+export const ChatMessage = memo(function ChatMessage({
+  message,
+  isLast,
+  isThinking,
+  onOpenSourceRef,
+  onApplyEdits,
+}) {
   const isUser = message.role === "user";
   const [copied, setCopied] = useState(false);
 
@@ -29,7 +48,9 @@ export function ChatMessage({ message, isLast, isThinking, onOpenSourceRef, onAp
           message.text
         ) : (
           <div className="chatMarkdown">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ img: MarkdownImage }}>
+              {message.text}
+            </ReactMarkdown>
           </div>
         )}
         {!isUser && isLast && isThinking && !message.text && <span>...</span>}
@@ -91,4 +112,4 @@ export function ChatMessage({ message, isLast, isThinking, onOpenSourceRef, onAp
       </div>
     </div>
   );
-}
+});

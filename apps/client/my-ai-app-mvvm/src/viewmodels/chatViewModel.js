@@ -110,6 +110,7 @@ export const useChatViewModel = (notebookId) => {
     setIsThinking(true);
 
     let accumulated = "";
+    let hasStartedTyping = false;
 
     // 마지막 AI 메시지에 부분 갱신을 적용하는 공통 헬퍼
     const patchLastAiMessage = (patch) => {
@@ -125,6 +126,19 @@ export const useChatViewModel = (notebookId) => {
       });
     };
 
+    // 청크마다 setState하면 대량 응답 시 리렌더링/마크다운 재파싱이 폭증하므로,
+    // 텍스트는 버퍼에 모았다가 일정 주기로만 화면에 반영(배칭)한다.
+    const FLUSH_INTERVAL_MS = 50;
+    let flushTimer = null;
+    const flushAccumulated = () => {
+      flushTimer = null;
+      patchLastAiMessage({ text: accumulated });
+    };
+    const scheduleFlush = () => {
+      if (flushTimer) return;
+      flushTimer = setTimeout(flushAccumulated, FLUSH_INTERVAL_MS);
+    };
+
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -136,8 +150,13 @@ export const useChatViewModel = (notebookId) => {
           // 마크다운 텍스트 조각 — 이어붙여서 타이핑 효과
           onText: (chunk) => {
             accumulated += chunk;
-            setIsThinking(false);
-            patchLastAiMessage({ text: accumulated });
+
+            if (!hasStartedTyping) {
+              hasStartedTyping = true;
+              setIsThinking(false);
+            }
+
+            scheduleFlush();
           },
           // AI 문서 편집 제안 — 메시지에 editProposal 필드로 부착 (렌더는 View 담당)
           onEditProposal: (proposal) => {
@@ -164,6 +183,13 @@ export const useChatViewModel = (notebookId) => {
         },
         controller.signal
       );
+
+      // 스트림 종료 시점에 타이머보다 먼저 끝날 수 있으므로 남은 버퍼를 즉시 반영
+      if (flushTimer) {
+        clearTimeout(flushTimer);
+        flushTimer = null;
+      }
+      flushAccumulated();
 
       if (!accumulated) {
         const wasCancelled = controller.signal.aborted;

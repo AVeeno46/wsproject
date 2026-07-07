@@ -19,9 +19,18 @@ export function ChatPanel({
 
   const chatListRef = useRef(null);
   const chatInputRef = useRef(null);
+  const isNearBottomRef = useRef(true);
+
+  // 사용자가 위로 스크롤해서 읽는 중이면 스트리밍 중에도 강제로 끌어내리지 않음.
+  const SCROLL_BOTTOM_THRESHOLD = 80;
+  const handleChatListScroll = (e) => {
+    const el = e.currentTarget;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isNearBottomRef.current = distanceFromBottom <= SCROLL_BOTTOM_THRESHOLD;
+  };
 
   useEffect(() => {
-    if (chatListRef.current) {
+    if (chatListRef.current && isNearBottomRef.current) {
       chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
     }
   }, [chatHistory]);
@@ -66,6 +75,7 @@ export function ChatPanel({
 
     if (!text.trim() || isThinking) return;
 
+    isNearBottomRef.current = true; // 내가 보낸 메시지는 항상 맨 아래로 이동
     sendMessage(text);
     setChatInput("");
     setIsInputExpanded(false);
@@ -107,7 +117,7 @@ export function ChatPanel({
             <p>문서 요약, 분석, 검색 등 다양한 질문을 할 수 있어요.</p>
           </>
         ) : (
-          <div className="chatBubbleList" ref={chatListRef}>
+          <div className="chatBubbleList" ref={chatListRef} onScroll={handleChatListScroll}>
             {chatHistory.map((msg, index) => (
               <ChatMessage
                 key={msg.id || index}

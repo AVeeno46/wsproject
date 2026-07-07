@@ -32,6 +32,7 @@ export function useSourceViewModel(notebookId) {
 
         if (isMounted) {
           setSources([]);
+          setUploadError(error.message || "파일 목록을 불러오지 못했습니다.");
         }
       }
     };
@@ -85,6 +86,7 @@ export function useSourceViewModel(notebookId) {
       return true;
     } catch (error) {
       console.error('파일 삭제 실패:', error);
+      setUploadError(error.message || "파일 삭제에 실패했습니다.");
       return false;
     }
   };

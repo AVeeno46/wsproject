@@ -1491,6 +1491,20 @@
   border-radius: 8px;
 }
 
+.chatPage .chatImgFallback {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px dashed #cbdcf4;
+  border-radius: 8px;
+  color: #708099;
+  font-size: 13px;
+}
+
+.app.chatPage.dark .chatImgFallback {
+  border-color: #334155;
+  color: #94a3b8;
+}
+
 .app.chatPage.dark .chatMarkdown th,
 .app.chatPage.dark .chatMarkdown td {
   border-color: #334155;

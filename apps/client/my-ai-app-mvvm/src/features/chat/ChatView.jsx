@@ -3,7 +3,7 @@
 // 기존 ViewModel(useDashboardViewModel, useSourceViewModel, useChatViewModel,
 // useAuthViewModel)을 그대로 재사용하고, View만 새로 구성합니다.
 // 배치(그리드/위치)는 이 파일이 아니라 layout/ChatLayout.jsx가 담당합니다.
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDashboardViewModel } from "../../viewmodels/dashboardViewModel";
 import { useSourceViewModel } from "../../viewmodels/sourceViewModel";
@@ -34,7 +34,8 @@ function ChatViewInner() {
   const { requestLogout, user } = useAuthViewModel();
   const { theme, setTheme } = useTheme();
 
-  const { notebooks, createNotebook, removeNotebook, updateNotebookTitle } = useDashboardViewModel();
+  const { notebooks, error: conversationError, clearError: clearConversationError, createNotebook, removeNotebook, updateNotebookTitle } =
+    useDashboardViewModel();
 
   const profileName = user?.name || "사용자";
 
@@ -161,6 +162,8 @@ function ChatViewInner() {
       onSelectConversation={(id) => navigate(`/chat/${id}`)}
       onCreateConversation={handleCreateConversation}
       onRequestDelete={setDeleteConversationTarget}
+      error={conversationError}
+      onClearError={clearConversationError}
       profileName={profileName}
       profileLabel={user?.name ? user.name[0] : "유"}
       onOpenSettings={() => setIsSettingOpen(true)}
@@ -182,10 +185,15 @@ function ChatViewInner() {
 
   // AI가 참조한 문서 카드 클릭 → 문서 캔버스 열기
   // sourceRefs의 file_id를 현재 소스 목록에서 찾아 매칭 (없으면 id만으로 열기 시도)
-  const handleOpenSourceRef = (ref) => {
-    const matched = sources.find((s) => String(s.id) === String(ref.file_id));
-    openDocPanel(matched || { id: String(ref.file_id), name: ref.file_name });
-  };
+  // useCallback으로 참조를 고정 — 그렇지 않으면 스트리밍 중 매 렌더마다 새 함수가
+  // 생성되어 ChatMessage의 React.memo가 무력화된다.
+  const handleOpenSourceRef = useCallback(
+    (ref) => {
+      const matched = sources.find((s) => String(s.id) === String(ref.file_id));
+      openDocPanel(matched || { id: String(ref.file_id), name: ref.file_name });
+    },
+    [sources, openDocPanel]
+  );
 
   const chatPane = conversationId ? (
     <ChatPanel

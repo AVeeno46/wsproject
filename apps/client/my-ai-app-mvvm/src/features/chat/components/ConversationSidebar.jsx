@@ -11,6 +11,8 @@ export function ConversationSidebar({
   onCreateConversation,
   onRequestDelete,
   isLoading,
+  error,
+  onClearError,
   profileName,
   profileLabel,
   onOpenSettings,
@@ -38,6 +40,20 @@ export function ConversationSidebar({
           {isOpen ? "+ 새 대화" : "+"}
         </button>
       </div>
+
+      {error && isOpen && (
+        <div className="uploadErrorBanner" role="alert">
+          <span>{error}</span>
+          <button
+            type="button"
+            className="uploadErrorClose"
+            onClick={() => onClearError?.()}
+            aria-label="에러 메시지 닫기"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {isOpen && (
         <>
