@@ -7,11 +7,11 @@
 import { API_URL, IS_LOCAL } from '../constants/constants';
 import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 
-export const fetchChatHistoryRequest = async (notebookId) => {
+export const fetchChatHistoryRequest = async (conversationId) => {
     // [로컬] 히스토리 미지원
     if (IS_LOCAL) return [];
     // [서버] GET /workspace/chat/history/{dashboard_id}
-    const response = await apiFetch(`${API_URL}/chat/history/${notebookId}`, {
+    const response = await apiFetch(`${API_URL}/chat/history/${conversationId}`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
     });
@@ -38,7 +38,7 @@ const parseChunk = (raw) => {
 //   handlers.onSourceRef(ref)          — { file_id, file_name } (선택)
 //   signal                             — AbortController.signal (질문 취소용, 선택)
 // 취소되면 AbortError를 조용히 삼키고 정상 반환합니다(부분 응답은 이미 콜백으로 전달됨).
-export const streamChatRequest = async (notebookId, query, handlers, signal) => {
+export const streamChatRequest = async (conversationId, query, handlers, signal) => {
     // 하위 호환: 세 번째 인자가 함수면 onText 단일 콜백으로 취급
     const on = typeof handlers === 'function' ? { onText: handlers } : (handlers || {});
     const emit = (chunk) => {
@@ -80,7 +80,7 @@ export const streamChatRequest = async (notebookId, query, handlers, signal) => 
         response = await apiFetch(`${API_URL}/chat/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-            body: JSON.stringify({ dashboard_id: Number(notebookId), query }),
+            body: JSON.stringify({ dashboard_id: Number(conversationId), query }),
             signal,
         });
     } catch (e) {

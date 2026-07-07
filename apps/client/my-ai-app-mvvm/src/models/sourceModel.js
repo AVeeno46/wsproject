@@ -6,19 +6,19 @@ import { apiFetch, getAuthHeader, handleUnauthorized } from "./modelUtils";
 
 const FILE_BASE = `${API_URL}/file`;
 
-const lsKey = (notebookId) => `local_sources_${notebookId}`;
+const lsKey = (conversationId) => `local_sources_${conversationId}`;
 
-const getLocalSources = (notebookId) => {
+const getLocalSources = (conversationId) => {
   try {
-    return JSON.parse(localStorage.getItem(lsKey(notebookId)) || "[]");
+    return JSON.parse(localStorage.getItem(lsKey(conversationId)) || "[]");
   } catch {
     return [];
   }
 };
 
-const saveLocalSources = (notebookId, list) => {
+const saveLocalSources = (conversationId, list) => {
   try {
-    localStorage.setItem(lsKey(notebookId), JSON.stringify(list));
+    localStorage.setItem(lsKey(conversationId), JSON.stringify(list));
   } catch {
     // localStorage 사용 불가(용량 초과/시크릿 모드) 시 새로고침 후 초기화됩니다.
   }
@@ -48,10 +48,10 @@ const getSourceKeysForCount = (source) => {
   return [...new Set(keys.filter(Boolean))];
 };
 
-export const getLocalSourceCount = (notebookId) => {
+export const getLocalSourceCount = (conversationId) => {
   try {
-    const saved = localStorage.getItem(`local_sources_${notebookId}`);
-    const deleted = localStorage.getItem(`deletedSources:${notebookId}`);
+    const saved = localStorage.getItem(`local_sources_${conversationId}`);
+    const deleted = localStorage.getItem(`deletedSources:${conversationId}`);
 
     const sources = saved ? JSON.parse(saved) : [];
     const deletedKeys = deleted ? JSON.parse(deleted) : [];
@@ -66,11 +66,11 @@ export const getLocalSourceCount = (notebookId) => {
 };
 
 // GET /file/get-all/{dashboard_id} → [{ file_id, file_name }]
-export const fetchSourcesRequest = async (notebookId) => {
+export const fetchSourcesRequest = async (conversationId) => {
   // [로컬]
-  if (IS_LOCAL) return getLocalSources(notebookId);
+  if (IS_LOCAL) return getLocalSources(conversationId);
   // [서버]
-  const response = await apiFetch(`${FILE_BASE}/get-all/${notebookId}`, {
+  const response = await apiFetch(`${FILE_BASE}/get-all/${conversationId}`, {
     method: "GET",
     headers: { ...getAuthHeader() },
   });
@@ -91,8 +91,8 @@ const FAIL_REASON_MESSAGES = {
 
 // POST /file/upload — multipart: dashboard_id(1회), file(복수 가능)
 // file_name은 서버가 file에서 자동 추출하므로 별도 전송하지 않음
-export const uploadSourceRequest = async (notebookId, fileObject) => {
-  if (!notebookId) throw new Error("폴더 ID가 없습니다.");
+export const uploadSourceRequest = async (conversationId, fileObject) => {
+  if (!conversationId) throw new Error("대화 ID가 없습니다.");
   if (!fileObject) throw new Error("업로드할 파일이 없습니다.");
   if (fileObject.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
     throw new Error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다.`);
@@ -100,7 +100,7 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
 
   // [로컬]
   if (IS_LOCAL) {
-    const sources = getLocalSources(notebookId);
+    const sources = getLocalSources(conversationId);
     const newSource = {
       id: `source-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: fileObject.name,
@@ -109,13 +109,13 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
       lastModified: fileObject.lastModified || "",
       createdAt: new Date().toISOString(),
     };
-    saveLocalSources(notebookId, [...sources, newSource]);
+    saveLocalSources(conversationId, [...sources, newSource]);
     return newSource;
   }
 
   // [서버]
   const formData = new FormData();
-  formData.append('dashboard_id', String(notebookId));
+  formData.append('dashboard_id', String(conversationId));
   formData.append('file', fileObject);
 
   const response = await apiFetch(`${FILE_BASE}/upload`, {
@@ -125,10 +125,10 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
   });
 
   if (response.status === 401) return handleUnauthorized();
-  if (response.status === 404) throw new Error('해당 폴더에 소속되어 있지 않습니다.');
+  if (response.status === 404) throw new Error('해당 대화에 소속되어 있지 않습니다.');
   if (response.status === 413) throw new Error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다.`);
   if (response.status === 415) throw new Error('지원하지 않는 확장자입니다.');
-  if (response.status === 422) throw new Error('폴더 ID 또는 데이터가 올바르지 않습니다.');
+  if (response.status === 422) throw new Error('대화 ID 또는 데이터가 올바르지 않습니다.');
   if (!response.ok) throw new Error("파일 업로드에 실패했습니다.");
 
   const data = await response.json();
@@ -142,11 +142,11 @@ export const uploadSourceRequest = async (notebookId, fileObject) => {
 };
 
 // DELETE /file/delete/{file_id}
-export const deleteSourceRequest = async (notebookId, sourceId) => {
+export const deleteSourceRequest = async (conversationId, sourceId) => {
   // [로컬]
   if (IS_LOCAL) {
-    const sources = getLocalSources(notebookId);
-    saveLocalSources(notebookId, sources.filter((s) => String(s.id) !== String(sourceId)));
+    const sources = getLocalSources(conversationId);
+    saveLocalSources(conversationId, sources.filter((s) => String(s.id) !== String(sourceId)));
     return true;
   }
   // [서버]

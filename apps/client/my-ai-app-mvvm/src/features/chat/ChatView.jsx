@@ -39,7 +39,7 @@ function ChatViewInner() {
 
   const profileName = user?.name || "사용자";
 
-  const { sources, isUploading, uploadError, clearUploadError, uploadFile, deleteSource } =
+  const { sources, isUploading, uploadError, uploadProgress, clearUploadError, uploadFiles, deleteSource } =
     useSourceViewModel(conversationId);
   const { chatHistory, isThinking, sendMessage, cancelMessage } = useChatViewModel(conversationId);
 
@@ -142,14 +142,9 @@ function ChatViewInner() {
     setIsDragging(false);
   };
 
-  // 여러 파일을 한꺼번에 드롭해도 순차 업로드(한 파일의 업로드 응답을 받은 뒤에
-  // 다음 파일을 보냄) — 서버가 업로드 응답을 임베딩 완료 시점에 돌려주는 구조와
-  // 맞물려, 클라이언트가 동시에 여러 문서를 임베딩 요청하지 않도록 보장한다.
-  const handleFileDrop = async (files) => {
-    for (const file of files) {
-      await uploadFile(file);
-    }
-  };
+  // 순차 업로드(동시 임베딩 방지)와 진행 상황(uploadProgress) 추적은
+  // useSourceViewModel의 uploadFiles가 담당한다.
+  const handleFileDrop = (files) => uploadFiles(files);
 
   // ---- 레이아웃 슬롯 구성 ----
 
@@ -215,8 +210,9 @@ function ChatViewInner() {
         sources={sources}
         isUploading={isUploading}
         uploadError={uploadError}
+        uploadProgress={uploadProgress}
         clearUploadError={clearUploadError}
-        uploadFile={uploadFile}
+        uploadFiles={uploadFiles}
         activeSource={activeSource}
         setActiveSource={(source) => openDocPanel(source)}
         onDeleteSource={setDeleteSourceTarget}

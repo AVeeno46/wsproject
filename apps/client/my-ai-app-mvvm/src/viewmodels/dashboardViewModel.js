@@ -29,7 +29,7 @@ export const useDashboardViewModel = () => {
         const trimmed = title.trim().toLowerCase();
         const isDuplicate = notebooks.some((n) => n.title.trim().toLowerCase() === trimmed);
         if (isDuplicate) {
-            const err = new Error('같은 이름의 폴더가 이미 있습니다.');
+            const err = new Error('같은 이름의 대화가 이미 있습니다.');
             setError(err.message);
             throw err;
         }
@@ -43,11 +43,11 @@ export const useDashboardViewModel = () => {
         }
     };
 
-    const removeNotebook = async (notebookId) => {
+    const removeNotebook = async (conversationId) => {
         try {
-            const success = await deleteNotebookRequest(notebookId);
+            const success = await deleteNotebookRequest(conversationId);
             if (success) {
-                setNotebooks((prev) => prev.filter((n) => n.id !== notebookId));
+                setNotebooks((prev) => prev.filter((n) => n.id !== conversationId));
             } else {
                 const err = new Error('삭제에 실패했습니다.');
                 setError(err.message);
@@ -59,22 +59,22 @@ export const useDashboardViewModel = () => {
         }
     };
 
-    const updateNotebookTitle = async (notebookId, title) => {
+    const updateNotebookTitle = async (conversationId, title) => {
         const trimmed = title.trim().toLowerCase();
         const isDuplicate = notebooks.some(
-            (n) => String(n.id) !== String(notebookId) && n.title.trim().toLowerCase() === trimmed
+            (n) => String(n.id) !== String(conversationId) && n.title.trim().toLowerCase() === trimmed
         );
         if (isDuplicate) {
-            const err = new Error('같은 이름의 폴더가 이미 있습니다.');
+            const err = new Error('같은 이름의 대화가 이미 있습니다.');
             setError(err.message);
             throw err;
         }
         try {
-            const updatedNotebook = await updateNotebookTitleRequest(notebookId, title);
+            const updatedNotebook = await updateNotebookTitleRequest(conversationId, title);
 
             setNotebooks((prev) =>
                 prev.map((note) =>
-                    String(note.id) === String(notebookId)
+                    String(note.id) === String(conversationId)
                         ? { ...note, title: updatedNotebook?.title || title }
                         : note
                 )

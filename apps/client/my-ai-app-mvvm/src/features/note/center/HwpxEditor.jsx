@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { useHwpxEditorViewModel } from '../../../viewmodels/hwpxEditorViewModel';
 import { HwpxDocView } from './HwpxDocView';
 import { downloadSourceRequest } from '../../../models/sourceModel';
@@ -10,25 +10,43 @@ export function HwpxEditor({ source }) {
     canUndo, open, close, setFieldText, undo, exportBlob,
   } = useHwpxEditorViewModel();
   const inputRef = useRef(null);
+  const requestIdRef = useRef(0);
+  const [loadError, setLoadError] = useState(null);
 
   // source가 바뀌면 에디터 리셋 후 자동 로드
   useEffect(() => {
     close();
+    setLoadError(null);
+
+    // 소스를 빠르게 연달아 전환하면 늦게 도착한 이전 요청이 최신 문서를
+    // 덮어쓸 수 있어, 요청마다 토큰을 부여해 최신 요청 결과만 반영한다.
+    const requestId = ++requestIdRef.current;
+
     if (!source) return;
 
     const name = source.name || '문서.hwpx';
 
     // 업로드 직후: 인메모리 File 객체가 있으면 바로 로드
     if (source.file instanceof File) {
-      source.file.arrayBuffer().then((buf) => open(buf, name));
+      source.file.arrayBuffer().then((buf) => {
+        if (requestIdRef.current !== requestId) return;
+        open(buf, name);
+      });
       return;
     }
 
     // 서버 모드: 소스 id로 서버에서 파일 로드
     if (source.id) {
       downloadSourceRequest(source.id)
-        .then((res) => res && open(res.buffer, res.fileName || name))
-        .catch(() => {});
+        .then((res) => {
+          if (requestIdRef.current !== requestId) return;
+          if (res) open(res.buffer, res.fileName || name);
+        })
+        .catch((err) => {
+          if (requestIdRef.current !== requestId) return;
+          console.error('hwpx 다운로드 실패:', err);
+          setLoadError('파일을 불러오지 못했습니다.');
+        });
     }
 
     // 둘 다 없으면 수동 선택 대기 (아래 UI에서 버튼 표시)
@@ -39,6 +57,7 @@ export function HwpxEditor({ source }) {
   const handlePick = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setLoadError(null);
     const buffer = await file.arrayBuffer();
     await open(buffer, file.name);
     e.target.value = '';
@@ -72,6 +91,17 @@ export function HwpxEditor({ source }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isDirty, isSaving, canUndo, handleSave, undo]);
 
+  // 저장 안 한 수정 사항이 있는 상태로 새로고침/탭 닫기를 시도하면 브라우저 기본 확인창을 띄운다.
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
   const hiddenInput = (
     <input ref={inputRef} type="file" accept=".hwpx" hidden onChange={handlePick} />
   );
@@ -86,10 +116,10 @@ export function HwpxEditor({ source }) {
         <h2>{sourceName}</h2>
         {needsManualPick ? (
           <p>새로고침으로 파일 정보가 초기화되었습니다.<br />파일을 다시 선택해 주세요.</p>
-        ) : (
+        ) : !loadError ? (
           <p>파일을 불러오는 중입니다...</p>
-        )}
-        {error && <p className="hwpxError">{error}</p>}
+        ) : null}
+        {(error || loadError) && <p className="hwpxError">{error || loadError}</p>}
         {needsManualPick && (
           <button type="button" className="hwpxOpenBtn" onClick={pickFile}>
             파일 다시 선택 (.hwpx)

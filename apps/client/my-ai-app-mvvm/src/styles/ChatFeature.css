@@ -37,7 +37,7 @@
 }
 
 .chatFeatureDocPane {
-  width: 420px;
+  width: min(56vw, 760px);
   flex-shrink: 0;
   border-left: 1px solid #d8e5f5;
   display: flex;

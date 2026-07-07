@@ -4,13 +4,13 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchChatHistoryRequest, streamChatRequest } from "../models/chatModel";
 
-const getChatStorageKey = (notebookId) => `chat_history_${notebookId}`;
+const getChatStorageKey = (conversationId) => `chat_history_${conversationId}`;
 
-const readLocalChatHistory = (notebookId) => {
-  if (!notebookId) return [];
+const readLocalChatHistory = (conversationId) => {
+  if (!conversationId) return [];
 
   try {
-    const saved = localStorage.getItem(getChatStorageKey(notebookId));
+    const saved = localStorage.getItem(getChatStorageKey(conversationId));
     const parsed = saved ? JSON.parse(saved) : [];
 
     return Array.isArray(parsed) ? parsed : [];
@@ -19,19 +19,19 @@ const readLocalChatHistory = (notebookId) => {
   }
 };
 
-const saveLocalChatHistory = (notebookId, history) => {
-  if (!notebookId) return;
+const saveLocalChatHistory = (conversationId, history) => {
+  if (!conversationId) return;
 
   try {
-    localStorage.setItem(getChatStorageKey(notebookId), JSON.stringify(history));
+    localStorage.setItem(getChatStorageKey(conversationId), JSON.stringify(history));
   } catch {
     // localStorage 사용 불가 환경이면 현재 화면에서만 유지됩니다.
   }
 };
 
-export const useChatViewModel = (notebookId) => {
+export const useChatViewModel = (conversationId) => {
   const [chatHistory, setChatHistory] = useState(() =>
-    readLocalChatHistory(notebookId)
+    readLocalChatHistory(conversationId)
   );
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState(null);
@@ -52,7 +52,7 @@ export const useChatViewModel = (notebookId) => {
     }));
   };
 
-  const fetchHistory = async (targetNotebookId = notebookId) => {
+  const fetchHistory = async (targetNotebookId = conversationId) => {
     if (!targetNotebookId) {
       setChatHistory([]);
       return;
@@ -80,7 +80,7 @@ export const useChatViewModel = (notebookId) => {
   const updateHistory = (updater) => {
     setChatHistory((prev) => {
       const next = typeof updater === "function" ? updater(prev) : updater;
-      saveLocalChatHistory(notebookId, next);
+      saveLocalChatHistory(conversationId, next);
       return next;
     });
   };
@@ -88,7 +88,7 @@ export const useChatViewModel = (notebookId) => {
   const sendMessage = async (userQuery) => {
     const question = String(userQuery || "").trim();
 
-    if (!question || !notebookId) return;
+    if (!question || !conversationId) return;
 
     setError(null);
 
@@ -144,7 +144,7 @@ export const useChatViewModel = (notebookId) => {
 
     try {
       await streamChatRequest(
-        notebookId,
+        conversationId,
         question,
         {
           // 마크다운 텍스트 조각 — 이어붙여서 타이핑 효과
@@ -219,12 +219,12 @@ export const useChatViewModel = (notebookId) => {
   };
 
   useEffect(() => {
-    fetchHistory(notebookId);
-  }, [notebookId]);
+    fetchHistory(conversationId);
+  }, [conversationId]);
 
   useEffect(() => {
-    saveLocalChatHistory(notebookId, chatHistory);
-  }, [notebookId, chatHistory]);
+    saveLocalChatHistory(conversationId, chatHistory);
+  }, [conversationId, chatHistory]);
 
   return {
     chatHistory,

@@ -1,6 +1,6 @@
 import { SERVER_URL, IS_LOCAL } from '../constants/constants';
-// [Model] 개인폴더 데이터 계층.
-// 폴더 목록 조회/생성/삭제/제목수정(CRUD)을 담당합니다.
+// [Model] 대화(기존 개인폴더) 데이터 계층.
+// 대화 목록 조회/생성/삭제/제목수정(CRUD)을 담당합니다.
 // IS_LOCAL이면 서버 대신 localStorage에 저장합니다.
 import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 
@@ -35,7 +35,7 @@ export const fetchNotebooksRequest = async () => {
         headers: { ...getAuthHeader() },
     });
     if (response.status === 401) return handleUnauthorized();
-    if (!response.ok) throw new Error('폴더 목록을 불러오지 못했습니다.');
+    if (!response.ok) throw new Error('대화 목록을 불러오지 못했습니다.');
     const data = await response.json();
     return data.map(toClient);
 };
@@ -55,20 +55,20 @@ export const createNotebookRequest = async (title) => {
         body: JSON.stringify({ dashboard_name: title }),
     });
     if (response.status === 401) return handleUnauthorized();
-    if (response.status === 409) throw new Error('같은 이름의 폴더가 이미 있습니다.');
-    if (!response.ok) throw new Error('폴더 생성에 실패했습니다.');
+    if (response.status === 409) throw new Error('같은 이름의 대화가 이미 있습니다.');
+    if (!response.ok) throw new Error('대화 생성에 실패했습니다.');
     return toClient(await response.json());
 };
 
-export const deleteNotebookRequest = async (notebookId) => {
+export const deleteNotebookRequest = async (conversationId) => {
     // [로컬]
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
-        saveLocalNotebooks(notebooks.filter((n) => n.id !== notebookId));
+        saveLocalNotebooks(notebooks.filter((n) => n.id !== conversationId));
         return true;
     }
     // [서버]
-    const response = await apiFetch(`${BASE}/delete/${notebookId}`, {
+    const response = await apiFetch(`${BASE}/delete/${conversationId}`, {
         method: 'DELETE',
         headers: { ...getAuthHeader() },
     });
@@ -76,11 +76,11 @@ export const deleteNotebookRequest = async (notebookId) => {
     return response.ok;
 };
 
-export const fetchNotebookByIdRequest = async (notebookId) => {
+export const fetchNotebookByIdRequest = async (conversationId) => {
     // [로컬]
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
-        return notebooks.find((n) => String(n.id) === String(notebookId)) || null;
+        return notebooks.find((n) => String(n.id) === String(conversationId)) || null;
     }
     // [서버]
     const allResponse = await apiFetch(`${BASE}/get-all`, {
@@ -88,34 +88,34 @@ export const fetchNotebookByIdRequest = async (notebookId) => {
         headers: { ...getAuthHeader() },
     });
     if (allResponse.status === 401) return handleUnauthorized();
-    if (!allResponse.ok) throw new Error('폴더 정보를 불러오지 못했습니다.');
+    if (!allResponse.ok) throw new Error('대화 정보를 불러오지 못했습니다.');
     const data = await allResponse.json();
-    const found = data.find((f) => String(f.dashboard_id) === String(notebookId));
+    const found = data.find((f) => String(f.dashboard_id) === String(conversationId));
     return found ? toClient(found) : null;
 };
 
-export const updateNotebookTitleRequest = async (notebookId, title) => {
+export const updateNotebookTitleRequest = async (conversationId, title) => {
     // [로컬]
     if (IS_LOCAL) {
         const notebooks = getLocalNotebooks();
         const updatedNotebooks = notebooks.map((n) =>
-            String(n.id) === String(notebookId)
+            String(n.id) === String(conversationId)
                 ? { ...n, title, updatedAt: new Date().toISOString() }
                 : n
         );
         saveLocalNotebooks(updatedNotebooks);
-        return updatedNotebooks.find((n) => String(n.id) === String(notebookId));
+        return updatedNotebooks.find((n) => String(n.id) === String(conversationId));
     }
     // [서버]
     const response = await apiFetch(`${BASE}/update`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-        body: JSON.stringify({ dashboard_id: Number(notebookId), dashboard_name: title }),
+        body: JSON.stringify({ dashboard_id: Number(conversationId), dashboard_name: title }),
     });
     if (response.status === 401) return handleUnauthorized();
-    if (response.status === 404) throw new Error('폴더를 찾을 수 없거나 수정 권한이 없습니다.');
-    if (response.status === 409) throw new Error('같은 이름의 폴더가 이미 있습니다.');
-    if (response.status === 422) throw new Error('폴더 이름 또는 ID가 올바르지 않습니다.');
-    if (!response.ok) throw new Error('폴더 제목 수정에 실패했습니다.');
-    return { id: String(notebookId), title };
+    if (response.status === 404) throw new Error('대화를 찾을 수 없거나 수정 권한이 없습니다.');
+    if (response.status === 409) throw new Error('같은 이름의 대화가 이미 있습니다.');
+    if (response.status === 422) throw new Error('대화 이름 또는 ID가 올바르지 않습니다.');
+    if (!response.ok) throw new Error('대화 제목 수정에 실패했습니다.');
+    return { id: String(conversationId), title };
 };

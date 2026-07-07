@@ -8,8 +8,9 @@ export function SourceSidebar({
   sources,
   isUploading,
   uploadError,
+  uploadProgress,
   clearUploadError,
-  uploadFile,
+  uploadFiles,
   activeSource,
   setActiveSource,
   onDeleteSource,
@@ -68,32 +69,17 @@ export function SourceSidebar({
     }
   };
 
-  const uploadFiles = async (files) => {
-    if (!files || files.length === 0) return;
+  const handleFileChange = async (e) => {
+    const inputEl = e.currentTarget;
+    const files = Array.from(inputEl.files || []);
 
-    for (const file of files) {
-      try {
-        const newSource = await uploadFile(file);
-        if (newSource) onSourceUploaded?.(newSource);
-      } catch (error) {
-        console.error("파일 업로드 실패:", file.name, error);
-      }
-    }
+    if (files.length === 0) return;
+
+    const newSources = await uploadFiles(files);
+    newSources.forEach((source) => onSourceUploaded?.(source));
+
+    inputEl.value = "";
   };
-
-const handleFileChange = async (e) => {
-  const inputEl = e.currentTarget;
-  const files = Array.from(inputEl.files || []);
-
-  if (files.length === 0) return;
-
-  for (const file of files) {
-    const newSource = await uploadFile(file);
-    if (newSource) onSourceUploaded?.(newSource);
-  }
-
-  inputEl.value = "";
-};
 
   const handleDrop = async (e) => {
     if (isDraggingSourceItem(e)) {
@@ -112,7 +98,10 @@ const handleFileChange = async (e) => {
     setIsExternalFileDragging(false);
 
     const files = Array.from(e.dataTransfer.files || []);
-    await uploadFiles(files);
+    if (files.length === 0) return;
+
+    const newSources = await uploadFiles(files);
+    newSources.forEach((source) => onSourceUploaded?.(source));
   };
 
   const handleSourceContextMenu = (e, source) => {
@@ -184,7 +173,7 @@ const handleFileChange = async (e) => {
           </div>
 
           <div className="fileFolderHeader">
-            <span>문서 폴더 목록</span>
+            <span>문서 목록</span>
           </div>
         </>
       )}
@@ -290,7 +279,13 @@ const handleFileChange = async (e) => {
         >
           <span>📁</span>
           {isSidebarOpen && (
-            <span>{isUploading ? "업로드 중..." : "파일 업로드"}</span>
+            <span>
+              {isUploading
+                ? uploadProgress
+                  ? `업로드 중... (${uploadProgress.done}/${uploadProgress.total})`
+                  : "업로드 중..."
+                : "파일 업로드"}
+            </span>
           )}
         </button>
 
