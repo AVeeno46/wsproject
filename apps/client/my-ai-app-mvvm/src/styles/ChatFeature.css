@@ -37,7 +37,10 @@
 }
 
 .chatFeatureDocPane {
-  width: min(56vw, 760px);
+  /* 실제 A4 폭(약 794px) + 패널 안쪽 패딩(문서패널 18px*2 + 문서스크롤 16px*2)을
+     여유 있게 담을 수 있는 최소 폭을 확보 — 그래야 페이지가 안쪽에서 정중앙에
+     오고 불필요한 가로 스크롤/비대칭 여백이 안 생긴다. */
+  width: min(60vw, 900px);
   flex-shrink: 0;
   border-left: 1px solid #d8e5f5;
   display: flex;

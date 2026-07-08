@@ -3,20 +3,30 @@ import { useHwpxEditorViewModel } from '../../../viewmodels/hwpxEditorViewModel'
 import { HwpxDocView } from './HwpxDocView';
 import { downloadSourceRequest } from '../../../models/sourceModel';
 
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 2;
+const SCALE_STEP = 0.1;
+
 export function HwpxEditor({ source }) {
   const {
     docBlocks, imageUrls, valueMap,
-    fileName, isDirty, isSaving, error, isOpen,
+    fileName, pageInfo, defaultFont, isDirty, isSaving, error, isOpen,
     canUndo, open, close, setFieldText, undo, exportBlob,
   } = useHwpxEditorViewModel();
   const inputRef = useRef(null);
   const requestIdRef = useRef(0);
   const [loadError, setLoadError] = useState(null);
+  const [scale, setScale] = useState(1);
+
+  const handleZoomOut = () => setScale((s) => Math.max(MIN_SCALE, +(s - SCALE_STEP).toFixed(2)));
+  const handleZoomIn = () => setScale((s) => Math.min(MAX_SCALE, +(s + SCALE_STEP).toFixed(2)));
+  const handleZoomReset = () => setScale(1);
 
   // source가 바뀌면 에디터 리셋 후 자동 로드
   useEffect(() => {
     close();
     setLoadError(null);
+    setScale(1);
 
     // 소스를 빠르게 연달아 전환하면 늦게 도착한 이전 요청이 최신 문서를
     // 덮어쓸 수 있어, 요청마다 토큰을 부여해 최신 요청 결과만 반영한다.
@@ -138,6 +148,15 @@ export function HwpxEditor({ source }) {
           {isDirty && <span className="hwpxDirty">● 수정됨</span>}
         </div>
         <div className="hwpxToolbarRight">
+          <button type="button" className="hwpxGhostBtn" onClick={handleZoomOut} disabled={scale <= MIN_SCALE} title="축소">
+            −
+          </button>
+          <button type="button" className="hwpxGhostBtn" onClick={handleZoomReset} title="100%로">
+            {Math.round(scale * 100)}%
+          </button>
+          <button type="button" className="hwpxGhostBtn" onClick={handleZoomIn} disabled={scale >= MAX_SCALE} title="확대">
+            +
+          </button>
           <button
             type="button"
             className="hwpxGhostBtn"
@@ -171,6 +190,9 @@ export function HwpxEditor({ source }) {
           imageUrls={imageUrls}
           valueMap={valueMap}
           onSegmentChange={setFieldText}
+          scale={scale}
+          pageInfo={pageInfo}
+          defaultFont={defaultFont}
         />
       </div>
     </div>

@@ -10,6 +10,8 @@ export const useHwpxEditorViewModel = () => {
   const [docBlocks, setDocBlocks] = useState([]); // 렌더링용 평탄 블록 리스트
   const [imageUrls, setImageUrls] = useState({}); // binId → blob objectURL
   const [fileName, setFileName] = useState('');
+  const [pageInfo, setPageInfo] = useState(null);   // { width, height, left, right, top, bottom } (HWPUNIT) | null
+  const [defaultFont, setDefaultFont] = useState(null);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -34,7 +36,7 @@ export const useHwpxEditorViewModel = () => {
       // 섹션별 블록을 하나의 평탄 리스트로 합쳐 연속 문서로 렌더
       const allBlocks = [];
       for (const s of loaded.sections) {
-        const { blocks } = parseDocumentStructure(s.xml, s.sectionIndex, loaded.headerCharPrMap);
+        const { blocks } = parseDocumentStructure(s.xml, s.sectionIndex, loaded.headerCharPrMap, loaded.headerParaPrMap);
         allBlocks.push(...blocks);
       }
       setDocBlocks(allBlocks);
@@ -44,6 +46,8 @@ export const useHwpxEditorViewModel = () => {
         return loaded.imageUrls || {};
       });
       setFileName(name || '문서.hwpx');
+      setPageInfo(loaded.pageInfo || null);
+      setDefaultFont(loaded.defaultFont || null);
       setIsDirty(false);
       setUndoStack([]);
     } catch (err) {
@@ -104,6 +108,8 @@ export const useHwpxEditorViewModel = () => {
       return {};
     });
     setFileName('');
+    setPageInfo(null);
+    setDefaultFont(null);
     setIsDirty(false);
     setError(null);
     setUndoStack([]);
@@ -119,6 +125,8 @@ export const useHwpxEditorViewModel = () => {
     imageUrls,
     valueMap,
     fileName,
+    pageInfo,
+    defaultFont,
     isDirty,
     isSaving,
     error,

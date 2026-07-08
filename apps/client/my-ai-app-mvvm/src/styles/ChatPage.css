@@ -882,6 +882,10 @@
   overflow-x: auto;
   background: #e8edf2;
   padding: 24px 16px;
+  /* 세로 스크롤바가 오른쪽에만 자리를 차지하면 가운데 정렬된 페이지가 시각적으로
+     왼쪽으로 치우쳐 보인다 — 양쪽에 스크롤바 자리를 동일하게 미리 확보해 대칭 유지.
+     미지원 브라우저(Safari 등)에서는 그냥 무시되고 기존 동작 그대로 유지됨. */
+  scrollbar-gutter: stable both-edges;
 }
 
 .chatPage .hwpxDocPages {
@@ -908,6 +912,7 @@
   display: flex;
   justify-content: center;
   overflow-x: auto;
+  scrollbar-gutter: stable both-edges;
 }
 
 .chatPage .pdfPage {
@@ -956,6 +961,8 @@
   box-shadow: 0 2px 16px rgba(0,0,0,0.12);
   min-height: 400px;
   position: relative;
+  /* 본문 뒤(z-index:-1) 개체가 페이지 흰 배경 뒤로 숨지 않게 스택 컨텍스트 고정 */
+  isolation: isolate;
 }
 
 .chatPage .hwpxDocPara {
@@ -992,6 +999,46 @@
 
 .chatPage .hwpxDocCellEmpty {
   background: #f5faff;
+}
+
+/* ── 문서 내 개체(이미지·도형) 배치 ─────────────────────────── */
+/* 텍스트/개체 혼합 문단 — 떠있는 개체의 좌표 기준점 */
+.chatPage .hwpxParaMix {
+  position: relative;
+}
+
+/* 글자처럼 취급(treatAsChar) 개체 — 글줄 안에 배치 */
+.chatPage .hwpxInlineObj {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+/* 떠있는 개체 — 앵커 문단 좌상단 기준 절대좌표 */
+.chatPage .hwpxFloatObj {
+  position: absolute;
+  z-index: 1;
+}
+
+/* 본문 뒤로(textWrap=BEHIND_TEXT) 배치된 개체 — 텍스트 밑에 깔림.
+   z-index:-1이 페이지 배경 뒤로 숨지 않도록 hwpxDocPage에 isolation 필요 */
+.chatPage .hwpxFloatObj.behind {
+  z-index: -1;
+}
+
+.chatPage .hwpxShapeBox {
+  box-sizing: border-box;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.chatPage .hwpxPicCaption,
+.chatPage .hwpxTblCaption {
+  font-size: 0.85em;
+  color: #475569;
 }
 
 .chatPage .hwpxCellPara {
