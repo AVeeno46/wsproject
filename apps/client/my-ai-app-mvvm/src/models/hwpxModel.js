@@ -10,11 +10,30 @@ const PARA_RE = /<hp:p[ >]/g;                      // 문단 경계(block 계산
 
 // 표 셀 안의 빈 <hp:run/> → <hp:run><hp:t></hp:t></hp:run> 으로 전개
 // hp:t 가 이미 있는 셀은 건드리지 않음 (텍스트 라벨 셀 보호)
-const injectEmptyRuns = (xml) =>
-  xml.replace(/<hp:tc[^>]*>[\s\S]*?<\/hp:tc>/g, (tcBlock) => {
-    if (/<hp:t>/.test(tcBlock)) return tcBlock; // 이미 텍스트 있음 → 스킵
-    return tcBlock.replace(/<(hp:run)([^/]*)\/>/g, '<$1$2><hp:t><\/hp:t><\/$1>');
-  });
+// extractTopLevel로 hp:tc 경계를 깊이 인식하며 찾는다 — 셀 안에 또 표가 있는
+// 중첩 표에서는 비탐욕적 정규식(예전 방식)이 중첩된 셀의 닫는 태그에서 멈춰
+// 버려 실제 셀 경계를 잘못 잡고, 그 결과 <hp:t>가 안 닫힌 채로 저장되어 한글이
+// "손상된 파일"로 인식하는 문제가 있었다(실제 대형 문서로 검증: 중첩 표 셀
+// 24개가 있는 문서에서 저장 후 hp:t 여는/닫는 태그 개수가 어긋남을 확인).
+const injectEmptyRuns = (xml) => {
+  const tcs = extractTopLevel(xml, ['hp:tc']);
+  if (tcs.length === 0) return xml;
+
+  let out = '';
+  let cursor = 0;
+  for (const tc of tcs) {
+    const start = xml.indexOf(tc.outer, cursor);
+    out += xml.slice(cursor, start);
+    if (/<hp:t>/.test(tc.outer)) {
+      out += tc.outer; // 이미 텍스트 있음(중첩 표 포함) → 스킵
+    } else {
+      out += tc.outer.replace(/<(hp:run)([^/]*)\/>/g, '<$1$2><hp:t><\/hp:t><\/$1>');
+    }
+    cursor = start + tc.outer.length;
+  }
+  out += xml.slice(cursor);
+  return out;
+};
 
 // XML 엔티티 ↔ 표시용 문자열 변환
 const decodeEntities = (s) =>
@@ -31,7 +50,7 @@ const encodeEntities = (s) =>
 //  - id    = "s{섹션번호}:{그 섹션 안 <hp:t> 등장순서}"  (계약서 규칙, 되저장·RAG 공통 주소)
 //  - start/end = 원본 문자열에서의 위치(되저장용)
 //  - block = 속한 문단(<hp:p>)의 0-base 순서 (RAG 묶음용)
-const extractSegments = (xml, sectionIndex) => {
+export const extractSegments = (xml, sectionIndex) => {
   // 문단 시작 위치 수집 → block 계산용
   const paraStarts = [];
   PARA_RE.lastIndex = 0;
@@ -569,10 +588,13 @@ export const saveHwpx = async ({ zip, sections }, editsBySection, outputType = '
   for (const section of sections) {
     const newTexts = editsBySection[section.name];
     if (!newTexts) continue;
-    zip.file(section.name, applyEdits(section.xml, section.segments, newTexts));
+    // createFolders: false — JSZip은 기본적으로 파일을 추가/수정할 때 상위 폴더
+    // 엔트리(예: "Contents/")를 자동으로 만드는데, 원본 zip엔 그런 디렉터리
+    // 엔트리가 없어서 이게 끼어들면 한글이 "손상된 파일"로 인식해 못 연다.
+    zip.file(section.name, applyEdits(section.xml, section.segments, newTexts), { createFolders: false });
   }
   // mimetype 은 비압축(STORE)으로 유지 (OCF 규격 안전)
-  zip.file('mimetype', 'application/hwp+zip', { compression: 'STORE' });
+  zip.file('mimetype', 'application/hwp+zip', { compression: 'STORE', createFolders: false });
 
   return zip.generateAsync({
     type: outputType,
