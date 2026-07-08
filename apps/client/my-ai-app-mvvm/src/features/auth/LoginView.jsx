@@ -17,33 +17,22 @@ export function LoginView() {
 
   useEffect(() => {
     const savedId = localStorage.getItem("savedLoginId");
-    const savedPw = localStorage.getItem("savedLoginPw");
 
     if (savedId) {
       setLoginId(savedId);
       setKeepLogin(true);
     }
-
-    if (savedPw) {
-      setLoginPw(savedPw);
-    }
   }, []);
 
-  const saveLoginInfo = (passwordForLogin) => {
+  // 비밀번호는 평문으로 브라우저에 남기지 않는다 — 아이디만 기억해두고
+  // 비밀번호는 매번 다시 입력받는다(자동완성은 브라우저 자체 기능에 맡김).
+  const saveLoginInfo = () => {
     if (keepLogin) {
       localStorage.setItem("savedLoginId", loginId);
-
-      if (loginType === "normal") {
-        localStorage.setItem("savedLoginPw", passwordForLogin);
-      } else {
-        localStorage.removeItem("savedLoginPw");
-      }
-
       return;
     }
 
     localStorage.removeItem("savedLoginId");
-    localStorage.removeItem("savedLoginPw");
   };
 
   const handleLogin = async () => {
@@ -69,7 +58,7 @@ export function LoginView() {
     const success = await requestLogin(id, passwordForLogin);
 
     if (success) {
-      saveLoginInfo(passwordForLogin);
+      saveLoginInfo();
       navigate("/chat");
     }
   };

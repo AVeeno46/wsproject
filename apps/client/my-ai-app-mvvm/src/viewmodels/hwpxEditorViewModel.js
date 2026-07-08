@@ -86,7 +86,8 @@ export const useHwpxEditorViewModel = () => {
       const blob = await saveHwpx(doc, editsBySection);
       setIsDirty(false);
       return blob;
-    } catch {
+    } catch (err) {
+      console.error('hwpx 저장 실패:', err);
       setError('저장에 실패했습니다.');
       return null;
     } finally {
