@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractSegments, parseDocumentStructure } from './hwpxModel';
+import { extractSegments, parseDocumentStructure, injectEmptyRuns } from './hwpxModel';
 
 // 회귀 방지 테스트 — 그룹 도형(hp:container) 멤버는 <hp:p> 없이 바로 형제로
 // 나열되는데(<hp:container>…<hp:rect>…</hp:rect>…</hp:container>), 예전엔
@@ -108,5 +108,67 @@ describe('hwpxModel — 저장/렌더 세그먼트 순번 정합성', () => {
     // 어휘 등장 순서 그대로 나와야 한다는 것도 저장 기준(extractSegments)과
     // 대조해서 함께 확인 — 그룹 멤버 도형 텍스트(T7)가 순번에서 빠지지 않는지가 핵심.
     expect(renderSegments.map((s) => s.text)).toEqual(saveSegments.map((s) => s.text));
+  });
+});
+
+// 회귀 방지 테스트 — 실제 파일 손상 버그(2건 중 1건)의 원인이었던 injectEmptyRuns의
+// 셀 경계 탐지. 예전엔 비탐욕적 정규식(/<hp:tc[^>]*>[\s\S]*?<\/hp:tc>/g)을 써서
+// 표 셀 안에 또 표(중첩 표)가 있으면 바깥 셀의 실제 닫는 태그가 아니라 중첩 셀의
+// 첫 닫는 태그에서 매칭이 끝나버렸다(실제 대형 문서로 검증: 중첩 표 셀 24개가
+// 있는 문서에서 저장 후 <hp:t> 여는/닫는 태그 개수가 2034/2033으로 어긋나
+// 한글이 "손상된 파일"로 인식). extractTopLevel(깊이 인식 매칭)로 바꿔서 고침.
+const NESTED_TABLE_XML = `
+<hs:sec>
+<hp:p><hp:run>
+  <hp:tbl colCnt="2">
+    <hp:tr>
+      <hp:tc>
+        <hp:subList>
+          <hp:p><hp:run><hp:t>Outer-before</hp:t></hp:run></hp:p>
+          <hp:p><hp:run>
+            <hp:tbl colCnt="1">
+              <hp:tr><hp:tc>
+                <hp:subList><hp:p><hp:run><hp:t>Nested-cell-text</hp:t></hp:run></hp:p></hp:subList>
+                <hp:cellAddr colAddr="0" rowAddr="0"/><hp:cellSpan colSpan="1" rowSpan="1"/><hp:cellSz width="5000"/>
+              </hp:tc></hp:tr>
+            </hp:tbl>
+          </hp:run></hp:p>
+        </hp:subList>
+        <hp:cellAddr colAddr="0" rowAddr="0"/><hp:cellSpan colSpan="1" rowSpan="1"/><hp:cellSz width="10000"/>
+      </hp:tc>
+      <hp:tc>
+        <hp:subList><hp:p><hp:run/></hp:p></hp:subList>
+        <hp:cellAddr colAddr="1" rowAddr="0"/><hp:cellSpan colSpan="1" rowSpan="1"/><hp:cellSz width="5000"/>
+      </hp:tc>
+    </hp:tr>
+  </hp:tbl>
+</hp:run></hp:p>
+</hs:sec>`;
+
+describe('hwpxModel — injectEmptyRuns 중첩 표 셀 경계', () => {
+  it('중첩 표가 있는 셀은 그대로 보존하고, 진짜 빈 셀에는 정확히 <hp:t>를 주입해야 한다', () => {
+    const result = injectEmptyRuns(NESTED_TABLE_XML);
+
+    // hp:t 여는/닫는 태그 개수가 반드시 일치해야 한다(실제 손상 버그의 핵심 증상).
+    const openCount = (result.match(/<hp:t>/g) || []).length;
+    const closeCount = (result.match(/<\/hp:t>/g) || []).length;
+    expect(openCount).toBe(closeCount);
+
+    // 바깥 셀(중첩 표 포함)의 텍스트는 잘리거나 중복되지 않고 정확히 1번씩 남아야 한다.
+    expect(result.match(/Outer-before/g)?.length).toBe(1);
+    expect(result.match(/Nested-cell-text/g)?.length).toBe(1);
+
+    // 셀 개수(바깥 2개 + 중첩 1개 = 3개)가 그대로 유지되어야 한다 — 경계 오탐으로
+    // 셀이 통째로 스킵되거나 중복 처리되지 않았는지 확인.
+    expect((result.match(/<hp:tc[ >]/g) || []).length).toBe(3);
+
+    // 진짜 빈 셀(두 번째 hp:tc)의 <hp:run/>은 <hp:run><hp:t></hp:t></hp:run>으로
+    // 주입되어야 편집 가능한 세그먼트로 잡힌다.
+    expect(result).toContain('<hp:run><hp:t></hp:t></hp:run>');
+
+    // 저장 기준(extractSegments)으로도 세그먼트가 정확히 3개(바깥 전+중첩+주입된 빈칸)
+    // 뽑히고, 순서와 내용이 예상대로여야 한다.
+    const segments = extractSegments(result, 0);
+    expect(segments.map((s) => s.text)).toEqual(['Outer-before', 'Nested-cell-text', '']);
   });
 });

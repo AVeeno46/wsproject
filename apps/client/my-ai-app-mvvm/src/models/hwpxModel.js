@@ -15,7 +15,7 @@ const PARA_RE = /<hp:p[ >]/g;                      // 문단 경계(block 계산
 // 버려 실제 셀 경계를 잘못 잡고, 그 결과 <hp:t>가 안 닫힌 채로 저장되어 한글이
 // "손상된 파일"로 인식하는 문제가 있었다(실제 대형 문서로 검증: 중첩 표 셀
 // 24개가 있는 문서에서 저장 후 hp:t 여는/닫는 태그 개수가 어긋남을 확인).
-const injectEmptyRuns = (xml) => {
+export const injectEmptyRuns = (xml) => {
   const tcs = extractTopLevel(xml, ['hp:tc']);
   if (tcs.length === 0) return xml;
 
