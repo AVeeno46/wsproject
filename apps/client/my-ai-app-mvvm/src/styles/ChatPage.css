@@ -12,7 +12,7 @@
 /* sidebar */
 .chatPage .sidebar {
   width: 340px;
-  height: 100vh;
+  height: 100%;
   background: linear-gradient(180deg, #f7fbff, #edf6ff);
   border-right: 1px solid #d8e5f5;
   display: flex;
@@ -556,6 +556,12 @@
 
 .chatPage .menuBtn:hover {
   background: #e7f1ff;
+}
+
+.chatPage .menuBtn span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chatPage .sidebar.closed .menuBtn {
