@@ -26,15 +26,36 @@ export const ChatMessage = memo(function ChatMessage({
   onApplyEdits,
 }) {
   const isUser = message.role === "user";
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState("idle"); // "idle" | "copied" | "failed"
+
+  // HTTPS(또는 localhost)가 아닌 환경에서는 navigator.clipboard 자체가 없을 수 있어
+  // (Clipboard API의 보안 제약) execCommand 방식으로 폴백한다. 그래도 실패하면
+  // 조용히 무시하지 않고 버튼에 "복사 실패"로 눈에 보이게 알린다.
+  const legacyCopy = (text) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    if (!ok) throw new Error("execCommand copy failed");
+  };
 
   const handleCopy = async () => {
+    const text = message.text || "";
     try {
-      await navigator.clipboard.writeText(message.text || "");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        legacyCopy(text);
+      }
+      setCopyState("copied");
     } catch {
-      // 클립보드 권한이 없는 환경(http 등)에서는 조용히 무시
+      setCopyState("failed");
+    } finally {
+      setTimeout(() => setCopyState("idle"), 1500);
     }
   };
 
@@ -105,7 +126,7 @@ export const ChatMessage = memo(function ChatMessage({
               onClick={handleCopy}
               title="답변 복사"
             >
-              {copied ? "✓ 복사됨" : "⧉ 복사"}
+              {copyState === "copied" ? "✓ 복사됨" : copyState === "failed" ? "✕ 복사 실패" : "⧉ 복사"}
             </button>
           </div>
         )}

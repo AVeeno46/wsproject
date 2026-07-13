@@ -110,7 +110,6 @@ export const useChatViewModel = (conversationId) => {
     setIsThinking(true);
 
     let accumulated = "";
-    let hasStartedTyping = false;
 
     // 마지막 AI 메시지에 부분 갱신을 적용하는 공통 헬퍼
     const patchLastAiMessage = (patch) => {
@@ -148,19 +147,16 @@ export const useChatViewModel = (conversationId) => {
         question,
         {
           // 마크다운 텍스트 조각 — 이어붙여서 타이핑 효과
+          // isThinking은 스트림이 완전히 끝날 때까지(finally) 유지한다 — 첫 글자가
+          // 오자마자 꺼버리면 입력창/전송버튼이 풀려서 아직 스트리밍 중인데도 다음
+          // 질문을 보낼 수 있게 되고, 그 경우 두 스트림이 같은 "마지막 메시지" 자리를
+          // 동시에 덮어써서 답변이 뒤섞이는 문제가 있었다.
           onText: (chunk) => {
             accumulated += chunk;
-
-            if (!hasStartedTyping) {
-              hasStartedTyping = true;
-              setIsThinking(false);
-            }
-
             scheduleFlush();
           },
           // AI 문서 편집 제안 — 메시지에 editProposal 필드로 부착 (렌더는 View 담당)
           onEditProposal: (proposal) => {
-            setIsThinking(false);
             patchLastAiMessage({ editProposal: proposal });
           },
           // 답변이 참조한 문서 — 여러 개 올 수 있어 배열로 누적

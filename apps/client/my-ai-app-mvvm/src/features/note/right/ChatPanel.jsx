@@ -128,13 +128,6 @@ export function ChatPanel({
                 onApplyEdits={onApplyEdits}
               />
             ))}
-
-            {isThinking && (
-              <div className="thinkingRow">
-                <img className="chatBotMini" src="/assets/2.png" alt="챗봇" />
-                <span className="thinkingText">...</span>
-              </div>
-            )}
           </div>
         )}
 
