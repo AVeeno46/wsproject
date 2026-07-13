@@ -5,6 +5,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import { AuthProvider } from "./core/AuthContext";
+import { NotificationProvider } from "./core/NotificationContext";
 import { ThemeProvider } from "./core/ThemeContext";
 import { ErrorBoundary } from "./core/ErrorBoundary";
 import { useAuthViewModel as useAuth } from "./viewmodels/authViewModel";
@@ -22,6 +23,7 @@ function App() {
   return (
     <ErrorBoundary>
     <AuthProvider>
+      <NotificationProvider>
       <ThemeProvider>
       <Router>
         <Routes>
@@ -44,6 +46,7 @@ function App() {
         </Routes>
       </Router>
       </ThemeProvider>
+      </NotificationProvider>
     </AuthProvider>
     </ErrorBoundary>
   );
