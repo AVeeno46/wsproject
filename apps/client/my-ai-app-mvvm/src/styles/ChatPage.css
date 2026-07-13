@@ -3126,6 +3126,54 @@ max-height: 154px !important;
   margin-right: 15px !important;
 }
 
+/* 임베딩 처리 상태 배지(문서 목록 아이콘 위) — 아직 서버가 status를 안 내려주는
+   문서는 sourceModel의 toClient에서 항상 "ready"로 채워져서 배지가 안 뜬다. */
+.chatPage .uploadedFileItem {
+  position: relative;
+}
+
+.chatPage .sourceStatusBadge {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  z-index: 2;
+}
+
+.chatPage .sourceStatusBadge.processing {
+  background: #e2e8f0;
+  border: 2px solid #93c5fd;
+  border-top-color: #2563eb;
+  animation: sourceStatusSpin 0.8s linear infinite;
+}
+
+.chatPage .sourceStatusBadge.failed {
+  background: #ef4444;
+}
+
+@keyframes sourceStatusSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.chatPage .uploadedFileArea.grid .sourceStatusBadge {
+  top: 8px;
+  right: calc(50% - 60px);
+}
+
+.chatPage .uploadedFileArea.list .sourceStatusBadge {
+  left: 24px;
+  top: 1px;
+}
+
 /* 한 줄 입력창 상태 전송 버튼 왼쪽으로 이동 */
 .rightChatPanel .inputArea.compactInput.chatComposer:not(.expanded) .sendBtn {
   right: 25px !important;

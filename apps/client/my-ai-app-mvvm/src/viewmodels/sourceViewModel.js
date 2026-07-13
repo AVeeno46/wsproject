@@ -1,20 +1,70 @@
 // [ViewModel] 소스(파일) 영역의 상태와 로직을 담는 hook.
 // 노트북별 파일 목록 로딩과 업로드를 처리하고, 업로드 중/에러 상태를 관리합니다.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   fetchSourcesRequest,
   uploadSourceRequest,
   deleteSourceRequest,
 } from "../models/sourceModel";
 
+const POLL_INTERVAL_MS = 3000;
+
 export function useSourceViewModel(conversationId) {
   const [sources, setSources] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(null); // { done, total } | null
+  // 임베딩이 아직 처리 중(status: "processing")인 소스 id별 폴링 interval을
+  // 들고 있다가, ready/failed가 되면 해당 id의 interval만 정지한다.
+  const pollTimersRef = useRef(new Map());
+
+  // 대화 전환/언마운트 시 그동안 켜둔 폴링 interval을 전부 정리한다.
+  const stopAllPolling = () => {
+    pollTimersRef.current.forEach((timerId) => clearInterval(timerId));
+    pollTimersRef.current.clear();
+  };
+
+  const stopPolling = (sourceId) => {
+    const timerId = pollTimersRef.current.get(sourceId);
+    if (timerId) {
+      clearInterval(timerId);
+      pollTimersRef.current.delete(sourceId);
+    }
+  };
+
+  // 임베딩이 "processing"인 소스 하나를 주기적으로 재조회해서, ready/failed로
+  // 바뀌면 그 소스의 status만 갱신하고 폴링을 멈춘다. 상태 전용 엔드포인트가
+  // 아직 없어서 fetchSourcesRequest(전체 목록 재조회)를 재사용한다.
+  const startPolling = (targetConversationId, sourceId) => {
+    if (pollTimersRef.current.has(sourceId)) return;
+
+    const timerId = setInterval(async () => {
+      try {
+        const data = await fetchSourcesRequest(targetConversationId);
+        const latest = (Array.isArray(data) ? data : []).find(
+          (s) => String(s.id) === String(sourceId)
+        );
+
+        if (!latest || latest.status === "ready" || latest.status === "failed") {
+          stopPolling(sourceId);
+        }
+
+        if (latest) {
+          setSources((prev) =>
+            prev.map((s) => (String(s.id) === String(sourceId) ? { ...s, status: latest.status } : s))
+          );
+        }
+      } catch {
+        // 폴링 중 일시적 네트워크 오류는 조용히 무시하고 다음 주기에 재시도
+      }
+    }, POLL_INTERVAL_MS);
+
+    pollTimersRef.current.set(sourceId, timerId);
+  };
 
   useEffect(() => {
     let isMounted = true;
+    stopAllPolling();
 
     const loadSources = async () => {
       if (!conversationId) {
@@ -24,9 +74,13 @@ export function useSourceViewModel(conversationId) {
 
       try {
         const data = await fetchSourcesRequest(conversationId);
+        const list = Array.isArray(data) ? data : [];
 
         if (isMounted) {
-          setSources(Array.isArray(data) ? data : []);
+          setSources(list);
+          list
+            .filter((s) => s.status === "processing")
+            .forEach((s) => startPolling(conversationId, s.id));
         }
       } catch (error) {
         console.error("소스 목록 불러오기 실패:", error);
@@ -42,6 +96,7 @@ export function useSourceViewModel(conversationId) {
 
     return () => {
       isMounted = false;
+      stopAllPolling();
     };
   }, [conversationId]);
 
@@ -69,6 +124,10 @@ export function useSourceViewModel(conversationId) {
 
         return [...prev, newSource];
       });
+
+      if (newSource.status === "processing") {
+        startPolling(conversationId, newSource.id);
+      }
 
       return newSource;
     } catch (error) {
@@ -103,6 +162,7 @@ export function useSourceViewModel(conversationId) {
   const deleteSource = async (sourceId) => {
     try {
       await deleteSourceRequest(conversationId, sourceId);
+      stopPolling(sourceId);
       setSources((prev) => prev.filter((s) => String(s.id) !== String(sourceId)));
       return true;
     } catch (error) {

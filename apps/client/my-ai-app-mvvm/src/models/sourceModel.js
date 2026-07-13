@@ -25,9 +25,12 @@ const saveLocalSources = (conversationId, list) => {
 };
 
 // 서버 응답 필드(file_id, file_name)를 클라이언트 필드(id, name)로 변환
+// status: 서버가 임베딩 진행 상태를 아직 안 내려주는 문서(기존 계약)는
+// "ready"로 간주 — 상태 필드가 생기기 전까지의 하위호환.
 const toClient = (file) => ({
   id: String(file.file_id),
   name: file.file_name,
+  status: file.status || "ready",
 });
 
 // 대시보드 카드의 "소스 개수" 계산용 — 삭제된 소스를 제외한 로컬 소스 수.
@@ -98,7 +101,9 @@ export const uploadSourceRequest = async (conversationId, fileObject) => {
     throw new Error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다.`);
   }
 
-  // [로컬]
+  // [로컬] — 서버의 비동기 임베딩(status: processing → ready)을 흉내내,
+  // 폴링 로직을 실서버 없이도 눈으로 확인할 수 있게 한다. 실서버 연결 시
+  // 이 시뮬레이션은 자연히 쓰이지 않게 된다.
   if (IS_LOCAL) {
     const sources = getLocalSources(conversationId);
     const newSource = {
@@ -108,8 +113,10 @@ export const uploadSourceRequest = async (conversationId, fileObject) => {
       type: fileObject.type || "",
       lastModified: fileObject.lastModified || "",
       createdAt: new Date().toISOString(),
+      status: "processing",
     };
     saveLocalSources(conversationId, [...sources, newSource]);
+    simulateLocalEmbeddingDone(conversationId, newSource.id);
     return newSource;
   }
 
@@ -138,7 +145,25 @@ export const uploadSourceRequest = async (conversationId, fileObject) => {
     throw new Error(FAIL_REASON_MESSAGES[item.fail_reason] || '파일 업로드에 실패했습니다.');
   }
 
-  return { id: String(item?.file_id), name: item?.file_name || fileObject.name };
+  return {
+    id: String(item?.file_id),
+    name: item?.file_name || fileObject.name,
+    status: item?.status || "ready",
+  };
+};
+
+// [로컬 전용] 업로드 직후 "processing"으로 저장된 소스를 2~3초 뒤 "ready"로
+// 바꿔서, 실서버의 비동기 임베딩 완료를 흉내낸다. sourceViewModel의 폴링이
+// 이 변화를 fetchSourcesRequest 재조회로 감지해서 배지를 내린다.
+const simulateLocalEmbeddingDone = (conversationId, sourceId) => {
+  const delay = 2000 + Math.random() * 1000;
+  setTimeout(() => {
+    const sources = getLocalSources(conversationId);
+    const next = sources.map((s) =>
+      String(s.id) === String(sourceId) ? { ...s, status: "ready" } : s
+    );
+    saveLocalSources(conversationId, next);
+  }, delay);
 };
 
 // DELETE /file/delete/{file_id}
