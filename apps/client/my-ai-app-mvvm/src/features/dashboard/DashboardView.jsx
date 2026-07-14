@@ -152,13 +152,48 @@ export function DashboardView() {
     setSelectedFiles([]);
   };
 
-  // 사이드바 "최근 기록"은 고정/이름바꾸기 없이 실제 대화 목록만 보여준다
-  // (고정·이름바꾸기는 이번 단계에서 제외하기로 결정 — 계획 문서 참고).
-  const recentChats = useMemo(
-    () => notebooks.map((n) => ({ id: n.id, title: n.title })),
-    [notebooks]
+  // 대화 고정(pin)은 서버에 저장할 API가 없어 이 브라우저의 localStorage에만
+  // 저장한다 — 다른 기기/브라우저에는 동기화되지 않는 클라이언트 전용 편의
+  // 기능(설정 페이지의 프로필 이미지와 같은 방식).
+  const [pinnedChatIds, setPinnedChatIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem("pinnedChatIds");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("pinnedChatIds", JSON.stringify(pinnedChatIds));
+    } catch {
+      // localStorage 사용 불가 환경이면 이번 세션에서만 고정 상태가 유지된다.
+    }
+  }, [pinnedChatIds]);
+
+  const pinnedChats = useMemo(
+    () =>
+      notebooks
+        .filter((n) => pinnedChatIds.includes(n.id))
+        .map((n) => ({ id: n.id, title: n.title, pinned: true })),
+    [notebooks, pinnedChatIds]
   );
-  const pinnedChats = [];
+
+  const recentChats = useMemo(
+    () =>
+      notebooks
+        .filter((n) => !pinnedChatIds.includes(n.id))
+        .map((n) => ({ id: n.id, title: n.title, pinned: false })),
+    [notebooks, pinnedChatIds]
+  );
+
+  const handlePinChat = (chatId) => {
+    setPinnedChatIds((prev) =>
+      prev.includes(chatId) ? prev.filter((id) => id !== chatId) : [...prev, chatId]
+    );
+    setActiveChatMenuId(null);
+  };
 
   // 실제 chatHistory({id, role: "user"|"ai", text})를 새 UI가 기대하는
   // 메시지 형태({id, role: "user"|"assistant", content})로 변환한다.
@@ -247,6 +282,7 @@ export function DashboardView() {
 
     try {
       await removeNotebook(chatId);
+      setPinnedChatIds((prev) => prev.filter((id) => id !== chatId));
       if (String(chatId) === String(conversationId)) {
         navigate("/chat");
       }
@@ -532,6 +568,7 @@ export function DashboardView() {
           onChangeRenameChatTitle={handleChangeRenameChatTitle}
           onSaveRenameChat={handleSaveRenameChat}
           onCancelRenameChat={handleCancelRenameChat}
+          onPinChat={handlePinChat}
           onDeleteChat={handleDeleteChat}
           onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
           onOpenSidebar={() => setIsSidebarCollapsed(false)}

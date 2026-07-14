@@ -23,6 +23,7 @@ function DashboardSidebar({
   onChangeRenameChatTitle,
   onSaveRenameChat,
   onCancelRenameChat,
+  onPinChat,
   onDeleteChat,
   onToggleSidebar,
   onOpenSidebar,
@@ -73,8 +74,12 @@ function DashboardSidebar({
   const handleLogoClick = (event) => {
     event.stopPropagation();
 
+    // 접힌 상태에서는 로고가 "사이드바 다시 열기" 버튼 역할만 한다
+    // (접힌 상태에선 sidebarEdgeToggleBtn 자체가 숨겨져서 로고가 유일한
+    // 복귀 버튼이므로, 여기서 새 대화까지 만들면 열 때마다 새 대화가 생김).
     if (isSidebarCollapsed) {
       onOpenSidebar?.();
+      return;
     }
 
     onMenuClick?.("chat");
@@ -99,6 +104,7 @@ function DashboardSidebar({
 
   const renderChatItem = (chat) => {
     const isRenaming = renamingChatId === chat.id;
+    const isPinned = !!chat.pinned;
 
     return (
       <div
@@ -172,6 +178,16 @@ function DashboardSidebar({
                   }}
                 >
                   이름 바꾸기
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPinChat?.(chat.id);
+                  }}
+                >
+                  {isPinned ? "고정 해제" : "고정"}
                 </button>
 
                 <button
