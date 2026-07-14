@@ -1,0 +1,545 @@
+// [View] 대시보드 화면
+// 폴더 기능 제거 버전. 검색어(유사어) 사전 페이지는 백엔드가 없어 이번 단계에서 제외.
+// 화면(마크업/스타일)은 다운로드 프로토타입의 새 디자인을 그대로 유지하고,
+// 그 안의 가짜 로컬 상태만 실제 useChatViewModel/useDashboardViewModel로 교체합니다.
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuthViewModel } from "../../viewmodels/authViewModel";
+import { useDashboardViewModel } from "../../viewmodels/dashboardViewModel";
+import { useSourceViewModel } from "../../viewmodels/sourceViewModel";
+import { useChatViewModel } from "../../viewmodels/chatViewModel";
+import { useTheme } from "../../core/ThemeContext";
+import DashboardSidebar from "./DashboardSidebar";
+import DashboardChatPage from "./DashboardChatPage";
+import DashboardSettingsPage from "./DashboardSettingsPage";
+import DashboardProcessingPage from "./DashboardProcessingPage";
+import RagCompletedDocumentPage from "./RagCompletedDocumentPage";
+import "../../styles/DashboardChatPage.css";
+import "../../styles/DashboardSidebar.css";
+import "../../styles/DashboardSettingsPage.css";
+import "../../styles/DashboardProcessingPage.css";
+
+import fileIconUrl from "../../assets/file.png";
+import pdfIconUrl from "../../assets/pdf.png";
+import hwpIconUrl from "../../assets/hwp.png";
+import excelIconUrl from "../../assets/excel.png";
+import pptIconUrl from "../../assets/ppt.png";
+import wordIconUrl from "../../assets/word.png";
+
+export function DashboardView() {
+  const { conversationId } = useParams();
+  const navigate = useNavigate();
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeSideMenu, setActiveSideMenu] = useState("chat");
+
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [profileImage, setProfileImage] = useState("");
+  const [activeChatMenuId, setActiveChatMenuId] = useState(null);
+  const [renamingChatId, setRenamingChatId] = useState(null);
+  const [renamingChatTitle, setRenamingChatTitle] = useState("");
+
+  const [isDraggingInput, setIsDraggingInput] = useState(false);
+  const inputDragCounterRef = useRef(0);
+  const chatTextareaRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const chatMessagesEndRef = useRef(null);
+
+  const [notifications, setNotifications] = useState([]);
+
+  const { requestLogout, user } = useAuthViewModel();
+  const { theme, setTheme } = useTheme();
+
+  const { notebooks, createNotebook, removeNotebook, updateNotebookTitle } = useDashboardViewModel();
+  const { chatHistory, isThinking, sendMessage } = useChatViewModel(conversationId);
+  const {
+    sources,
+    isUploading,
+    uploadError,
+    clearUploadError,
+    registerFiles,
+    registerExternalSource,
+    deleteSource,
+  } = useSourceViewModel(conversationId);
+
+  const normalizedTheme = String(
+    theme ??
+      localStorage.getItem("theme") ??
+      localStorage.getItem("docaiTheme") ??
+      ""
+  )
+    .trim()
+    .toLowerCase();
+
+  const isDarkMode =
+    normalizedTheme === "dark" ||
+    normalizedTheme === "darkmode" ||
+    normalizedTheme === "dark-mode" ||
+    normalizedTheme === "어둡게" ||
+    normalizedTheme === "true";
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDarkMode);
+    document.body.classList.toggle("dark", isDarkMode);
+    document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
+    document.body.dataset.theme = isDarkMode ? "dark" : "light";
+  }, [isDarkMode]);
+
+  const savedUserData = useMemo(() => {
+    try {
+      const saved = localStorage.getItem("userData");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    const savedProfileImage = localStorage.getItem("docaiProfileImage");
+
+    if (savedProfileImage) {
+      setProfileImage(savedProfileImage);
+    }
+  }, []);
+
+  const profileName = user?.name || savedUserData?.name || "관리자";
+  const profileLabel = profileName?.[0] || "관";
+  const profileRole = user?.role || savedUserData?.role || "관리자";
+
+  useEffect(() => {
+    const textarea = chatTextareaRef.current;
+
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+
+    const nextHeight = Math.min(textarea.scrollHeight, 140);
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > 140 ? "auto" : "hidden";
+  }, [chatInput]);
+
+  const makeFileId = (file) => {
+    return `${file.name}-${file.size}-${file.lastModified}`;
+  };
+
+  const getSelectedFileType = (fileName = "") => {
+    const ext = String(fileName).split(".").pop();
+
+    if (!ext || ext === fileName) return "FILE";
+
+    return ext.toUpperCase();
+  };
+
+  const getSelectedFileIconSrc = (type = "") => {
+    const lower = String(type).toLowerCase();
+
+    if (lower === "pdf") return pdfIconUrl;
+    if (lower === "hwp" || lower === "hwpx") return hwpIconUrl;
+    if (lower === "xls" || lower === "xlsx") return excelIconUrl;
+    if (lower === "ppt" || lower === "pptx") return pptIconUrl;
+    if (lower === "doc" || lower === "docx") return wordIconUrl;
+
+    return fileIconUrl;
+  };
+
+  const removeSelectedFile = (fileId) => {
+    setSelectedFiles((prev) => prev.filter((item) => item.id !== fileId));
+  };
+
+  const clearSelectedFiles = () => {
+    setSelectedFiles([]);
+  };
+
+  // 사이드바 "최근 기록"은 고정/이름바꾸기 없이 실제 대화 목록만 보여준다
+  // (고정·이름바꾸기는 이번 단계에서 제외하기로 결정 — 계획 문서 참고).
+  const recentChats = useMemo(
+    () => notebooks.map((n) => ({ id: n.id, title: n.title })),
+    [notebooks]
+  );
+  const pinnedChats = [];
+
+  // 실제 chatHistory({id, role: "user"|"ai", text})를 새 UI가 기대하는
+  // 메시지 형태({id, role: "user"|"assistant", content})로 변환한다.
+  const chatMessages = useMemo(
+    () =>
+      chatHistory.map((message) => ({
+        id: message.id,
+        role: message.role === "user" ? "user" : "assistant",
+        content: message.text,
+      })),
+    [chatHistory]
+  );
+
+  const handleCreateConversation = async () => {
+    const existing = new Set(notebooks.map((n) => n.title.trim()));
+    let title = "새 대화";
+    for (let i = 2; existing.has(title); i += 1) {
+      title = `새 대화 ${i}`;
+    }
+
+    try {
+      const created = await createNotebook(title);
+      if (created?.id) navigate(`/chat/${created.id}`);
+    } catch (error) {
+      console.error("대화 생성 실패:", error);
+    }
+
+    setActiveSideMenu("chat");
+  };
+
+  const handleRecentChatClick = (chatId) => {
+    navigate(`/chat/${chatId}`);
+    setActiveChatMenuId(null);
+    handleCancelRenameChat();
+    setActiveSideMenu("chat");
+  };
+
+  const handleToggleChatMenu = (chatId) => {
+    setActiveChatMenuId((prev) => (prev === chatId ? null : chatId));
+  };
+
+  const handleRenameChat = (chatId) => {
+    const target = notebooks.find((n) => String(n.id) === String(chatId));
+
+    if (!target) return;
+
+    setRenamingChatId(chatId);
+    setRenamingChatTitle(target.title || "");
+    setActiveChatMenuId(null);
+  };
+
+  const handleChangeRenameChatTitle = (value) => {
+    setRenamingChatTitle(value);
+  };
+
+  const handleSaveRenameChat = async () => {
+    if (!renamingChatId) return;
+
+    const nextTitle = renamingChatTitle.trim();
+    const chatId = renamingChatId;
+
+    setRenamingChatId(null);
+    setRenamingChatTitle("");
+
+    if (!nextTitle) return;
+
+    try {
+      await updateNotebookTitle(chatId, nextTitle);
+    } catch (error) {
+      console.error("대화 제목 저장 실패:", error);
+    }
+  };
+
+  const handleCancelRenameChat = () => {
+    setRenamingChatId(null);
+    setRenamingChatTitle("");
+  };
+
+  const handleDeleteChat = async (chatId) => {
+    const shouldDelete = window.confirm("이 대화를 삭제할까요?");
+
+    if (!shouldDelete) {
+      setActiveChatMenuId(null);
+      return;
+    }
+
+    try {
+      await removeNotebook(chatId);
+      if (String(chatId) === String(conversationId)) {
+        navigate("/chat");
+      }
+    } catch (error) {
+      console.error("대화 삭제 실패:", error);
+    }
+
+    setActiveChatMenuId(null);
+  };
+
+  const handleMenuClick = (menuId) => {
+    setActiveChatMenuId(null);
+    handleCancelRenameChat();
+
+    if (menuId === "chat") {
+      handleCreateConversation();
+      return;
+    }
+
+    setActiveSideMenu(menuId);
+  };
+
+  const sendSummaryRequest = (document) => {
+    if (!document) return;
+
+    if (!conversationId) {
+      alert("먼저 채팅에서 대화를 선택하거나 새로 만들어 주세요.");
+      setActiveSideMenu("chat");
+      return;
+    }
+
+    const summaryPrompt = `${document.topic} 관련 문서 "${document.title}"의 핵심 내용을 요약해줘. 중요한 기준과 확인해야 할 내용을 함께 정리해줘.`;
+    sendMessage(summaryPrompt);
+    setActiveSideMenu("chat");
+  };
+
+  const handleClearNotifications = () => {
+    setNotifications([]);
+    setIsNotificationOpen(false);
+  };
+
+  const isFileDrag = (e) => {
+    return Array.from(e.dataTransfer?.types || []).includes("Files");
+  };
+
+  const handlePickedFiles = (fileList) => {
+    const files = Array.from(fileList || []);
+
+    if (files.length === 0) return;
+
+    setSelectedFiles((prev) => {
+      const prevIds = new Set(prev.map((item) => item.id));
+      const nextItems = [];
+
+      files.forEach((file) => {
+        const fileId = makeFileId(file);
+
+        if (prevIds.has(fileId)) return;
+
+        const type = getSelectedFileType(file.name);
+
+        prevIds.add(fileId);
+        nextItems.push({
+          id: fileId,
+          file,
+          name: file.name,
+          size: file.size,
+          type,
+          iconSrc: getSelectedFileIconSrc(type),
+        });
+      });
+
+      const mergedFiles = [...prev, ...nextItems];
+
+      if (mergedFiles.length > 20) {
+        alert("파일은 최대 20개까지 추가할 수 있습니다.");
+      }
+
+      return mergedFiles.slice(0, 20);
+    });
+  };
+
+  const handleFileSelect = (e) => {
+    handlePickedFiles(e.target.files);
+    e.target.value = "";
+  };
+
+  const handleInputDragEnter = (e) => {
+    if (!isFileDrag(e)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    inputDragCounterRef.current += 1;
+    setIsDraggingInput(true);
+  };
+
+  const handleInputDragOver = (e) => {
+    if (!isFileDrag(e)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleInputDragLeave = (e) => {
+    if (!isFileDrag(e)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    inputDragCounterRef.current = Math.max(0, inputDragCounterRef.current - 1);
+
+    if (inputDragCounterRef.current === 0) {
+      setIsDraggingInput(false);
+    }
+  };
+
+  const handleInputDrop = (e) => {
+    if (!isFileDrag(e)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    inputDragCounterRef.current = 0;
+    setIsDraggingInput(false);
+    handlePickedFiles(e.dataTransfer.files);
+  };
+
+  const renderPlaceholderPage = (type) => {
+    const pageInfo = {
+      edit: {
+        icon: "✎",
+        title: "문서 보기",
+        desc: "문서 보기 화면은 다음 단계에서 연결할 예정입니다.",
+      },
+      processing: {
+        icon: "◷",
+        title: "문서 처리",
+        desc: "RAG 처리 상태 화면은 다음 단계에서 연결할 예정입니다.",
+      },
+    };
+
+    const info = pageInfo[type] || pageInfo.edit;
+
+    return (
+      <section className="dashboardContent placeholderContent">
+        <div className="placeholderCard">
+          <div className="placeholderIcon">{info.icon}</div>
+          <h2>{info.title}</h2>
+          <p>{info.desc}</p>
+        </div>
+      </section>
+    );
+  };
+
+  const renderMainContent = () => {
+    if (activeSideMenu === "chat") {
+      if (!conversationId) {
+        return (
+          <section className="dashboardContent chatHomeContent">
+            <div className="chatHomeInner">
+              <div className="chatHeroText">
+                <h2>대화를 선택하거나 새로 만들어 보세요</h2>
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      return (
+        <DashboardChatPage
+          userName={profileName}
+          chatInput={chatInput}
+          setChatInput={setChatInput}
+          chatMessages={chatMessages}
+          isThinking={isThinking}
+          sendMessage={sendMessage}
+          selectedFiles={selectedFiles}
+          clearSelectedFiles={clearSelectedFiles}
+          removeSelectedFile={removeSelectedFile}
+          getSelectedFileIconSrc={getSelectedFileIconSrc}
+          isDraggingInput={isDraggingInput}
+          handleInputDragEnter={handleInputDragEnter}
+          handleInputDragOver={handleInputDragOver}
+          handleInputDragLeave={handleInputDragLeave}
+          handleInputDrop={handleInputDrop}
+          handleFileSelect={handleFileSelect}
+          chatTextareaRef={chatTextareaRef}
+          fileInputRef={fileInputRef}
+          chatMessagesEndRef={chatMessagesEndRef}
+        />
+      );
+    }
+
+    if (activeSideMenu === "edit") {
+      return (
+        <RagCompletedDocumentPage sources={sources} onRequestSummary={sendSummaryRequest} />
+      );
+    }
+
+    if (activeSideMenu === "settings") {
+      return (
+        <DashboardSettingsPage
+          theme={theme}
+          setTheme={setTheme}
+          profileLabel={profileLabel}
+          profileName={profileName}
+          profileRole={profileRole}
+          profileImage={profileImage}
+          setProfileImage={setProfileImage}
+          requestLogout={requestLogout}
+        />
+      );
+    }
+
+    if (activeSideMenu === "processing" || activeSideMenu === "processing-file") {
+      return (
+        <DashboardProcessingPage
+          pageMode="file"
+          sources={sources}
+          isUploading={isUploading}
+          uploadError={uploadError}
+          clearUploadError={clearUploadError}
+          registerFiles={registerFiles}
+          registerExternalSource={registerExternalSource}
+          onDeleteSource={deleteSource}
+        />
+      );
+    }
+
+    if (activeSideMenu === "processing-api") {
+      return (
+        <DashboardProcessingPage
+          pageMode="api"
+          sources={sources}
+          isUploading={isUploading}
+          uploadError={uploadError}
+          clearUploadError={clearUploadError}
+          registerFiles={registerFiles}
+          registerExternalSource={registerExternalSource}
+          onDeleteSource={deleteSource}
+        />
+      );
+    }
+
+    return renderPlaceholderPage(activeSideMenu);
+  };
+
+  return (
+    <div
+      className={`chatPage ${isDarkMode ? "dark" : ""} ${
+        isSidebarCollapsed ? "sidebarCollapsed" : ""
+      }`}
+      onClick={() => {
+        setActiveChatMenuId(null);
+        setIsNotificationOpen(false);
+      }}
+    >
+      <div className="dashboardShell">
+        <DashboardSidebar
+          activeSideMenu={activeSideMenu}
+          currentChatId={conversationId}
+          isSidebarCollapsed={isSidebarCollapsed}
+          profileLabel={profileLabel}
+          profileName={profileName}
+          profileRole={profileRole}
+          profileImage={profileImage}
+          pinnedChats={pinnedChats}
+          recentChats={recentChats}
+          activeChatMenuId={activeChatMenuId}
+          renamingChatId={renamingChatId}
+          renamingChatTitle={renamingChatTitle}
+          notifications={notifications}
+          isNotificationOpen={isNotificationOpen}
+          onToggleNotification={() => setIsNotificationOpen((prev) => !prev)}
+          onCloseNotification={() => setIsNotificationOpen(false)}
+          onMenuClick={handleMenuClick}
+          onRecentChatClick={handleRecentChatClick}
+          onToggleChatMenu={handleToggleChatMenu}
+          onRenameChat={handleRenameChat}
+          onChangeRenameChatTitle={handleChangeRenameChatTitle}
+          onSaveRenameChat={handleSaveRenameChat}
+          onCancelRenameChat={handleCancelRenameChat}
+          onDeleteChat={handleDeleteChat}
+          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
+          onOpenSidebar={() => setIsSidebarCollapsed(false)}
+          onClearNotifications={handleClearNotifications}
+        />
+
+        <main className="dashboardMainArea">{renderMainContent()}</main>
+      </div>
+    </div>
+  );
+}

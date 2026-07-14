@@ -27,10 +27,15 @@ const saveLocalSources = (conversationId, list) => {
 // 서버 응답 필드(file_id, file_name)를 클라이언트 필드(id, name)로 변환
 // status: 서버가 임베딩 진행 상태를 아직 안 내려주는 문서(기존 계약)는
 // "ready"로 간주 — 상태 필드가 생기기 전까지의 하위호환.
+// business/topic/type: file-registration-metadata-contract.md의 가정 필드 —
+// 서버가 아직 안 내려줘도 빈 값으로 채워 화면이 깨지지 않게 한다.
 const toClient = (file) => ({
   id: String(file.file_id),
   name: file.file_name,
   status: file.status || "ready",
+  business: file.business || "",
+  topic: file.topic || "",
+  type: file.type || "file",
 });
 
 // 대시보드 카드의 "소스 개수" 계산용 — 삭제된 소스를 제외한 로컬 소스 수.
@@ -92,14 +97,17 @@ const FAIL_REASON_MESSAGES = {
   422: '파일 데이터가 누락되었습니다.',
 };
 
-// POST /file/upload — multipart: dashboard_id(1회), file(복수 가능)
+// POST /file/upload — multipart: dashboard_id(1회), file(복수 가능),
+// business/topic/description(선택, file-registration-metadata-contract.md 가정 필드)
 // file_name은 서버가 file에서 자동 추출하므로 별도 전송하지 않음
-export const uploadSourceRequest = async (conversationId, fileObject) => {
+export const uploadSourceRequest = async (conversationId, fileObject, metadata = {}) => {
   if (!conversationId) throw new Error("대화 ID가 없습니다.");
   if (!fileObject) throw new Error("업로드할 파일이 없습니다.");
   if (fileObject.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
     throw new Error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하여야 합니다.`);
   }
+
+  const { business = "", topic = "", description = "" } = metadata;
 
   // [로컬] — 서버의 비동기 임베딩(status: processing → ready)을 흉내내,
   // 폴링 로직을 실서버 없이도 눈으로 확인할 수 있게 한다. 실서버 연결 시
@@ -110,10 +118,13 @@ export const uploadSourceRequest = async (conversationId, fileObject) => {
       id: `source-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: fileObject.name,
       size: fileObject.size,
-      type: fileObject.type || "",
+      type: "file",
       lastModified: fileObject.lastModified || "",
       createdAt: new Date().toISOString(),
       status: "processing",
+      business,
+      topic,
+      description,
     };
     saveLocalSources(conversationId, [...sources, newSource]);
     simulateLocalEmbeddingDone(conversationId, newSource.id);
@@ -124,6 +135,9 @@ export const uploadSourceRequest = async (conversationId, fileObject) => {
   const formData = new FormData();
   formData.append('dashboard_id', String(conversationId));
   formData.append('file', fileObject);
+  if (business) formData.append('business', business);
+  if (topic) formData.append('topic', topic);
+  if (description) formData.append('description', description);
 
   const response = await apiFetch(`${FILE_BASE}/upload`, {
     method: "POST",
@@ -149,6 +163,71 @@ export const uploadSourceRequest = async (conversationId, fileObject) => {
     id: String(item?.file_id),
     name: item?.file_name || fileObject.name,
     status: item?.status || "ready",
+    type: "file",
+    business,
+    topic,
+  };
+};
+
+// POST /file/register-external — 외부 자료(URL) 등록 (가정, register-external
+// 엔드포인트는 file-registration-metadata-contract.md §2 참고)
+export const registerExternalSourceRequest = async (conversationId, payload = {}) => {
+  const { url, title, business = "", topic = "", description = "" } = payload;
+
+  if (!conversationId) throw new Error("대화 ID가 없습니다.");
+  if (!url || !url.trim()) throw new Error("외부 자료 주소가 없습니다.");
+  if (!title || !title.trim()) throw new Error("자료 제목이 없습니다.");
+
+  // [로컬] — 파일 업로드와 동일한 방식으로 처리 상태를 흉내낸다.
+  if (IS_LOCAL) {
+    const sources = getLocalSources(conversationId);
+    const newSource = {
+      id: `source-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: title,
+      url,
+      type: "api",
+      createdAt: new Date().toISOString(),
+      status: "processing",
+      business,
+      topic,
+      description,
+    };
+    saveLocalSources(conversationId, [...sources, newSource]);
+    simulateLocalEmbeddingDone(conversationId, newSource.id);
+    return newSource;
+  }
+
+  // [서버]
+  const response = await apiFetch(`${FILE_BASE}/register-external`, {
+    method: "POST",
+    headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      dashboard_id: String(conversationId),
+      url,
+      title,
+      business,
+      topic,
+      description,
+    }),
+  });
+
+  if (response.status === 401) return handleUnauthorized();
+  if (response.status === 404) throw new Error('해당 대화에 소속되어 있지 않습니다.');
+  if (response.status === 422) throw new Error('자료 주소 또는 데이터가 올바르지 않습니다.');
+  if (!response.ok) throw new Error("외부 자료 등록에 실패했습니다.");
+
+  const item = await response.json();
+  if (item?.fail_reason && item.fail_reason !== 0) {
+    throw new Error(FAIL_REASON_MESSAGES[item.fail_reason] || '외부 자료 등록에 실패했습니다.');
+  }
+
+  return {
+    id: String(item?.file_id),
+    name: item?.file_name || title,
+    status: item?.status || "ready",
+    type: "api",
+    business,
+    topic,
   };
 };
 

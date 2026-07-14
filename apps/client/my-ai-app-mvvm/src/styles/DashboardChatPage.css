@@ -1,0 +1,1573 @@
+/* ===== DashboardChatPage.css ===== */
+/* 챗봇 화면 전용 CSS */
+/* root className은 chatPage로 사용합니다. */
+
+.chatPage {
+  --dashboard-sidebar-width: 280px;
+
+  --chat-bg: #ffffff;
+  --chat-surface: #ffffff;
+  --chat-surface-soft: #fbfdff;
+  --chat-line: #dfe7f2;
+  --chat-line-soft: #e8edf4;
+  --chat-text-main: #0a2b5f;
+  --chat-text-body: #24365e;
+  --chat-text-muted: #7c8da7;
+  --chat-text-subtle: #8b98ad;
+  --chat-navy: #123f91;
+  --chat-navy-deep: #0a2b5f;
+
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--chat-bg);
+  color: var(--chat-text-body);
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+}
+
+.chatPage *,
+.chatPage *::before,
+.chatPage *::after {
+  box-sizing: border-box;
+}
+
+.chatPage button,
+.chatPage input,
+.chatPage select,
+.chatPage textarea {
+  font: inherit;
+}
+
+.chatPage button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.chatPage img {
+  display: block;
+}
+
+.chatPage.sidebarCollapsed {
+  --dashboard-sidebar-width: 64px;
+}
+
+/* ===== 전체 레이아웃 ===== */
+
+.chatPage .dashboardShell {
+  display: grid;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  transition: grid-template-columns 0.28s ease;
+}
+
+.chatPage .dashboardMainArea {
+  min-width: 0;
+  min-height: 0;
+  height: 100vh;
+  background: var(--chat-bg);
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 채팅에서는 공통 헤더 숨김 ===== */
+
+.chatPage .dashboardMainHeader.chatHeaderClean {
+  height: 0 !important;
+  min-height: 0 !important;
+  flex: 0 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  background: var(--chat-bg);
+}
+
+.chatPage .dashboardMainHeader.chatHeaderClean .dashboardMainTitleWrap {
+  display: none !important;
+}
+
+/* 혹시 다른 메뉴에서 헤더를 쓸 경우 기본값 */
+.chatPage .dashboardMainHeader {
+  flex: 0 0 88px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 88px;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--chat-line-soft);
+  background: var(--chat-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chatPage .dashboardMainTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.chatPage .dashboardMainHeader h1 {
+  margin: 0;
+  color: var(--chat-text-main);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 900;
+}
+
+/* ===== 첫 채팅 화면 ===== */
+
+.chatPage .chatHomeContent {
+  min-height: calc(100vh - 88px);
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--chat-bg);
+}
+
+.chatPage .chatHomeContent:not(.chatModeActive) {
+  height: 100vh !important;
+  min-height: 100vh !important;
+  padding: 0 48px !important;
+  overflow: hidden !important;
+}
+
+.chatPage .chatHomeInner {
+  width: min(980px, 100%);
+  transform: translateY(-18px);
+}
+
+.chatPage .chatHomeContent:not(.chatModeActive) .chatHomeInner {
+  height: auto !important;
+  min-height: auto !important;
+  margin: 0 auto !important;
+  transform: translateY(-18px) !important;
+  display: block !important;
+}
+
+.chatPage .chatHeroText {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.chatPage .chatHeroText h2 {
+  margin: 0 0 14px;
+  color: var(--chat-text-main);
+  font-size: 44px;
+  line-height: 1.15;
+  font-weight: 950;
+  letter-spacing: -1.2px;
+}
+
+.chatPage .chatHeroText p {
+  margin: 0;
+  color: var(--chat-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 750;
+}
+
+/* 추천 카드 */
+.chatPage .chatSuggestGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 56px;
+}
+
+.chatPage .chatSuggestCard {
+  position: relative;
+  min-height: 126px;
+  padding: 24px 22px 20px;
+  border: 1px solid var(--chat-line);
+  border-radius: 16px;
+  background: var(--chat-surface);
+  color: var(--chat-text-main);
+  text-align: left;
+  box-shadow: 0 10px 28px rgba(30, 49, 92, 0.04);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease;
+}
+
+.chatPage .chatSuggestCard:hover {
+  transform: translateY(-3px);
+  border-color: #bdd0ec;
+  background: var(--chat-surface-soft);
+  box-shadow: 0 14px 34px rgba(30, 49, 92, 0.08);
+}
+
+.chatPage .chatSuggestIcon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--chat-navy);
+}
+
+.chatPage .chatSuggestIcon svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .chatSuggestCard strong {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--chat-text-main);
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.chatPage .chatSuggestCard p {
+  margin: 0;
+  color: #61718c;
+  font-size: 13px;
+  line-height: 1.65;
+  font-weight: 650;
+  word-break: keep-all;
+}
+
+.chatPage .chatSuggestArrow {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  color: var(--chat-navy);
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+/* ===== 입력창 ===== */
+
+.chatPage .chatHomeInputWrap {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+.chatPage .chatHomeContent:not(.chatModeActive) .chatHomeInputWrap {
+  position: static !important;
+  width: min(900px, 100%) !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  pointer-events: auto !important;
+}
+
+.chatPage .chatHomeContent:not(.chatModeActive) .chatHomeInputWrap::before {
+  display: none !important;
+}
+
+.chatPage .chatHomeInputBox {
+  min-height: 54px;
+  height: auto;
+  border: 1px solid #dbe5f2;
+  border-radius: 16px;
+  background: var(--chat-surface);
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 8px 10px 8px 18px;
+  box-shadow: 0 14px 30px rgba(30, 49, 92, 0.07);
+}
+
+.chatPage .chatComposerRow {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.chatPage .chatHomeInputBox:not(.hasSelectedFiles) .chatComposerRow {
+  display: contents;
+}
+
+.chatPage .chatAttachBtn {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #6f819f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+}
+
+.chatPage .chatAttachBtn:hover {
+  background: #f3f7ff;
+  color: var(--chat-navy);
+}
+
+.chatPage .chatAttachBtn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .chatHomeInputBox textarea {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  min-height: 38px;
+  max-height: 120px;
+  border: 0;
+  outline: none;
+  resize: none;
+  overflow-y: hidden;
+  background: transparent;
+  color: var(--chat-text-body);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 700;
+  padding: 8px 0;
+  margin: 0;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  position: relative;
+  top: 1px;
+}
+
+.chatPage .chatHomeInputBox textarea::placeholder {
+  color: var(--chat-text-subtle);
+  font-weight: 700;
+}
+
+.chatPage .chatSendBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: var(--chat-navy);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+}
+
+.chatPage .chatSendBtn:hover {
+  background: var(--chat-navy-deep);
+}
+
+.chatPage .chatSendBtn svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .chatHomeHint {
+  margin: 18px 0 0;
+  text-align: center;
+  color: #7f8fa8;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+/* ===== 대화 시작 후 화면 ===== */
+
+.chatPage .chatHomeContent.chatModeActive {
+  display: block !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 0 48px !important;
+  background: var(--chat-bg);
+}
+
+.chatPage .chatModeActive .chatHomeInner {
+  width: min(920px, 100%);
+  min-height: auto !important;
+  height: auto !important;
+  margin: 0 auto;
+  transform: none !important;
+  display: block !important;
+}
+
+.chatPage .chatMessageList {
+  width: min(860px, 100%);
+  margin: 0 auto;
+  padding: clamp(45px, 8vh, 85px) 0 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.chatPage .chatMessageRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.chatPage .chatMessageRow.user {
+  justify-content: flex-end;
+}
+
+.chatPage .chatMessageRow.assistant {
+  justify-content: flex-start;
+  padding-left: 11px;
+}
+
+.chatPage .chatMessageAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  background: #eef4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(18, 63, 145, 0.12);
+}
+
+.chatPage .chatMessageAvatar img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.chatPage .chatMessageBubble {
+  max-width: min(680px, 78%);
+  padding: 14px 17px;
+  border-radius: 18px;
+  color: var(--chat-text-body);
+  font-size: 15px;
+  line-height: 1.65;
+  font-weight: 650;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.chatPage .chatMessageRow.user .chatMessageBubble {
+  border-top-right-radius: 6px;
+  background: var(--chat-navy);
+  color: #ffffff;
+}
+
+.chatPage .chatMessageRow.assistant .chatMessageBubble {
+  border: 1px solid #e1e9f4;
+  border-top-left-radius: 6px;
+  background: var(--chat-surface);
+  box-shadow: 0 10px 26px rgba(30, 49, 92, 0.04);
+}
+
+.chatPage .chatMessageName {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--chat-text-main);
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.chatPage .chatMessageBubble p {
+  margin: 0;
+}
+
+.chatPage .chatMarkdown > *:first-child {
+  margin-top: 0;
+}
+
+.chatPage .chatMarkdown > *:last-child {
+  margin-bottom: 0;
+}
+
+.chatPage .chatMarkdown p {
+  margin: 0 0 8px;
+}
+
+.chatPage .chatMarkdown pre {
+  margin: 8px 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #0f1b2d;
+  color: #e9f1ff;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chatPage .chatMarkdown pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.chatPage .chatMarkdown code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(30, 49, 92, 0.08);
+  font-size: 0.92em;
+}
+
+.chatPage .chatMarkdown table {
+  width: 100%;
+  margin: 8px 0;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.chatPage .chatMarkdown th,
+.chatPage .chatMarkdown td {
+  padding: 6px 10px;
+  border: 1px solid #e1e9f4;
+  text-align: left;
+}
+
+.chatPage .chatMarkdown th {
+  background: rgba(30, 49, 92, 0.06);
+  font-weight: 700;
+}
+
+.chatPage .chatMarkdown img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin: 6px 0;
+}
+
+.chatPage .chatImgFallback {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(30, 49, 92, 0.06);
+  color: var(--chat-text-body);
+  font-size: 13px;
+}
+
+.chatPage.dark .chatMarkdown pre,
+body.dark .chatMarkdown pre {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chatPage.dark .chatMarkdown code,
+body.dark .chatMarkdown code {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.chatPage.dark .chatMarkdown th,
+.chatPage.dark .chatMarkdown td,
+body.dark .chatMarkdown th,
+body.dark .chatMarkdown td {
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.chatPage.dark .chatMarkdown th,
+body.dark .chatMarkdown th {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chatPage .chatBottomSpacer {
+  height: 118px !important;
+  flex: 0 0 118px !important;
+}
+
+/* 대화 중 입력창은 화면 아래 고정 */
+.chatPage .chatModeActive .chatHomeInputWrap {
+  position: fixed !important;
+  left: var(--dashboard-sidebar-width);
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  min-height: auto !important;
+  padding: 12px 0 18px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--chat-bg);
+  pointer-events: none;
+}
+
+.chatPage .chatModeActive .chatHomeInputWrap::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -38px;
+  height: 38px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    var(--chat-bg) 80%
+  );
+  pointer-events: none;
+}
+
+.chatPage .chatModeActive .chatHomeInputBox,
+.chatPage .chatModeActive .chatHomeHint {
+  width: min(900px, calc(100% - 80px));
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.chatPage .chatModeActive .chatHomeHint {
+  margin-top: 14px;
+  margin-bottom: 0;
+  background: var(--chat-bg);
+}
+
+/* ===== 파일 첨부 카드 ===== */
+
+.chatPage .chatSelectedFilePanel {
+  display: none !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles {
+  min-height: 244px !important;
+  height: auto !important;
+  padding: 12px 14px 12px !important;
+  border-radius: 28px !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+}
+
+.chatPage .chatSelectedFileStrip {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 2px 4px;
+  scrollbar-width: thin;
+}
+
+.chatPage .chatSelectedFileStrip::-webkit-scrollbar {
+  height: 7px;
+}
+
+.chatPage .chatSelectedFileStrip::-webkit-scrollbar-thumb {
+  background: rgba(18, 63, 145, 0.22);
+  border-radius: 999px;
+}
+
+.chatPage .chatSelectedFileStrip::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatPage .chatSelectedFileCard {
+  position: relative;
+  width: 122px !important;
+  height: 124px !important;
+  flex: 0 0 122px !important;
+  padding: 14px 12px 11px !important;
+  border-radius: 22px !important;
+  background: #f2f6fd !important;
+  border: 1px solid #dfe8f5 !important;
+  color: var(--chat-text-main) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-shadow: 0 12px 26px rgba(30, 49, 92, 0.08) !important;
+}
+
+.chatPage .chatSelectedFileCard:hover {
+  border-color: #bfd3f3 !important;
+  background: #eef4ff !important;
+}
+
+.chatPage .chatSelectedFileThumb {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 13px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.chatPage .chatSelectedFileThumb img {
+  width: 42px !important;
+  height: 42px !important;
+  object-fit: contain !important;
+}
+
+.chatPage .chatSelectedFileCard strong {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  min-height: 34px !important;
+  overflow: hidden !important;
+  color: #24365e !important;
+  font-size: 12px !important;
+  line-height: 17px !important;
+  font-weight: 850 !important;
+  word-break: break-all !important;
+}
+
+.chatPage .chatSelectedFileRemove {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: #6f7f99 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  opacity: 0 !important;
+  box-shadow: 0 6px 14px rgba(30, 49, 92, 0.12) !important;
+}
+
+.chatPage .chatSelectedFileCard:hover .chatSelectedFileRemove {
+  opacity: 1 !important;
+}
+
+.chatPage .chatSelectedFileRemove:hover {
+  background: #ffffff !important;
+  color: #d94b4b !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles .chatAttachBtn {
+  margin-bottom: 3px;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles textarea {
+  flex: 1;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles .chatSendBtn {
+  margin-bottom: 0;
+}
+
+.chatPage .chatModeActive .chatHomeInputBox.hasSelectedFiles {
+  width: min(900px, calc(100% - 80px)) !important;
+}
+
+/* 전송된 메시지 안 첨부 파일 */
+.chatPage .chatMessageFileList {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chatPage .chatMessageFileChip {
+  max-width: 260px;
+  min-height: 34px;
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.16);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.chatPage .chatMessageRow.assistant .chatMessageFileChip {
+  background: #f3f7ff;
+}
+
+.chatPage .chatMessageFileChip img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex: 0 0 22px;
+}
+
+.chatPage .chatMessageFileChip span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* ===== 입력창 드롭존 ===== */
+
+.chatPage .chatDragOverlay,
+.chatPage .chatDragOverlayCard,
+.chatPage .chatDragBadge,
+.chatPage .chatDragDocIcon,
+.chatPage .chatDragFileTypes {
+  display: none !important;
+}
+
+.chatPage .chatHomeInputWrap.dragInputMode {
+  pointer-events: auto !important;
+}
+
+.chatPage .chatHomeInputWrap.dragInputMode::before,
+.chatPage .chatModeActive .chatHomeInputWrap.dragInputMode::before {
+  display: none !important;
+}
+
+.chatPage .chatModeActive .chatHomeInputWrap.dragInputMode {
+  bottom: 18px !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.chatPage .chatHomeInputBox.dragExpanded {
+  position: relative !important;
+  min-height: 210px !important;
+  height: 210px !important;
+  border: 1.5px dashed rgba(37, 99, 235, 0.7) !important;
+  border-radius: 26px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(2px) !important;
+  box-shadow: 0 22px 60px rgba(10, 28, 60, 0.1) !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  padding: 8px 10px 8px 18px !important;
+  overflow: hidden !important;
+}
+
+.chatPage .chatHomeInputBox.dragExpanded.hasSelectedFiles {
+  min-height: 244px !important;
+}
+
+.chatPage .chatHomeInputBox.dragExpanded .chatAttachBtn,
+.chatPage .chatHomeInputBox.dragExpanded textarea,
+.chatPage .chatHomeInputBox.dragExpanded .chatSendBtn,
+.chatPage .chatHomeInputBox.dragExpanded .chatSelectedFileStrip,
+.chatPage .chatHomeInputBox.dragExpanded .chatComposerRow {
+  opacity: 0.22 !important;
+  filter: blur(2.5px) !important;
+  pointer-events: none !important;
+}
+
+.chatPage .chatInputDropOverlay {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 5 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  pointer-events: none !important;
+}
+
+.chatPage .chatInputDropIcon {
+  width: 52px !important;
+  height: 52px !important;
+  margin-bottom: 8px !important;
+  color: var(--chat-text-main) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.chatPage .chatInputDropIcon svg {
+  width: 48px !important;
+  height: 52px !important;
+}
+
+.chatPage .chatInputDropIcon svg,
+.chatPage .chatInputDropIcon svg * {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2.1 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.chatPage .chatInputDropOverlay strong {
+  color: var(--chat-text-main) !important;
+  font-size: 20px !important;
+  line-height: 1.3 !important;
+  font-weight: 900 !important;
+}
+
+.chatPage .chatInputDropOverlay p {
+  margin: 8px 0 0 !important;
+  color: #6f7f99 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  font-weight: 700 !important;
+}
+
+/* ===== Dark Mode ===== */
+
+.chatPage.dark {
+  --chat-bg: #0f172a;
+  --chat-surface: #111c31;
+  --chat-surface-soft: #15233d;
+  --chat-line: rgba(148, 163, 184, 0.24);
+  --chat-line-soft: rgba(148, 163, 184, 0.22);
+  --chat-text-main: #f8fbff;
+  --chat-text-body: #dbe7f7;
+  --chat-text-muted: #9badc9;
+  --chat-text-subtle: #8fa1bd;
+  --chat-navy: #123f91;
+  --chat-navy-deep: #0a2b5f;
+}
+
+.chatPage.dark .chatSuggestCard {
+  background: var(--chat-surface);
+  border-color: var(--chat-line);
+  box-shadow: none;
+}
+
+.chatPage.dark .chatSuggestCard:hover {
+  background: var(--chat-surface-soft);
+  border-color: rgba(148, 163, 184, 0.36);
+  box-shadow: none;
+}
+
+.chatPage.dark .chatSuggestCard p {
+  color: var(--chat-text-muted);
+}
+
+.chatPage.dark .chatSuggestIcon,
+.chatPage.dark .chatSuggestArrow {
+  color: #dbe7f7;
+}
+
+.chatPage.dark .chatHomeInputBox {
+  background: var(--chat-surface);
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: none;
+}
+
+.chatPage.dark .chatAttachBtn {
+  color: var(--chat-text-muted);
+}
+
+.chatPage.dark .chatAttachBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.chatPage.dark .chatSendBtn {
+  background: var(--chat-navy);
+  color: #ffffff;
+}
+
+.chatPage.dark .chatSendBtn:hover {
+  background: var(--chat-navy-deep);
+}
+
+.chatPage.dark .chatModeActive .chatHomeInputWrap::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0),
+    var(--chat-bg) 80%
+  );
+}
+
+.chatPage.dark .chatMessageAvatar {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.chatPage.dark .chatMessageRow.assistant .chatMessageBubble {
+  background: var(--chat-surface);
+  border-color: var(--chat-line);
+  box-shadow: none;
+}
+
+.chatPage.dark .chatSelectedFileCard {
+  background: #1b2942 !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .chatSelectedFileCard:hover {
+  background: #20304d !important;
+  border-color: rgba(148, 163, 184, 0.36) !important;
+}
+
+.chatPage.dark .chatSelectedFileCard strong {
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .chatSelectedFileStrip::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.chatPage.dark .chatSelectedFileRemove {
+  background: rgba(15, 23, 42, 0.86) !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .chatSelectedFileRemove:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ff9a9a !important;
+}
+
+.chatPage.dark .chatMessageRow.assistant .chatMessageFileChip {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.chatPage.dark .chatHomeInputBox.dragExpanded {
+  border-color: rgba(148, 163, 184, 0.45) !important;
+  background: rgba(17, 28, 49, 0.55) !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .chatInputDropOverlay p {
+  color: var(--chat-text-muted) !important;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 1200px) {
+  .chatPage .chatSuggestGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chatPage .chatHeroText h2 {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 980px) {
+  .chatPage .dashboardShell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .chatPage .dashboardSidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .chatPage .chatHomeContent {
+    padding: 48px 22px;
+    align-items: flex-start;
+  }
+
+  .chatPage .chatHomeContent.chatModeActive {
+    padding: 26px 18px 20px !important;
+  }
+
+  .chatPage .chatHomeInner {
+    transform: none;
+  }
+
+  .chatPage .chatHeroText {
+    margin-bottom: 30px;
+  }
+
+  .chatPage .chatHeroText h2 {
+    font-size: 30px;
+  }
+
+  .chatPage .chatSuggestGrid {
+    grid-template-columns: 1fr;
+    margin-bottom: 34px;
+  }
+
+  .chatPage .chatMessageBubble {
+    max-width: 86%;
+  }
+
+  .chatPage .chatModeActive .chatHomeInputWrap {
+    left: 0;
+  }
+
+  .chatPage .chatModeActive .chatHomeInputBox,
+  .chatPage .chatModeActive .chatHomeHint {
+    width: calc(100% - 36px);
+  }
+}
+
+/* ===== Uploaded file message card ===== */
+
+.chatPage .chatMessageStack {
+  max-width: min(560px, 82%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chatPage .chatMessageStack.user {
+  align-items: flex-end;
+}
+
+.chatPage .chatMessageStack.assistant {
+  align-items: flex-start;
+}
+
+.chatPage .chatUploadedFileGrid {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chatPage .chatUploadedFileCard {
+  width: 128px;
+  min-height: 128px;
+  border-radius: 22px;
+  background: #f8fbff;
+  border: 1px solid #dce6f5;
+  padding: 18px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 12px 28px rgba(18, 63, 145, 0.06);
+}
+
+.chatPage .chatUploadedFileIcon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.chatPage .chatUploadedFileIcon img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.chatPage .chatUploadedFileCard strong {
+  color: #172554;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 850;
+  word-break: keep-all;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.chatPage .chatMessageBubble.userTextBubble {
+  width: fit-content;
+  max-width: 420px;
+  border-radius: 24px;
+  background: #123f91;
+  color: #ffffff;
+  padding: 14px 22px;
+  box-shadow: none;
+}
+
+.chatPage .chatMessageBubble.userTextBubble p {
+  margin: 0;
+  color: inherit;
+}
+
+/* dark */
+.chatPage.dark .chatUploadedFileCard,
+body.dark .chatUploadedFileCard {
+  background: #171717 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .chatUploadedFileCard strong,
+body.dark .chatUploadedFileCard strong {
+  color: #f8fbff !important;
+}
+
+/* ===== 파일 첨부 시 입력창 공백 제거 ===== */
+
+.chatPage .chatHomeInputBox.hasSelectedFiles {
+  min-height: auto !important;
+  height: auto !important;
+  padding: 12px 12px 10px !important;
+  align-items: stretch !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles .chatSelectedFileStrip {
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles .chatComposerRow {
+  min-height: 44px !important;
+  height: 44px !important;
+  align-items: center !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles textarea {
+  min-height: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  line-height: 24px !important;
+}
+
+/* ===== 파일 첨부 시 하단 대화 가림 방지 ===== */
+/* DashboardChatPage.css 맨 아래에 붙이세요. */
+
+.chatPage .chatModeActive .chatBottomSpacer {
+  height: 120px !important;
+  flex: 0 0 120px !important;
+}
+
+.chatPage .chatModeActive.hasComposerFiles .chatBottomSpacer,
+.chatPage .chatBottomSpacer.withComposerFiles {
+  height: 280px !important;
+  flex: 0 0 280px !important;
+}
+
+.chatPage .chatModeActive.hasComposerFiles .chatHomeInputWrap {
+  padding-bottom: 14px !important;
+}
+
+.chatPage .chatModeActive.hasComposerFiles .chatHomeInputBox {
+  max-height: 240px !important;
+  overflow: hidden !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles {
+  height: auto !important;
+  padding: 12px 12px 10px !important;
+  align-items: stretch !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles .chatSelectedFileStrip {
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles .chatComposerRow {
+  min-height: 44px !important;
+  height: 44px !important;
+  align-items: center !important;
+}
+
+.chatPage .chatHomeInputBox.hasSelectedFiles textarea {
+  min-height: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  line-height: 24px !important;
+}
+/* ===== 채팅 페이지 스크롤바 가림만 수정 ===== */
+
+.chatPage .chatModeActive .chatHomeInputWrap {
+  right: 12px !important;
+}
+
+@media (max-width: 760px) {
+  .chatPage .chatModeActive .chatHomeInputWrap {
+    right: 12px !important;
+  }
+}
+/* ===== 파일 카드 아이콘 크기 키우기 ===== */
+
+/* 보내기 전 입력창 안 파일 카드 */
+.chatPage .chatSelectedFileThumb {
+  width: 56px !important;
+  height: 56px !important;
+}
+
+.chatPage .chatSelectedFileThumb img {
+  width: 50px !important;
+  height: 50px !important;
+  object-fit: contain !important;
+}
+
+/* 보낸 뒤 대화창에 뜨는 파일 카드 */
+.chatPage .chatUploadedFileIcon {
+  width: 42px !important;
+  height: 42px !important;
+}
+
+.chatPage .chatUploadedFileIcon img {
+  width: 38px !important;
+  height: 38px !important;
+  object-fit: contain !important;
+}
+/* ===== 다크모드 내 채팅 말풍선 네이비 유지 ===== */
+
+.chatPage.dark .chatMessageRow.user .chatMessageBubble,
+body.dark .chatMessageRow.user .chatMessageBubble,
+.chatPage.dark .chatMessageBubble.userTextBubble,
+body.dark .chatMessageBubble.userTextBubble {
+  background: #123f91 !important;
+  color: #ffffff !important;
+}
+
+.chatPage.dark .chatMessageRow.user .chatMessageBubble p,
+body.dark .chatMessageRow.user .chatMessageBubble p,
+.chatPage.dark .chatMessageBubble.userTextBubble p,
+body.dark .chatMessageBubble.userTextBubble p {
+  color: #ffffff !important;
+}
+/* ===== 처리 실패 아이콘만 하양 ===== */
+
+.chatPage.dark .processingStatCard.failed .processingStatIcon,
+body.dark .processingStatCard.failed .processingStatIcon {
+  color: #ffffff !important;
+}
+
+.chatPage.dark .processingStatCard.failed .processingStatIcon svg,
+body.dark .processingStatCard.failed .processingStatIcon svg {
+  fill: none !important;
+  stroke: #ffffff !important;
+}
+
+.chatPage.dark .processingStatCard.failed .processingStatIcon svg path,
+.chatPage.dark .processingStatCard.failed .processingStatIcon svg circle,
+.chatPage.dark .processingStatCard.failed .processingStatIcon svg line,
+body.dark .processingStatCard.failed .processingStatIcon svg path,
+body.dark .processingStatCard.failed .processingStatIcon svg circle,
+body.dark .processingStatCard.failed .processingStatIcon svg line {
+  fill: none !important;
+  stroke: #ffffff !important;
+}
+
+/* ===== Preview open layout ===== */
+
+.chatPage .dashboardMainArea {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chatPage.previewOpen .dashboardMainArea {
+  display: flex;
+}
+
+.chatPage.previewOpen .dashboardContent.chatHomeContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatPage.previewOpen .chatHomeInner {
+  max-width: 860px;
+}
+
+.chatPage.previewOpen .chatModeActive .chatHomeInputWrap {
+  left: calc(var(--sidebar-width, 260px) + 430px) !important;
+}
+
+.chatPage.sidebarCollapsed.previewOpen .chatModeActive .chatHomeInputWrap {
+  left: calc(var(--sidebar-collapsed-width, 76px) + 430px) !important;
+}
+
+@media (max-width: 1100px) {
+  .chatPage.previewOpen .chatModeActive .chatHomeInputWrap {
+    left: calc(var(--sidebar-width, 260px) + 360px) !important;
+  }
+
+  .chatPage.sidebarCollapsed.previewOpen .chatModeActive .chatHomeInputWrap {
+    left: calc(var(--sidebar-collapsed-width, 76px) + 360px) !important;
+  }
+}
+
+/* ===== 우측 상단 알림 ===== */
+
+.chatPage .dashboardMainArea {
+  position: relative;
+}
+
+.chatPage .dashboardNotificationWrap {
+  position: absolute;
+  top: 24px;
+  right: 34px;
+  z-index: 500;
+}
+
+.chatPage .dashboardNotificationBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #dbe6f5;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #123f91;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(18, 63, 145, 0.08);
+}
+
+.chatPage .dashboardNotificationBtn:hover {
+  background: #f4f8ff;
+  border-color: #bfd3f3;
+}
+
+.chatPage .dashboardNotificationIcon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .dashboardNotificationBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatPage .dashboardNotificationDropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 326px;
+  border: 1px solid #dbe6f5;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(20, 39, 79, 0.16);
+  overflow: hidden;
+}
+
+.chatPage .dashboardNotificationHeader {
+  height: 52px;
+  padding: 0 18px;
+  border-bottom: 1px solid #edf2f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chatPage .dashboardNotificationHeader strong {
+  color: #0b2a62;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.chatPage .dashboardNotificationHeader span {
+  color: #6f7f99;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chatPage .dashboardNotificationList {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chatPage .dashboardNotificationItem {
+  width: 100%;
+  min-height: 68px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chatPage .dashboardNotificationItem:hover {
+  background: #f6faff;
+}
+
+.chatPage .dashboardNotificationDot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: #1e6dff;
+}
+
+.chatPage .dashboardNotificationItem.success .dashboardNotificationDot {
+  background: #22a166;
+}
+
+.chatPage .dashboardNotificationItem.dictionary .dashboardNotificationDot {
+  background: #7c3aed;
+}
+
+.chatPage .dashboardNotificationItem.pending .dashboardNotificationDot {
+  background: #f59e0b;
+}
+
+.chatPage .dashboardNotificationText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chatPage .dashboardNotificationText strong {
+  color: #102a56;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.chatPage .dashboardNotificationText em {
+  color: #6b7c99;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.chatPage .dashboardNotificationAllBtn {
+  width: 100%;
+  height: 42px;
+  border: 0;
+  border-top: 1px solid #edf2f8;
+  background: #fbfdff;
+  color: #123f91;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.chatPage .dashboardNotificationAllBtn:hover {
+  background: #f3f7ff;
+}
+
+.chatPage .dashboardNotificationEmpty {
+  min-height: 86px;
+  padding: 22px 12px;
+  border-radius: 12px;
+  background: #f8fbff;
+  color: #7a8aa5;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

@@ -1,0 +1,3942 @@
+/* ===== DashboardProcessingPage.css ===== */
+/* 문서 처리 페이지: 기준 이미지와 같은 2분할 업로드 레이아웃 */
+
+.processingPage {
+  width: 100%;
+  min-height: calc(100vh - 76px);
+  background: #f4f8fd;
+  color: #06285e;
+  box-sizing: border-box;
+}
+
+.processingPage * {
+  box-sizing: border-box;
+}
+
+.processingHiddenFileInput {
+  display: none !important;
+}
+
+/* =========================================================
+   문서 처리 화면 전체
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage {
+  min-height: calc(100vh - 76px);
+  padding: 30px 36px 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #f4f8fd;
+}
+
+/* =========================================================
+   상단 자료 등록 카드
+   왼쪽 목표 이미지 기준: 자료 등록 + 우측 탭 + 파일 목록 / 개별 설정
+   ========================================================= */
+
+.inlineUploadCard {
+  width: 100%;
+  margin: 0;
+  border: 1px solid #9fd3ff;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.inlineUploadCardHeader {
+  height: 52px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0;
+  background: #ffffff;
+}
+
+.inlineUploadCardHeader h2 {
+  margin: 0;
+  color: #061f47;
+  font-size: 16px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+.inlineUploadTabs {
+  height: 38px;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 8px;
+  background: #eaf4ff;
+}
+
+.inlineUploadTabs button {
+  height: 30px;
+  min-width: 92px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #7b8da8;
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.inlineUploadTabs button.active {
+  background: #183b67;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.inlineUploadBody {
+  display: grid;
+  grid-template-columns: 56.5% 43.5%;
+  gap: 0;
+  min-height: 270px;
+  padding: 0 20px 18px;
+  align-items: stretch;
+  background: #ffffff;
+}
+
+.inlineUploadLeft,
+.inlineUploadRight {
+  min-width: 0;
+}
+
+.inlineUploadLeft {
+  min-height: 252px;
+  padding: 0 18px 0 0;
+  border-right: 1px solid #a9d9ff;
+  background: #ffffff;
+}
+
+.inlineUploadRight {
+  min-height: 252px;
+  padding: 0 0 0 20px;
+  background: #ffffff;
+}
+
+.inlineFileDropArea {
+  min-height: 0;
+}
+
+/* 파일이 없을 때 드롭존 */
+.inlineDropzone {
+  width: 100%;
+  min-height: 150px;
+  border: 1px dashed #8fbfff;
+  border-radius: 10px;
+  background: #f8fbff;
+  color: #06285e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.inlineDropIcon,
+.inlineDragIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+  background: #eaf4ff;
+  color: #5470a5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.inlineDropzone strong,
+.inlineDragOverlay strong {
+  color: #06285e;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.inlineDropzone p,
+.inlineDragOverlay p {
+  margin: 0;
+  color: #657b9d;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.inlineDragOverlay {
+  min-height: 150px;
+  border: 1px dashed #8fbfff;
+  border-radius: 10px;
+  background: #f8fbff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+/* 파일 목록 */
+.inlineFileList {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inlineFileListHeader {
+  display: none;
+}
+
+.inlineFileItem {
+  min-height: 54px;
+  padding: 8px 10px;
+  border: 1px solid #aee0ff;
+  border-radius: 7px;
+  background: #ffffff;
+}
+
+.inlineFileItem.selected {
+  border-color: #102942;
+  background: #eef6ff;
+}
+
+.inlineFileTop {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.inlineFileMain {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.inlineFileExt {
+  width: 34px;
+  height: 42px;
+  border-radius: 0;
+  background: transparent;
+  color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.inlineFileExt img {
+  width: 28px;
+  height: 42px;
+  display: block;
+  object-fit: contain;
+}
+
+.inlineFileMain strong {
+  display: block;
+  max-width: 420px;
+  color: #061f47;
+  font-size: 13px;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inlineFileMain p {
+  margin: 3px 0 0;
+  color: #72829b;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.inlineFileActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.inlineFileStatus {
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #fff4d8;
+  color: #dd8c15;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.inlineFileStatus.ready {
+  background: #dcf8e9;
+  color: #17a461;
+}
+
+.inlineFileEditBtn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #aee0ff;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #061f47;
+  font-size: 11px;
+  font-weight: 950;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.inlineFileEditBtn.active {
+  border-color: #102942;
+  background: #102942;
+  color: #ffffff;
+}
+
+.inlineRemoveBtn {
+  height: 28px;
+  min-width: 36px;
+  padding: 0 8px;
+  border: 1px solid #ffb8b8;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #e54848;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.inlineInfoBox {
+  display: none;
+}
+
+/* 오른쪽 공통 설정 */
+.inlineUploadRight:not(.fileEditMode) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px 10px;
+  align-content: start;
+}
+
+.commonInfoHeader {
+  grid-column: 1 / -1;
+  color: #061f47;
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.inlineFormField {
+  margin: 0;
+  color: #061f47;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.inlineFormField span {
+  display: none;
+}
+
+.inlineFormField input,
+.inlineFormField select,
+.inlineFormField textarea {
+  width: 100%;
+  border: 1px solid #aee0ff;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #061f47;
+  outline: none;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.inlineFormField input,
+.inlineFormField select {
+  height: 34px;
+  padding: 0 10px;
+}
+
+.inlineFormField textarea {
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  padding: 9px 10px;
+  resize: none;
+  line-height: 1.35;
+}
+
+.inlineUploadRight:not(.fileEditMode) .inlineFormField:nth-of-type(3) {
+  grid-column: 1 / -1;
+}
+
+.inlineApplyCommonBtn {
+  grid-column: 1 / -1;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: #eaf4ff;
+  color: #061f47;
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.inlineSideActions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.inlineTempBtn,
+.inlineSubmitBtn {
+  height: 34px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.inlineTempBtn {
+  border: 1px solid #aee0ff;
+  background: #ffffff;
+  color: #061f47;
+}
+
+.inlineSubmitBtn {
+  border: 0;
+  background: #183b67;
+  color: #ffffff;
+}
+
+.inlineSubmitBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 오른쪽 개별 설정 */
+.inlineUploadRight.fileEditMode {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-auto-rows: min-content;
+  gap: 12px 10px;
+  align-content: start;
+}
+
+.selectedFileEditHeader {
+  grid-column: 1 / -1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+}
+
+.selectedFileEditHeader span {
+  flex-shrink: 0;
+  color: #061f47;
+  font-size: 13px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.selectedFileEditHeader strong {
+  max-width: 160px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #eaf4ff;
+  color: #31578f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inlineUploadRight.fileEditMode .editTitleField {
+  grid-column: 1 / -1;
+}
+
+.inlineUploadRight.fileEditMode .editDescriptionField {
+  grid-column: 1 / -1;
+}
+
+.inlineApplyBtn {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 38px;
+  margin: 0;
+  border: 0;
+  border-radius: 7px;
+  background: #183b67;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+
+.inlineApiBox > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px;
+  gap: 8px;
+}
+
+.inlineApiBox input {
+  height: 38px;
+  border: 1px solid #aee0ff;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #06285e;
+  font-size: 12px;
+  font-weight: 850;
+  outline: none;
+}
+
+.inlineApiBox button {
+  border: 0;
+  border-radius: 8px;
+  background: #102942;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.inlineApiBox p {
+  margin: 10px 0 0;
+  min-height: 36px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #8b9ab3;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+.inlineApiDescription {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   통계 바
+   ========================================================= */
+
+.inlineStatsGrid {
+  width: 100%;
+  height: 50px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border: 1px solid #9fd3ff;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.inlineStatsGrid article {
+  min-height: 48px;
+  padding: 0 18px;
+  border-right: 1px solid #9fd3ff;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.inlineStatsGrid article:last-child {
+  border-right: 0;
+}
+
+.inlineStatsGrid article.done {
+  background: #eaf8f0;
+}
+
+.inlineStatsGrid article.working {
+  background: #eef3ff;
+}
+
+.inlineStatsGrid article.waiting {
+  background: #fff4e5;
+}
+
+.inlineStatsGrid article.error {
+  background: #fff0f0;
+}
+
+.inlineStatsGrid p {
+  margin: 0;
+  color: #6b7c99;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.inlineStatsGrid strong {
+  color: #06285e;
+  font-size: 18px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.inlineStatsGrid em {
+  color: #526c9c;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot.gray { background: #8da0c2; }
+.dot.green { background: #22a166; }
+.dot.blue { background: #5277e8; }
+.dot.orange { background: #d9972b; }
+.dot.red { background: #d14343; }
+
+/* =========================================================
+   등록된 문서 카드
+   ========================================================= */
+
+.inlineResourceCard {
+  width: 100%;
+  padding: 24px 24px 18px;
+  border: 1px solid #9fd3ff;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.inlineListHeader {
+  width: 100%;
+  min-height: 38px;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inlineListHeader > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.inlineListHeader h2 {
+  margin: 0;
+  color: #06285e;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.inlineListHeader span {
+  color: #7f8fa8;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.inlineFilters {
+  display: flex;
+  gap: 8px;
+}
+
+.inlineFilters select {
+  height: 32px;
+  min-width: 116px;
+  border: 1px solid #9fd3ff;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #06285e;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 850;
+  outline: none;
+}
+
+.inlineResourceTable {
+  width: 100%;
+}
+
+.inlineResourceTableHead,
+.inlineResourceTableRow {
+  display: grid;
+  grid-template-columns: minmax(250px, 1.7fr) 150px 125px 125px 150px 125px 120px;
+  align-items: center;
+  column-gap: 12px;
+}
+
+.inlineResourceTableHead {
+  min-height: 34px;
+  border-bottom: 1px solid #b9ddff;
+  color: #526c9c;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.inlineResourceTableRow {
+  min-height: 62px;
+  border-bottom: 1px solid #e4eef8;
+  color: #06285e;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.inlineResourceTableRow:last-child {
+  border-bottom-color: #e4eef8;
+}
+
+.inlineTitleCell strong {
+  display: block;
+  color: #06285e;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.inlineTitleCell p {
+  margin: 6px 0 0;
+  color: #7c8da7;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.inlineTypeBadge {
+  min-width: 72px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #eaf4ff;
+  color: #06285e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.inlineTypeBadge.api {
+  background: #f0eaff;
+  color: #6d4bd4;
+}
+
+.inlineStatusBadge {
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  color: #b7791f;
+  background: #fff4e5;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.inlineStatusBadge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.inlineStatusBadge.done {
+  color: #16844f;
+  background: #e6f8ef;
+}
+
+.inlineStatusBadge.working {
+  color: #5277e8;
+  background: #edf4ff;
+}
+
+.inlineStatusBadge.error {
+  color: #d14343;
+  background: #fff0f0;
+}
+
+.inlineStatusBadge.wait {
+  color: #d9972b;
+  background: #fff4e5;
+}
+
+.inlineTableActions {
+  display: flex;
+  gap: 10px;
+}
+
+.inlineTableActions button {
+  border: 0;
+  background: transparent;
+  color: #123f91;
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.inlineTableActions button.retry,
+.inlineTableActions button:last-child {
+  color: #d14343;
+}
+
+
+/* =========================================================
+   반응형
+   ========================================================= */
+
+@media (max-width: 1180px) {
+  .inlineUploadCard,
+.inlineStatsGrid,
+.inlineListHeader,
+.inlineResourceTable {
+    width: 100%;
+  }
+
+  .inlineUploadBody {
+    grid-template-columns: 1fr;
+  }
+
+  .inlineResourceTable {
+    overflow-x: auto;
+  }
+
+  .inlineResourceTableHead,
+.inlineResourceTableRow {
+    min-width: 980px;
+  }
+}
+
+@media (max-width: 760px) {
+  .processingPage.resourcePage.inlineProcessingPage {
+    padding: 24px 18px 30px;
+  }
+
+  .inlineStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .inlineStatsGrid article {
+    border-right: 0;
+    border-bottom: 1px solid #dce8f7;
+  }
+
+  .inlineListHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .inlineFilters {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .inlineFilters select {
+    flex: 1;
+  }
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+}
+
+
+/* =========================================================
+   개별 설정 하단: 설명 + 취소/확인 한 줄 배치
+   ========================================================= */
+.inlineIndividualSettingBottom {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 154px;
+  gap: 12px;
+  align-items: end;
+}
+
+.inlineIndividualSettingBottom .editDescriptionField {
+  grid-column: auto !important;
+  min-width: 0;
+}
+
+.inlineIndividualSettingBottom .editDescriptionField textarea {
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  padding: 10px 12px;
+  resize: none;
+}
+
+.inlineIndividualActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: end;
+}
+
+.inlineIndividualCancelBtn,
+.inlineIndividualConfirmBtn {
+  height: 40px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.inlineIndividualCancelBtn {
+  border: 1px solid #ffb8b8;
+  background: #ffffff;
+  color: #e54848;
+}
+
+.inlineIndividualConfirmBtn {
+  border: 0;
+  background: #183b67;
+  color: #ffffff;
+}
+
+.inlineIndividualCancelBtn:hover {
+  background: #fff1f1;
+}
+
+.inlineIndividualConfirmBtn:hover {
+  background: #102942;
+}
+/* 개별 설정 설명 + 취소/확인 버튼 */
+.inlineUploadRight.fileEditMode .inlineIndividualSettingBottom {
+  grid-column: 1 / -1 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 154px !important;
+  gap: 12px !important;
+  align-items: end !important;
+}
+
+.inlineIndividualSettingBottom .editDescriptionField {
+  grid-column: auto !important;
+  margin: 0 !important;
+}
+
+.inlineIndividualSettingBottom .editDescriptionField textarea {
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  resize: none !important;
+}
+
+.inlineIndividualActions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+.inlineIndividualCancelBtn,
+.inlineIndividualConfirmBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  height: 40px !important;
+
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.inlineIndividualCancelBtn {
+  border: 1px solid #ffb8b8 !important;
+  background: #ffffff !important;
+  color: #e54848 !important;
+}
+
+.inlineIndividualConfirmBtn {
+  border: 0 !important;
+  background: #183b67 !important;
+  color: #ffffff !important;
+}
+
+
+/* 두 페이지 안의 버튼 기본값 */
+.processingPage button,
+.resourcePage button,
+.inlineProcessingPage button {
+  appearance: none !important;
+  box-sizing: border-box !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  min-width: 58px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+
+  border: 1px solid #b9ddff !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+
+  color: #123f91 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+
+  cursor: pointer !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-decoration: none !important;
+}
+
+/* hover */
+.processingPage button:hover,
+.resourcePage button:hover,
+.inlineProcessingPage button:hover {
+  background: #eef6ff !important;
+  border-color: #8fc8ff !important;
+}
+
+/* 진한 메인 버튼 */
+.processingPage .inlineUploadTab.active,
+.processingPage .inlineFileEditBtn.active,
+.processingPage .inlineIndividualConfirmBtn,
+.processingPage .inlineSubmitBtn,
+.processingPage .inlineApplyBtn,
+.processingPage .inlineApplyCommonBtn,
+.processingPage button.active,
+.resourcePage .inlineUploadTab.active,
+.resourcePage .inlineFileEditBtn.active,
+.resourcePage .inlineIndividualConfirmBtn,
+.resourcePage .inlineSubmitBtn,
+.resourcePage .inlineApplyBtn,
+.resourcePage .inlineApplyCommonBtn,
+.resourcePage button.active {
+  min-width: 70px !important;
+  height: 34px !important;
+
+  border: 0 !important;
+  background: #15365f !important;
+  color: #ffffff !important;
+
+  box-shadow: none !important;
+}
+
+/* 취소 버튼 */
+.processingPage .inlineIndividualCancelBtn,
+.processingPage .cancelBtn,
+.resourcePage .inlineIndividualCancelBtn,
+.resourcePage .cancelBtn {
+  border: 1px solid #ffb8b8 !important;
+  background: #ffffff !important;
+  color: #e54848 !important;
+}
+
+/* 삭제 버튼 */
+.processingPage .inlineRemoveBtn,
+.processingPage .deleteBtn,
+.processingPage button.danger,
+.resourcePage .inlineRemoveBtn,
+.resourcePage .deleteBtn,
+.resourcePage button.danger {
+  min-width: 48px !important;
+
+  border: 1px solid #ffb8b8 !important;
+  background: #ffffff !important;
+  color: #e54848 !important;
+}
+
+/* 완료 버튼 */
+.processingPage .completeBtn,
+.resourcePage .completeBtn {
+  min-width: 48px !important;
+
+  border: 1px solid #bdebd7 !important;
+  background: #eafaf2 !important;
+  color: #168656 !important;
+}
+
+/* 비활성 버튼도 아예 안 보이지 않게 */
+.processingPage button:disabled,
+.resourcePage button:disabled,
+.inlineProcessingPage button:disabled {
+  background: #e8eef8 !important;
+  border-color: #d6e4f5 !important;
+  color: #8aa0bf !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* 상단 파일 올리기 / 웹페이지 API 연결 탭 버튼 */
+.processingPage .inlineUploadTab,
+.resourcePage .inlineUploadTab {
+  min-width: 92px !important;
+  height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+}
+
+.processingPage .inlineUploadTab.active,
+.resourcePage .inlineUploadTab.active {
+  background: #15365f !important;
+  color: #ffffff !important;
+}
+
+/* 파일 목록 안의 작은 버튼 */
+.processingPage .inlineFileEditBtn,
+.resourcePage .inlineFileEditBtn {
+  min-width: 58px !important;
+  height: 30px !important;
+  padding: 0 12px !important;
+}
+
+.processingPage .inlineRemoveBtn,
+.resourcePage .inlineRemoveBtn {
+  min-width: 46px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+}
+
+/* 개별 설정 하단 취소/확인 */
+.processingPage .inlineIndividualActions,
+.resourcePage .inlineIndividualActions {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+.processingPage .inlineIndividualCancelBtn,
+.processingPage .inlineIndividualConfirmBtn,
+.resourcePage .inlineIndividualCancelBtn,
+.resourcePage .inlineIndividualConfirmBtn {
+  min-width: 66px !important;
+  height: 40px !important;
+}
+
+
+/* 파일 드롭존 파란 네모만 크게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDropzone {
+  width: 100% !important;
+  max-width: none !important;
+
+  height: 260px !important;
+  min-height: 260px !important;
+
+  margin: 0 !important;
+  box-sizing: border-box !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* =========================================================
+   드래그 오버레이: 파일 목록 밀지 않고 위에 덮기
+   ========================================================= */
+
+/* 드래그 영역 기준점 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileDropArea {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 260px !important;
+  overflow: hidden !important;
+}
+
+/* 기존 파일 목록은 그대로 자리 유지 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileList {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 드래그 중에는 뒤 파일 목록이 흐릿하게 보이게 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineFileDropArea.dragging
+  .inlineFileList {
+  opacity: 0.22 !important;
+  filter: blur(4px) !important;
+  transform: scale(0.995) !important;
+  transition: opacity 0.16s ease, filter 0.16s ease, transform 0.16s ease !important;
+  
+}
+
+/* =========================================================
+   파일 올리기 공통 설정 버튼 줄 아래로 내리기
+   실제 버튼 wrapper: .inlineSideActions
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineUploadRight:not(.fileEditMode) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+
+  /* 중간에 1fr 빈 공간을 만들어서 버튼을 아래로 밀기 */
+  grid-template-rows: auto auto auto auto 1fr auto !important;
+
+  gap: 12px 10px !important;
+  align-content: stretch !important;
+
+  min-height: 252px !important;
+}
+
+/* 공통 정보 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineUploadRight:not(.fileEditMode)
+  .commonInfoHeader {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+}
+
+/* 사업단 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineUploadRight:not(.fileEditMode)
+  .inlineFormField:nth-of-type(1) {
+  grid-column: 1 / 2 !important;
+  grid-row: 2 !important;
+}
+
+/* 주제 분류 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineUploadRight:not(.fileEditMode)
+  .inlineFormField:nth-of-type(2) {
+  grid-column: 2 / 3 !important;
+  grid-row: 2 !important;
+}
+
+/* 설명 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineUploadRight:not(.fileEditMode)
+  .inlineFormField:nth-of-type(3) {
+  grid-column: 1 / -1 !important;
+  grid-row: 3 !important;
+}
+
+/* 공통 정보 전체 적용 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineUploadRight:not(.fileEditMode)
+  .inlineApplyCommonBtn {
+  grid-column: 1 / -1 !important;
+  grid-row: 4 !important;
+}
+
+/* 임시 저장 / 선택한 파일 올리기 버튼 줄 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineUploadRight:not(.fileEditMode)
+  .inlineSideActions {
+  grid-column: 1 / -1 !important;
+  grid-row: 6 !important;
+
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+
+  align-self: end !important;
+}
+
+/* 핵심: 오버레이가 공간 차지하지 않고 위에 덮이게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDragOverlay {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 30 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  border: 1.5px dashed #7eb6ff !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.62) !important;
+
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+
+  pointer-events: none !important;
+  box-sizing: border-box !important;
+}
+
+/* 오버레이 안 아이콘 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDragOverlay .inlineDragIcon {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 14px !important;
+  background: #eef6ff !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineDragOverlay .inlineDragIcon span {
+  color: #123f91 !important;
+  font-size: 22px !important;
+  font-weight: 950 !important;
+}
+
+/* 오버레이 텍스트 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDragOverlay strong {
+  color: #082b63 !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+  line-height: 1.2 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineDragOverlay p {
+  margin: 0 !important;
+  color: #5f7598 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+/* 파일 드롭존 + 아이콘을 문서 아이콘으로 변경 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDropIcon,
+.processingPage.resourcePage.inlineProcessingPage .inlineDragIcon {
+  width: 58px !important;
+  height: 58px !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 기존 + 텍스트 숨김 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDropIcon span,
+.processingPage.resourcePage.inlineProcessingPage .inlineDragIcon span {
+  display: none !important;
+}
+
+/* 문서 + SVG */
+.processingPage.resourcePage.inlineProcessingPage .inlineFilePlusIcon {
+  width: 46px !important;
+  height: 54px !important;
+  color: #0b376f !important;
+  flex-shrink: 0 !important;
+}
+/* 파일 목록 상단: 선택된 파일 개수 + 전체 삭제 */
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadListTop {
+  height: 34px !important;
+  margin-bottom: 8px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadListTop span {
+  color: #082b63 !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineClearFilesBtn {
+  height: 30px !important;
+  min-width: 70px !important;
+  padding: 0 12px !important;
+
+  border: 1px solid #ffb8b8 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #e54848 !important;
+
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineClearFilesBtn:hover {
+  background: #fff1f1 !important;
+}
+
+/* 왼쪽 파일 영역 안에서만 스크롤 */
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadLeft {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 드롭/파일목록 영역 높이 제한 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileDropArea {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* 파일 목록만 스크롤 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileList {
+  max-height: 205px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  padding-right: 6px !important;
+}
+
+/* 스크롤바 디자인 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileList::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineFileList::-webkit-scrollbar-thumb {
+  background: #b8cbe8 !important;
+  border-radius: 999px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineFileList::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+/* 등록된 문서 없을 때 빈 상태 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceEmptyRow {
+  min-height: 132px !important;
+  padding: 34px 20px !important;
+  border-top: 1px solid #dce8f7 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  color: #6b7c99 !important;
+  text-align: center !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceEmptyRow strong {
+  color: #082b63 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceEmptyRow p {
+  margin: 0 !important;
+  color: #7d8ca7 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+
+.processingPage.resourcePage.inlineProcessingPage {
+  min-height: calc(100vh - 24px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+
+/* =========================================================
+   문서 처리 페이지 뒤 배경 흰색으로 변경
+   카드 디자인은 유지하고 바깥 파란 배경만 제거
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage {
+  background: #ffffff !important;
+}
+
+/* 페이지 전체 감싸는 영역에 파란 배경이 먹혀 있을 때 */
+.dashboardMain,
+.dashboardContent,
+.dashboardPageContent,
+.dashboardWorkspace,
+.dashboardView,
+.chatPageMain,
+.chatPageContent {
+  background: #ffffff !important;
+}
+
+/* 혹시 body 쪽에서 연파랑 배경 잡힌 경우 */
+body {
+  background: #ffffff !important;
+}
+
+/* 등록 페이지 주변 여백 배경도 흰색 */
+.processingPage {
+  background: #ffffff !important;
+}
+
+
+/* 등록된 문서 영역만 세로 높이 넓히기 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceCard {
+  min-height: 360px !important;
+}
+
+/* 등록된 문서 표 영역 높이 확보 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable {
+  min-height: 250px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 문서가 없을 때 빈 상태가 넓은 영역 가운데에 오도록 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceEmptyRow {
+  flex: 1 !important;
+  min-height: 210px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* =========================================================
+   등록된 문서 카드만 세로로 크게 만들기
+   겹침 방지 최종 정리
+   ========================================================= */
+
+/* 페이지는 일반 세로 흐름으로 */
+.processingPage.resourcePage.inlineProcessingPage {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #ffffff !important;
+  min-height: auto !important;
+}
+
+/* 등록된 문서 카드 전체 높이 키우기 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceCard {
+  height: 390px !important;
+  min-height: 390px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+
+  margin-bottom: 26px !important;
+}
+
+/* 등록된 문서 테이블 영역이 남은 높이를 채우게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 문서 없을 때 가운데 문구는 카드 내부 중앙으로 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceEmptyRow {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+
+.processingPage.resourcePage.inlineProcessingPage {
+  height: calc(100vh - 24px) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+/* 상단 자료 등록 영역은 고정 높이 */
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadCard {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+/* 통계 바도 고정 */
+.processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+/* 등록된 문서 카드는 남은 공간만 먹게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceCard {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+
+  margin: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 등록된 문서 테이블 내부도 남은 공간만 사용 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 문서 없을 때 안내 문구는 카드 안 중앙 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceEmptyRow {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+
+/* 등록된 문서 영역만 아래로 크게 늘리기 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceCard {
+height: 420px !important;
+min-height: 420px !important;
+flex: 0 0 420px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 표 영역이 카드 높이를 채우게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 문서 없을 때 문구를 넓어진 카드 중앙에 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceEmptyRow {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 화면 아래 잘림 방지 */
+.processingPage.resourcePage.inlineProcessingPage {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  padding-bottom: 32px !important;
+}
+
+/* 혹시 상위 레이아웃이 자르고 있으면 같이 복구 */
+.dashboardMain,
+.dashboardContent,
+.dashboardPageContent,
+.dashboardWorkspace,
+.chatPageMain,
+.chatPageContent {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+
+/* 공통 버튼 크기 살짝 키우기 */
+
+
+/* AI 검색에 반영하기: 진한 남색 버튼 */
+
+
+/* hover */
+
+
+/* 상단 돌아가기 버튼 */
+
+
+/* 검색 옆 + 단어 추가 버튼 */
+
+
+/* 표 안 완료 / 삭제 버튼 */
+
+
+/* 하단 취소 / 저장 버튼 */
+
+
+/* 저장 버튼은 진한 버튼으로 */
+
+
+/* 취소 버튼은 흰색 버튼 */
+
+
+/* 삭제 버튼은 빨간 테두리 */
+
+
+/* 완료 버튼은 파란 테두리 */
+
+
+/* 버튼 hover */
+
+
+/* API 주소 라벨 */
+.processingPage.resourcePage.inlineProcessingPage .inlineApiUrlField {
+  margin: 0 !important;
+  gap: 5px !important;
+  color: #061f47 !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+}
+
+/* API 주소 input + 연결 버튼 한 줄 */
+.processingPage.resourcePage.inlineProcessingPage .inlineApiUrlField > div {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 86px !important;
+  gap: 8px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiUrlField input,
+.processingPage.resourcePage.inlineProcessingPage .inlineApiUrlField button {
+  height: 34px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiUrlField input {
+  padding: 0 11px !important;
+  border: 1px solid #aee0ff !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiUrlField button {
+  border: 1px solid #9ed0ff !important;
+  background: #ffffff !important;
+  color: #123f91 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiPreviewHeader {
+  height: 24px !important;
+  margin: 0 0 8px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiPreviewHeader strong {
+  color: #061f47 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiPreviewHeader span {
+  height: 22px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  background: #eaf4ff !important;
+  color: #123f91 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+
+  font-size: 11px !important;
+  font-weight: 900 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiPreviewContent {
+  flex: 1 !important;
+  min-height: 0 !important;
+
+  border: 1px dashed #9ed0ff !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+
+  text-align: center !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiPreviewIcon {
+  width: 34px !important;
+  height: 34px !important;
+
+  border-radius: 10px !important;
+  background: #eef6ff !important;
+  color: #9ab3d5 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 20px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineApiPreviewContent p {
+  margin: 0 !important;
+  color: #5f7598 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.4 !important;
+}
+
+
+/* 사업단/주제 분류는 한 줄 2칸 */
+.processingPage.resourcePage.inlineProcessingPage .inlineApiTwoColumn {
+  grid-column: 1 / -1 !important;
+
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+/* 설명 한 줄 전체 */
+.processingPage.resourcePage.inlineProcessingPage .inlineApiDescription {
+  grid-column: 1 / -1 !important;
+}
+
+/* =========================================================
+   API 탭: 파일 올리기 구조 그대로 사용
+   왼쪽: API 주소 + 미리보기
+   오른쪽: 등록 정보
+   ========================================================= */
+
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlField {
+  gap: 5px !important;
+  font-size: 11px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 86px !important;
+  gap: 8px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow input,
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow button {
+  height: 34px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow input {
+  border: 1px solid #aee0ff !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+  padding: 0 10px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow button {
+  border: 1px solid #aee0ff !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+  cursor: pointer !important;
+}
+
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewHeader {
+  height: 24px !important;
+  margin-bottom: 8px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewHeader strong {
+  color: #061f47 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewHeader span {
+  height: 22px !important;
+  padding: 0 8px !important;
+
+  border-radius: 999px !important;
+  background: #eaf4ff !important;
+  color: #123f91 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+
+  font-size: 11px !important;
+  font-weight: 900 !important;
+}
+
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewIcon {
+  width: 34px !important;
+  height: 34px !important;
+
+  border-radius: 10px !important;
+  background: #eef6ff !important;
+  color: #9ab3d5 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 20px !important;
+  font-weight: 950 !important;
+}
+
+/* 자료 제목은 전체 너비 */
+.processingPage.resourcePage.inlineProcessingPage .apiTitleField {
+  grid-column: 1 / -1 !important;
+}
+
+
+.processingPage.resourcePage.inlineProcessingPage .apiDescriptionField {
+  min-width: 0 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiDescriptionField textarea {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  resize: none !important;
+}
+
+/* =========================================================
+   API 탭 최종 배치
+   파일 올리기 화면과 같은 크기/구조로 맞춤
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage .apiUploadBody {
+  display: grid !important;
+  grid-template-columns: 56.5% 43.5% !important;
+  gap: 0 !important;
+
+  min-height: 270px !important;
+  height: 270px !important;
+  padding: 0 20px 18px !important;
+
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* 왼쪽: API 연결 정보 + 미리보기 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadLeft {
+  min-height: 252px !important;
+  height: 252px !important;
+  padding: 0 18px 0 0 !important;
+
+  border-right: 1px solid #a9d9ff !important;
+  background: #ffffff !important;
+
+  display: grid !important;
+  grid-template-rows: 96px 1fr !important;
+  gap: 10px !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* 오른쪽: 등록 정보 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight {
+  min-height: 252px !important;
+  height: 252px !important;
+  padding: 0 0 0 20px !important;
+
+  background: #ffffff !important;
+
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-auto-rows: min-content !important;
+  gap: 11px 10px !important;
+  align-content: start !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* API 연결 정보 박스 */
+.processingPage.resourcePage.inlineProcessingPage .apiConnectBox {
+  height: 96px !important;
+  padding: 10px 14px !important;
+
+  border: 1px solid #cfe0f7 !important;
+  border-radius: 10px !important;
+  background: #f8fbff !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiConnectBox h3 {
+  margin: 0 0 7px !important;
+  color: #061f47 !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+}
+
+/* OpenAPI 주소 */
+.processingPage.resourcePage.inlineProcessingPage .apiUrlField {
+  margin: 0 !important;
+  gap: 5px !important;
+
+  color: #061f47 !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 86px !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow input,
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow button {
+  height: 34px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow input {
+  width: 100% !important;
+  padding: 0 10px !important;
+
+  border: 1px solid #aee0ff !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUrlRow button {
+  border: 1px solid #aee0ff !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+  cursor: pointer !important;
+}
+
+/* API 미리보기 */
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewBox {
+  min-height: 0 !important;
+  height: 146px !important;
+  padding: 10px 14px !important;
+
+  border: 1px solid #cfe0f7 !important;
+  border-radius: 10px !important;
+  background: #f8fbff !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewHeader {
+  height: 24px !important;
+  margin: 0 0 8px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewHeader strong {
+  color: #061f47 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewHeader span {
+  height: 22px !important;
+  padding: 0 8px !important;
+
+  border-radius: 999px !important;
+  background: #eaf4ff !important;
+  color: #123f91 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+
+  font-size: 11px !important;
+  font-weight: 900 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewContent {
+  flex: 1 !important;
+  min-height: 0 !important;
+
+  border: 1px dashed #9ed0ff !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+
+  text-align: center !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewIcon {
+  width: 32px !important;
+  height: 32px !important;
+
+  border-radius: 10px !important;
+  background: #eef6ff !important;
+  color: #9ab3d5 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 18px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewContent p {
+  margin: 0 !important;
+  color: #5f7598 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.4 !important;
+}
+
+/* 오른쪽 등록 정보 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .commonInfoHeader {
+  grid-column: 1 / -1 !important;
+  color: #061f47 !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineFormField {
+  margin: 0 !important;
+  gap: 6px !important;
+
+  color: #061f47 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+/* 자료 제목 한 줄 전체 */
+.processingPage.resourcePage.inlineProcessingPage .apiTitleField {
+  grid-column: 1 / -1 !important;
+}
+
+/* 오른쪽 input/select */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight input,
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight select {
+  width: 100% !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+
+  border: 1px solid #aee0ff !important;
+  border-radius: 7px !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+/* 설명 + 버튼 한 줄 */
+.processingPage.resourcePage.inlineProcessingPage .apiBottomRow {
+  grid-column: 1 / -1 !important;
+
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 210px !important;
+  gap: 12px !important;
+  align-items: end !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiDescriptionField {
+  min-width: 0 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiDescriptionField textarea {
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 9px 10px !important;
+
+  border: 1px solid #aee0ff !important;
+  border-radius: 7px !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  resize: none !important;
+}
+
+/* 버튼 */
+.processingPage.resourcePage.inlineProcessingPage .apiActionButtons {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiActionButtons button {
+  height: 40px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiActionButtons .inlineTempBtn {
+  border: 1px solid #aee0ff !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiActionButtons .inlineSubmitBtn {
+  border: 0 !important;
+  background: #183b67 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   API 오른쪽 설정 영역을 파일 개별 설정 영역과 동일하게 맞춤
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight.fileEditMode {
+  min-height: 252px !important;
+  height: 252px !important;
+
+  padding: 0 0 0 20px !important;
+  background: #ffffff !important;
+
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  grid-auto-rows: min-content !important;
+  gap: 12px 10px !important;
+  align-content: start !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* 등록 정보 헤더 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiEditHeader {
+  grid-column: 1 / -1 !important;
+  min-height: 20px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiEditHeader span {
+  flex-shrink: 0 !important;
+  color: #061f47 !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiEditHeader strong {
+  max-width: 160px !important;
+  height: 22px !important;
+  padding: 0 8px !important;
+
+  border-radius: 999px !important;
+  background: #eaf4ff !important;
+  color: #31578f !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+}
+
+/* 자료 제목은 전체 너비 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiTitleField {
+  grid-column: 1 / -1 !important;
+}
+
+/* 설명 + 취소/저장 한 줄 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiSettingBottom {
+  grid-column: 1 / -1 !important;
+
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 154px !important;
+  gap: 12px !important;
+  align-items: end !important;
+}
+
+/* 설명 textarea */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiDescriptionField {
+  grid-column: auto !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiDescriptionField textarea {
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding: 10px 12px !important;
+  resize: none !important;
+}
+
+/* 버튼 영역 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiSettingActions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  align-items: end !important;
+}
+
+/* 취소 / 저장 버튼 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiSettingActions button {
+  width: 100% !important;
+  height: 40px !important;
+
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+}
+
+/* 기존 API 버튼 스타일이 덮지 못하게 */
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualCancelBtn {
+  border: 1px solid #ffb8b8 !important;
+  background: #ffffff !important;
+  color: #e54848 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualConfirmBtn {
+  border: 0 !important;
+  background: #183b67 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   API 왼쪽 영역 재정리
+   위: API 연결 정보 제목
+   아래: 주소 입력 + API 미리보기
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage .apiLeftFixed {
+  height: 252px !important;
+  min-height: 252px !important;
+  padding: 0 18px 0 0 !important;
+  border-right: 1px solid #a9d9ff !important;
+  background: #ffffff !important;
+
+  display: grid !important;
+  grid-template-rows: 28px 1fr !important;
+  gap: 10px !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* 상단 제목 */
+.processingPage.resourcePage.inlineProcessingPage .apiLeftTitle {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: #061f47 !important;
+  font-size: 19px !important;
+  font-weight: 950 !important;
+  line-height: 28px !important;
+}
+
+/* 아래 전체 박스 */
+.processingPage.resourcePage.inlineProcessingPage .apiLeftCard {
+  min-height: 0 !important;
+  height: 100% !important;
+
+  padding: 0 !important;
+  background: #ffffff !important;
+
+  display: grid !important;
+  grid-template-rows: 58px 1fr !important;
+  gap: 10px !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* 주소 입력 영역 */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressBlock {
+  min-height: 58px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+
+  box-sizing: border-box !important;
+}
+
+/* OpenAPI 주소 라벨 */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressLabel {
+  margin: 0 !important;
+  color: #061f47 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+/* input + 연결하기 한 줄 */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressRow {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 94px !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+/* 주소 input */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressRow input {
+  width: 100% !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+
+  border: 1px solid #aee0ff !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+
+  color: #061f47 !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+
+/* 연결하기 버튼 */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressRow button {
+  width: 94px !important;
+  height: 38px !important;
+
+  border: 1px solid #aee0ff !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+
+  font-size: 13px !important;
+  font-weight: 950 !important;
+
+  cursor: pointer !important;
+}
+
+/* API 미리보기 영역 */
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewBlock {
+  min-height: 0 !important;
+  height: 100% !important;
+
+  padding: 12px 14px !important;
+
+  border: 1px solid #cfe0f7 !important;
+  border-radius: 10px !important;
+  background: #f8fbff !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* 미리보기 헤더 */
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewBlockHeader {
+  height: 24px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  flex-shrink: 0 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewBlockHeader strong {
+  color: #061f47 !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewBlockHeader span {
+  height: 22px !important;
+  padding: 0 9px !important;
+
+  border-radius: 999px !important;
+  background: #eaf4ff !important;
+  color: #123f91 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+
+  font-size: 11px !important;
+  font-weight: 900 !important;
+}
+
+/* 미리보기 안쪽 흰 박스 */
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewInner {
+  flex: 1 !important;
+  min-height: 0 !important;
+
+  border: 1px dashed #9ed0ff !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  text-align: center !important;
+}
+
+/* 아이콘 */
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewIcon {
+  width: 34px !important;
+  height: 34px !important;
+
+  border-radius: 10px !important;
+  background: #eef6ff !important;
+  color: #9ab3d5 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 19px !important;
+  font-weight: 950 !important;
+}
+
+/* 안내 문구 */
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewInner p {
+  margin: 0 !important;
+
+  color: #5f7598 !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
+}
+
+/* API 왼쪽 영역: 제목 제거 후 주소칸 위로 올리기 */
+.processingPage.resourcePage.inlineProcessingPage .apiLeftFixed {
+  height: 252px !important;
+  min-height: 252px !important;
+
+  padding: 0 18px 0 0 !important;
+  border-right: 1px solid #a9d9ff !important;
+  background: #ffffff !important;
+
+  display: block !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* API 왼쪽 전체 카드 */
+.processingPage.resourcePage.inlineProcessingPage .apiLeftCard {
+  height: 100% !important;
+  min-height: 0 !important;
+
+  display: grid !important;
+  grid-template-rows: 58px 1fr !important;
+  gap: 10px !important;
+
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* OpenAPI 주소 영역 */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressBlock {
+  min-height: 58px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+
+  box-sizing: border-box !important;
+}
+
+/* OpenAPI 주소 라벨 */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressLabel {
+  margin: 0 !important;
+
+  color: #061f47 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+/* 주소 input + 연결하기 */
+.processingPage.resourcePage.inlineProcessingPage .apiAddressRow {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 94px !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiAddressRow input {
+  width: 100% !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+
+  border: 1px solid #aee0ff !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+
+  color: #061f47 !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .apiAddressRow button {
+  width: 94px !important;
+  height: 38px !important;
+
+  border: 1px solid #aee0ff !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #061f47 !important;
+
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+}
+
+/* API 미리보기 박스 */
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewBlock {
+  min-height: 0 !important;
+  height: 100% !important;
+
+  padding: 12px 14px !important;
+
+  border: 1px solid #cfe0f7 !important;
+  border-radius: 10px !important;
+  background: #f8fbff !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* =========================================================
+   버튼 hover 깨짐 방지
+   disabled 버튼 / 흰색 버튼 / 진한 버튼 hover 정리
+   ========================================================= */
+
+/* disabled 버튼은 hover해도 절대 변하지 않게 */
+.processingPage.resourcePage.inlineProcessingPage button:disabled,
+.processingPage.resourcePage.inlineProcessingPage button:disabled:hover {
+  background: #eaf4ff !important;
+  color: #ffffff !important;
+  border-color: #eaf4ff !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* 흰색 테두리 버튼 hover */
+.processingPage.resourcePage.inlineProcessingPage .inlineTempBtn:not(:disabled):hover,
+.processingPage.resourcePage.inlineProcessingPage .inlineIndividualCancelBtn:not(:disabled):hover,
+.processingPage.resourcePage.inlineProcessingPage .apiAddressRow button:not(:disabled):hover {
+  background: #eef6ff !important;
+  color: #123f91 !important;
+  border-color: #8fc8ff !important;
+  filter: none !important;
+}
+
+/* 빨간 취소/삭제 버튼 hover */
+.processingPage.resourcePage.inlineProcessingPage .inlineIndividualCancelBtn:not(:disabled):hover,
+.processingPage.resourcePage.inlineProcessingPage .uploadDeleteBtn:not(:disabled):hover,
+.processingPage.resourcePage.inlineProcessingPage .deleteBtn:not(:disabled):hover {
+  background: #fff5f5 !important;
+  color: #e54848 !important;
+  border-color: #ff9f9f !important;
+  filter: none !important;
+}
+
+/* 진한 남색 버튼 hover */
+.processingPage.resourcePage.inlineProcessingPage .inlineSubmitBtn:not(:disabled):hover,
+.processingPage.resourcePage.inlineProcessingPage .inlineIndividualConfirmBtn:not(:disabled):hover {
+  background: #0f2d50 !important;
+  color: #ffffff !important;
+  border-color: #0f2d50 !important;
+  filter: none !important;
+}
+
+/* 혹시 전역 button:hover가 색을 바꾸고 있으면 막기 */
+.processingPage.resourcePage.inlineProcessingPage button:hover {
+  text-decoration: none !important;
+  transform: none !important;
+}
+/* =========================================================
+   등록된 문서 표 - 작업 버튼을 텍스트형으로 변경
+   열기 / 다시 시도 / 삭제
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTable
+  .inlineTableActions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 16px !important;
+}
+
+/* 작업 칸 버튼 공통: 테두리/박스 제거 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTable
+  .inlineTableActions
+  button {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  color: #123f91 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+
+  cursor: pointer !important;
+}
+
+/* 다시 시도도 텍스트 링크처럼 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTable
+  .inlineTableActions
+  button.retry {
+  color: #123f91 !important;
+}
+
+/* 삭제만 빨간 텍스트 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTable
+  .inlineTableActions
+  button:last-child {
+  color: #d14343 !important;
+}
+
+/* hover도 박스 생기지 않게 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTable
+  .inlineTableActions
+  button:hover {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-decoration: underline !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* 작업 컬럼 내용 좀 더 왼쪽으로 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTable
+  td:last-child {
+  padding-left: 8px !important;
+  padding-right: 0 !important;
+}
+
+/* 작업 버튼 묶음 자체를 왼쪽 정렬 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTable
+  .inlineTableActions {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-left: -15px !important;
+}
+
+/* 확보 방식(2번째 칸) 안의 배지만 왼쪽으로 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTableRow > span:nth-child(2) {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  padding-left: 0 !important;
+}
+
+/* 그 안의 배지를 살짝 더 왼쪽으로 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTableRow > span:nth-child(2) > * {
+  margin-left: -10px !important;
+}
+
+/* 변환 상태(5번째 칸) 배지만 왼쪽으로 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTableRow > span:nth-child(5) {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  padding-left: 0 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTableRow > span:nth-child(5) > * {
+  margin-left: -12px !important;
+}
+/* 등록일(6번째 칸)도 왼쪽으로 */
+.processingPage.resourcePage.inlineProcessingPage
+  .inlineResourceTableRow > span:nth-child(6) {
+  text-align: left !important;
+  padding-left: 0 !important;
+  margin-left: -15px !important;
+}
+
+/* 전체 삭제 버튼 테두리 제거 */
+.processingPage.resourcePage.inlineProcessingPage .inlineClearFilesBtn {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  color: #e54848 !important;
+  padding: 0 !important;
+  height: auto !important;
+
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+/* hover해도 테두리/배경 안 생기게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineClearFilesBtn:hover {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #d93636 !important;
+  text-decoration: underline !important;
+}
+
+/* 파일 올리기 / API 연결 탭 더 길게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadTabs {
+  min-width: 320px !important;
+  height: 44px !important;
+  padding: 4px !important;
+
+  display: flex !important;
+  gap: 8px !important;
+}
+
+/* 탭 버튼 각각 더 넓게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadTabs button {
+  flex: 1 !important;
+  min-width: 150px !important;
+  height: 36px !important;
+  padding: 0 22px !important;
+
+  white-space: nowrap !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+}
+
+/* =========================================================
+   등록된 문서 리스트 많아지면 내부 스크롤
+   ========================================================= */
+
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceCard {
+   height: 480px !important;
+  min-height: 480px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 표 영역 안에서만 스크롤 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding-right: 4px !important;
+}
+
+/* 헤더는 스크롤 내려도 위에 고정 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTableHead {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+
+  background: #ffffff !important;
+}
+
+/* 스크롤바 얇게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable::-webkit-scrollbar-thumb {
+  background: #c7d8ee !important;
+  border-radius: 999px !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+
+.processingPage.resourcePage.inlineProcessingPage {
+  --soft-border: #d8e4f2;
+  --soft-border-strong: #cbdced;
+  --soft-divider: #e7eef7;
+  --soft-input-border: #cfdff0;
+}
+
+/* 큰 카드 테두리 */
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadCard,
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceCard {
+  border-color: var(--soft-border) !important;
+}
+
+/* 통계 카드 테두리 */
+.processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid {
+  border-color: var(--soft-border) !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid article {
+  border-color: var(--soft-border) !important;
+}
+
+/* 등록 영역 좌우 구분선 */
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadLeft,
+.processingPage.resourcePage.inlineProcessingPage .inlineUploadRight,
+.processingPage.resourcePage.inlineProcessingPage .apiUploadLeft,
+.processingPage.resourcePage.inlineProcessingPage .apiUploadRight {
+  border-color: var(--soft-border) !important;
+}
+
+/* 파일 리스트 카드 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileItem {
+  border-color: var(--soft-border) !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineFileItem.selected {
+  border-color: #8faed0 !important;
+}
+
+/* 드롭존 / API 미리보기 박스 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileDropArea,
+.processingPage.resourcePage.inlineProcessingPage .inlineDropzone,
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewBlock,
+.processingPage.resourcePage.inlineProcessingPage .apiPreviewInner {
+  border-color: var(--soft-border) !important;
+}
+
+/* input / select / textarea 테두리 */
+.processingPage.resourcePage.inlineProcessingPage input,
+.processingPage.resourcePage.inlineProcessingPage select,
+.processingPage.resourcePage.inlineProcessingPage textarea {
+  border-color: var(--soft-input-border) !important;
+}
+
+/* 버튼 테두리 */
+.processingPage.resourcePage.inlineProcessingPage button {
+  border-color: var(--soft-input-border) !important;
+}
+
+/* 표 헤더 / 행 구분선 */
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTableHead,
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTableRow {
+  border-color: var(--soft-divider) !important;
+}
+
+/* 하단/상단 얇은 선들 */
+.processingPage.resourcePage.inlineProcessingPage .inlineListHeader,
+.processingPage.resourcePage.inlineProcessingPage .inlineResourceTable {
+  border-color: var(--soft-divider) !important;
+}
+
+/* =========================================================
+   드래그 중 화면을 기존 드롭존처럼 보이게
+   ========================================================= */
+
+/* 파일 영역 기준점 */
+.processingPage.resourcePage.inlineProcessingPage .inlineFileDropArea {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* 드래그 중 오버레이가 목록을 밀지 않고 위에 덮이게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDragOverlay {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 20 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: #eef6ff !important;
+  border: 1px dashed #8fc8ff !important;
+  border-radius: 12px !important;
+
+  box-sizing: border-box !important;
+}
+
+/* 안쪽 패널은 카드처럼 따로 보이지 않게 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDragPanel {
+  width: 100% !important;
+  height: 100% !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  text-align: center !important;
+}
+
+/* 드래그 아이콘 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDragIcon {
+  width: 56px !important;
+  height: 56px !important;
+  margin-bottom: 12px !important;
+
+  background: transparent !important;
+  color: #123f91 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineDragIcon svg {
+  width: 48px !important;
+  height: 56px !important;
+}
+
+/* 드래그 문구 */
+.processingPage.resourcePage.inlineProcessingPage .inlineDragPanel strong {
+  margin: 0 0 8px !important;
+
+  color: #061f47 !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+  line-height: 1.2 !important;
+}
+
+.processingPage.resourcePage.inlineProcessingPage .inlineDragPanel p {
+  margin: 0 !important;
+
+  color: #5f7598 !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+  line-height: 1.4 !important;
+}
+
+/* =========================================================
+   DashboardProcessingPage Dark Mode
+   ========================================================= */
+
+.chatPage.dark .processingPage,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage,
+body.dark .processingPage,
+body.dark .processingPage.resourcePage.inlineProcessingPage {
+  background: #0f172a !important;
+  color: #f8fbff !important;
+}
+
+/* 큰 카드 */
+.chatPage.dark .inlineUploadCard,
+.chatPage.dark .inlineStatsGrid,
+.chatPage.dark .inlineResourceCard,
+body.dark .inlineUploadCard,
+body.dark .inlineStatsGrid,
+body.dark .inlineResourceCard {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .inlineUploadCardHeader,
+.chatPage.dark .inlineUploadBody,
+.chatPage.dark .inlineUploadLeft,
+.chatPage.dark .inlineUploadRight,
+body.dark .inlineUploadCardHeader,
+body.dark .inlineUploadBody,
+body.dark .inlineUploadLeft,
+body.dark .inlineUploadRight {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.chatPage.dark .inlineUploadCardHeader h2,
+.chatPage.dark .commonInfoHeader,
+.chatPage.dark .selectedFileEditHeader span,
+.chatPage.dark .inlineListHeader h2,
+.chatPage.dark .inlineTitleCell strong,
+.chatPage.dark .inlineFormField,
+body.dark .inlineUploadCardHeader h2,
+body.dark .commonInfoHeader,
+body.dark .selectedFileEditHeader span,
+body.dark .inlineListHeader h2,
+body.dark .inlineTitleCell strong,
+body.dark .inlineFormField {
+  color: #f8fbff !important;
+}
+
+/* 탭 */
+.chatPage.dark .inlineUploadTabs,
+body.dark .inlineUploadTabs {
+  background: #15233d !important;
+}
+
+.chatPage.dark .inlineUploadTabs button,
+body.dark .inlineUploadTabs button {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .inlineUploadTabs button.active,
+body.dark .inlineUploadTabs button.active {
+  background: #123f91 !important;
+  color: #ffffff !important;
+}
+
+/* 드롭존 / 드래그 */
+.chatPage.dark .inlineDropzone,
+.chatPage.dark .inlineDragOverlay,
+body.dark .inlineDropzone,
+body.dark .inlineDragOverlay {
+  background: #15233d !important;
+  border-color: rgba(147, 197, 253, 0.45) !important;
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .inlineDropIcon,
+.chatPage.dark .inlineDragIcon,
+body.dark .inlineDropIcon,
+body.dark .inlineDragIcon {
+  background: rgba(59, 130, 246, 0.14) !important;
+  color: #93c5fd !important;
+}
+
+.chatPage.dark .inlineDropzone strong,
+.chatPage.dark .inlineDragOverlay strong,
+.chatPage.dark .inlineDragPanel strong,
+body.dark .inlineDropzone strong,
+body.dark .inlineDragOverlay strong,
+body.dark .inlineDragPanel strong {
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .inlineDropzone p,
+.chatPage.dark .inlineDragOverlay p,
+.chatPage.dark .inlineDragPanel p,
+body.dark .inlineDropzone p,
+body.dark .inlineDragOverlay p,
+body.dark .inlineDragPanel p {
+  color: #9badc9 !important;
+}
+
+/* 파일 카드 */
+.chatPage.dark .inlineFileItem,
+body.dark .inlineFileItem {
+  background: #15233d !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+.chatPage.dark .inlineFileItem.selected,
+body.dark .inlineFileItem.selected {
+  background: #1d3154 !important;
+  border-color: rgba(147, 197, 253, 0.5) !important;
+}
+
+.chatPage.dark .inlineFileMain strong,
+body.dark .inlineFileMain strong {
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .inlineFileMain p,
+body.dark .inlineFileMain p {
+  color: #9badc9 !important;
+}
+
+/* input / select / textarea */
+.chatPage.dark .inlineFormField input,
+.chatPage.dark .inlineFormField select,
+.chatPage.dark .inlineFormField textarea,
+.chatPage.dark .inlineApiBox input,
+.chatPage.dark .inlineFilters select,
+body.dark .inlineFormField input,
+body.dark .inlineFormField select,
+body.dark .inlineFormField textarea,
+body.dark .inlineApiBox input,
+body.dark .inlineFilters select {
+  background: #15233d !important;
+  border-color: rgba(148, 163, 184, 0.26) !important;
+  color: #f8fbff !important;
+}
+
+.chatPage.dark input::placeholder,
+.chatPage.dark textarea::placeholder,
+body.dark input::placeholder,
+body.dark textarea::placeholder {
+  color: #8fa1bd !important;
+}
+
+/* 통계 */
+.chatPage.dark .inlineStatsGrid article,
+body.dark .inlineStatsGrid article {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.chatPage.dark .inlineStatsGrid article.done,
+body.dark .inlineStatsGrid article.done {
+  background: rgba(34, 161, 102, 0.12) !important;
+}
+
+.chatPage.dark .inlineStatsGrid article.working,
+body.dark .inlineStatsGrid article.working {
+  background: rgba(82, 119, 232, 0.14) !important;
+}
+
+.chatPage.dark .inlineStatsGrid article.waiting,
+body.dark .inlineStatsGrid article.waiting {
+  background: rgba(217, 151, 43, 0.14) !important;
+}
+
+.chatPage.dark .inlineStatsGrid article.error,
+body.dark .inlineStatsGrid article.error {
+  background: rgba(209, 67, 67, 0.14) !important;
+}
+
+.chatPage.dark .inlineStatsGrid p,
+.chatPage.dark .inlineStatsGrid em,
+.chatPage.dark .inlineListHeader span,
+.chatPage.dark .inlineTitleCell p,
+body.dark .inlineStatsGrid p,
+body.dark .inlineStatsGrid em,
+body.dark .inlineListHeader span,
+body.dark .inlineTitleCell p {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .inlineStatsGrid strong,
+body.dark .inlineStatsGrid strong {
+  color: #f8fbff !important;
+}
+
+/* 등록된 문서 표 */
+.chatPage.dark .inlineResourceTableHead,
+body.dark .inlineResourceTableHead {
+  border-bottom-color: rgba(148, 163, 184, 0.22) !important;
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .inlineResourceTableRow,
+body.dark .inlineResourceTableRow {
+  border-bottom-color: rgba(148, 163, 184, 0.16) !important;
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .inlineTypeBadge,
+body.dark .inlineTypeBadge {
+  background: rgba(59, 130, 246, 0.14) !important;
+  color: #bfdbfe !important;
+}
+
+.chatPage.dark .inlineTypeBadge.api,
+body.dark .inlineTypeBadge.api {
+  background: rgba(139, 92, 246, 0.18) !important;
+  color: #ddd6fe !important;
+}
+
+.chatPage.dark .inlineTableActions button,
+body.dark .inlineTableActions button {
+  color: #93c5fd !important;
+}
+
+/* API 미리보기 */
+.chatPage.dark .inlineApiBox p,
+.chatPage.dark .apiPreviewBlock,
+.chatPage.dark .apiPreviewInner,
+body.dark .inlineApiBox p,
+body.dark .apiPreviewBlock,
+body.dark .apiPreviewInner {
+  background: #15233d !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  color: #9badc9 !important;
+}
+
+
+/* =========================================================
+   문서 처리 페이지 다크모드 최종 정리
+   배경 #0f172a 유지, 흰색으로 튀는 요소만 어둡게 통일
+   ========================================================= */
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage,
+body.dark .processingPage.resourcePage.inlineProcessingPage {
+  --processing-bg: #0f172a;
+  --processing-panel: #111c31;
+  --processing-panel-soft: #15233d;
+  --processing-border: rgba(148, 163, 184, 0.22);
+  --processing-border-soft: rgba(148, 163, 184, 0.16);
+  --processing-text: #f8fbff;
+  --processing-sub-text: #9badc9;
+
+  background: var(--processing-bg) !important;
+  color: var(--processing-text) !important;
+}
+
+/* 큰 박스 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadCard,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceCard,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadCard,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceCard {
+  background: var(--processing-panel) !important;
+  border-color: var(--processing-border) !important;
+  box-shadow: none !important;
+}
+
+/* 안쪽 영역 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadCardHeader,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadBody,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadLeft,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadRight,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadCardHeader,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadBody,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadLeft,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadRight {
+  background: transparent !important;
+  border-color: var(--processing-border-soft) !important;
+}
+
+/* 제목 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage h2,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage strong,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage label,
+body.dark .processingPage.resourcePage.inlineProcessingPage h2,
+body.dark .processingPage.resourcePage.inlineProcessingPage strong,
+body.dark .processingPage.resourcePage.inlineProcessingPage label {
+  color: var(--processing-text) !important;
+}
+
+/* 보조 글자 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage p,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage span,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage em,
+body.dark .processingPage.resourcePage.inlineProcessingPage p,
+body.dark .processingPage.resourcePage.inlineProcessingPage span,
+body.dark .processingPage.resourcePage.inlineProcessingPage em {
+  color: var(--processing-sub-text) !important;
+}
+
+/* 파일 카드 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileItem,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileItem {
+  background: var(--processing-panel-soft) !important;
+  border-color: var(--processing-border) !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileItem.selected,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileItem.selected {
+  background: #182946 !important;
+  border-color: rgba(147, 197, 253, 0.42) !important;
+}
+
+/* input / select / textarea */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage input,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage select,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage textarea,
+body.dark .processingPage.resourcePage.inlineProcessingPage input,
+body.dark .processingPage.resourcePage.inlineProcessingPage select,
+body.dark .processingPage.resourcePage.inlineProcessingPage textarea {
+  background: var(--processing-panel-soft) !important;
+  border-color: var(--processing-border) !important;
+  color: var(--processing-text) !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage input::placeholder,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage textarea::placeholder,
+body.dark .processingPage.resourcePage.inlineProcessingPage input::placeholder,
+body.dark .processingPage.resourcePage.inlineProcessingPage textarea::placeholder {
+  color: #7f91ad !important;
+}
+
+/* 흰색 버튼들만 어둡게 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadTabs button:not(.active),
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineSaveBtn,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileSettingBtn,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .fileSettingBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineUploadTabs button:not(.active),
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineSaveBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileSettingBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .fileSettingBtn {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: var(--processing-border) !important;
+  color: #dbe7f7 !important;
+}
+
+/* 삭제 버튼 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileDeleteBtn,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .fileDeleteBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileDeleteBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .fileDeleteBtn {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: var(--processing-border) !important;
+  color: #ff8b95 !important;
+}
+
+/* 등록된 문서 표 헤더 흰색 제거 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTableHead,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTableHead {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: var(--processing-border-soft) !important;
+  color: var(--processing-sub-text) !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTableHead span,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTableHead span {
+  color: var(--processing-sub-text) !important;
+}
+
+/* 표 줄 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTableRow,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTableRow {
+  border-bottom-color: var(--processing-border-soft) !important;
+}
+
+/* 스크롤바 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTable::-webkit-scrollbar-thumb,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineResourceTable::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35) !important;
+}
+
+/* =========================================================
+   문서 처리 페이지 - 동그라미 친 요소만 다크모드 정리
+   배경/레이아웃 건드리지 않음
+   ========================================================= */
+
+/* 뒤배경 고정 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage,
+body.dark .processingPage.resourcePage.inlineProcessingPage {
+  background: #0f172a !important;
+}
+
+/* 선택 파일 목록 상태 배지: 대기 중 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileStatus,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileStatus {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border: 1px solid rgba(245, 158, 11, 0.34) !important;
+  color: #fbbf24 !important;
+}
+
+/* 선택 파일 목록 상태 배지: 반영 완료 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileStatus.ready,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileStatus.ready {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1px solid rgba(16, 185, 129, 0.34) !important;
+  color: #6ee7b7 !important;
+}
+
+/* 개별설정 버튼 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileEditBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileEditBtn {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  color: #dbe7f7 !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileEditBtn:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileEditBtn:hover {
+  background: rgba(255, 255, 255, 0.11) !important;
+  color: #ffffff !important;
+}
+
+/* 개별설정 선택됨 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileEditBtn.active,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineFileEditBtn.active {
+  background: rgba(59, 130, 246, 0.22) !important;
+  border-color: rgba(96, 165, 250, 0.42) !important;
+  color: #bfdbfe !important;
+}
+
+/* 삭제 버튼 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineRemoveBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineRemoveBtn {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  color: #ff8b95 !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineRemoveBtn:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineRemoveBtn:hover {
+  background: rgba(248, 113, 113, 0.16) !important;
+  border-color: rgba(248, 113, 113, 0.36) !important;
+  color: #fecaca !important;
+}
+
+/* 임시 저장 버튼 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineSaveBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineSaveBtn {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  color: #dbe7f7 !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineSaveBtn:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineSaveBtn:hover {
+  background: rgba(255, 255, 255, 0.11) !important;
+  color: #ffffff !important;
+}
+
+/* 등록된 문서 표 상태 배지 공통 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge {
+  border: 1px solid transparent !important;
+}
+
+/* 반영 완료 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.done,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.done {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border-color: rgba(16, 185, 129, 0.34) !important;
+  color: #6ee7b7 !important;
+}
+
+/* 반영 중 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.working,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.working {
+  background: rgba(59, 130, 246, 0.18) !important;
+  border-color: rgba(96, 165, 250, 0.34) !important;
+  color: #93c5fd !important;
+}
+
+/* 대기 중 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.wait,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.wait {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border-color: rgba(245, 158, 11, 0.34) !important;
+  color: #fbbf24 !important;
+}
+
+/* 오류 발생 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.error,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatusBadge.error {
+  background: rgba(244, 63, 94, 0.16) !important;
+  border-color: rgba(244, 63, 94, 0.36) !important;
+  color: #fda4af !important;
+}
+
+/* 작업 버튼: 열기 / 다시 시도 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button {
+  background: transparent !important;
+  border: 0 !important;
+  color: #7fb0ff !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button:hover {
+  color: #bfdbfe !important;
+  text-decoration: underline !important;
+}
+
+/* 작업 버튼: 삭제 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button:last-child,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button:last-child {
+  color: #ff8b95 !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button:last-child:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineTableActions button:last-child:hover {
+  color: #fecaca !important;
+}
+
+/* =========================================================
+   API 연결 모드 다크모드 정리
+   흰색으로 튀는 영역만 수정
+   ========================================================= */
+
+/* API 왼쪽 영역 흰 배경 제거 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiLeftFixed,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiLeftCard,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiLeftFixed,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiLeftCard {
+  background: transparent !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+/* OpenAPI 주소 라벨 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressLabel,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressLabel {
+  color: #dbe7f7 !important;
+}
+
+/* OpenAPI 주소 입력칸 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow input,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow input {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow input::placeholder,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow input::placeholder {
+  color: #8fa1bd !important;
+}
+
+/* 요청 버튼 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow button,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow button {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  color: #dbe7f7 !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow button:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiAddressRow button:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+/* API 미리보기 바깥 박스 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewBlock,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewBlock {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+/* 업로드/등록 실패 에러 배너 */
+.uploadErrorBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #fff0f0;
+  color: #d14343;
+  font-size: 13px;
+}
+
+.uploadErrorBanner button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.chatPage.dark .uploadErrorBanner,
+body.dark .uploadErrorBanner {
+  background: rgba(244, 63, 94, 0.16);
+  color: #fda4af;
+}
+
+/* API 미리보기 제목 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewBlockHeader strong,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewBlockHeader strong {
+  color: #f8fbff !important;
+}
+
+/* 연결 대기 중 배지 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewBlockHeader span,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewBlockHeader span {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #b8c8e8 !important;
+}
+
+/* API 미리보기 안쪽 큰 흰 박스 제거 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewInner,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewInner {
+  background: rgba(255, 255, 255, 0.035) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* 미리보기 아이콘 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewIcon,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewIcon {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #9badc9 !important;
+}
+
+/* 미리보기 안내 문구 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewInner p,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiPreviewInner p {
+  color: #9badc9 !important;
+}
+
+/* 오른쪽 API 등록 영역 흰 배경 제거 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight.fileEditMode,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight.fileEditMode {
+  background: transparent !important;
+}
+
+/* 등록 정보 텍스트 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiEditHeader span,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiEditHeader span {
+  color: #f8fbff !important;
+}
+
+/* API 연결 배지 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiEditHeader strong,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .apiEditHeader strong {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #dbe7f7 !important;
+}
+
+/* 오른쪽 label */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineFormField,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineFormField {
+  color: #dbe7f7 !important;
+}
+
+/* 오른쪽 input/select/textarea */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight input,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight select,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight textarea,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight input,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight select,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight textarea {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight input::placeholder,
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight textarea::placeholder,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight input::placeholder,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight textarea::placeholder {
+  color: #8fa1bd !important;
+}
+
+/* 취소 버튼 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualCancelBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualCancelBtn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  color: #ff9aa5 !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualCancelBtn:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualCancelBtn:hover {
+  background: rgba(248, 113, 113, 0.14) !important;
+  border-color: rgba(248, 113, 113, 0.34) !important;
+  color: #fecaca !important;
+}
+
+/* 저장 버튼 */
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualConfirmBtn,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualConfirmBtn {
+  background: #123761 !important;
+  border: 1px solid #123761 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualConfirmBtn:hover,
+body.dark .processingPage.resourcePage.inlineProcessingPage .apiUploadRight .inlineIndividualConfirmBtn:hover {
+  background: #0b2b50 !important;
+  border-color: #0b2b50 !important;
+}
+
+/* =========================================================
+   문서 처리 통계 바 테두리 다크모드 정리
+   위치/배경 건드리지 않고 선 색만 변경
+   ========================================================= */
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid {
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid article,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid article {
+  border-right-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+.chatPage.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid article:last-child,
+body.dark .processingPage.resourcePage.inlineProcessingPage .inlineStatsGrid article:last-child {
+  border-right-color: transparent !important;
+}
+
+
+/* =========================================================
+   처리 중 문서 테이블: 확보 방식 제거 + 진행률 게이지
+   ========================================================= */
+
+.inlineResourceTableHead,
+.inlineResourceTableRow {
+  grid-template-columns:
+    minmax(280px, 1.8fr)
+    0.9fr
+    0.9fr
+    1.25fr
+    0.9fr
+    0.9fr
+    1fr !important;
+}
+
+/* 진행률 칸 */
+.inlineProgressCell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  min-width: 140px !important;
+}
+
+.inlineProgressTrack {
+  position: relative !important;
+  width: 92px !important;
+  height: 8px !important;
+
+  border-radius: 999px !important;
+  background: #eaf1fb !important;
+  overflow: hidden !important;
+}
+
+.inlineProgressTrack i {
+  display: block !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: #4f7cff !important;
+  transition: width 0.35s ease !important;
+}
+
+.inlineProgressTrack.working i {
+  background: linear-gradient(90deg, #4f7cff, #2f63db) !important;
+}
+
+.inlineProgressTrack.wait i {
+  background: #e3a63a !important;
+}
+
+.inlineProgressTrack.error i {
+  background: #e54848 !important;
+}
+
+.inlineProgressCell small {
+  min-width: 32px !important;
+  color: #526c9c !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+}
+
+/* 처리 중 문서에서는 액션 버튼 살짝 차분하게 */
+.inlineTableActions button:first-child {
+  color: #123761 !important;
+}
+
+.inlineTableActions button.retry {
+  color: #123761 !important;
+}
+
+/* 다크모드 진행률 */
+.chatPage.dark .inlineProgressTrack,
+body.dark .inlineProgressTrack {
+  background: rgba(148, 163, 184, 0.18) !important;
+}
+
+.chatPage.dark .inlineProgressCell small,
+body.dark .inlineProgressCell small {
+  color: #9badc9 !important;
+}
+
+/* 문서 처리 통계바 세로 높이 확대 */
+.inlineStatsGrid {
+  min-height: 62px !important;
+}
+
+.inlineStatsGrid article {
+  min-height: 62px !important;
+  padding: 0 26px !important;
+
+  display: flex !important;
+  align-items: center !important;
+}
+

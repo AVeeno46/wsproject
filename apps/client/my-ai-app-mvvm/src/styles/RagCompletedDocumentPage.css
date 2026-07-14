@@ -1,0 +1,1082 @@
+.documentViewPage {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  color: #061f47;
+}
+
+.documentRagListPage {
+  padding: 28px 32px;
+  background: #f6f9fd;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 상단 제목 + 검색 */
+.documentRagHeader {
+  width: 100%;
+  margin-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.documentRagHeader h1 {
+  margin: 0;
+
+  color: #061f47;
+  font-size: 26px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.documentRagHeader p {
+  margin: 8px 0 0;
+
+  color: #7c8da5;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* 검색창 */
+.documentRagSearchBox {
+  width: 420px;
+  height: 44px;
+  padding: 0 14px;
+  box-sizing: border-box;
+
+  border: 1px solid #cfdff0;
+  border-radius: 12px;
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.documentRagSearchBox svg {
+  width: 16px;
+  height: 16px;
+  color: #7f95b5;
+  flex-shrink: 0;
+}
+
+.documentRagSearchBox svg circle,
+.documentRagSearchBox svg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.documentRagSearchBox input {
+  flex: 1;
+  min-width: 0;
+
+  border: 0;
+  outline: none;
+  background: transparent;
+
+  color: #061f47;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.documentRagSearchBox input::placeholder {
+  color: #7f8fa8;
+}
+
+/* 필터 */
+.documentRagFilterRow {
+  width: 100%;
+  margin: 0 0 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.documentRagFilterRow select {
+  height: 36px;
+  min-width: 112px;
+  padding: 0 34px 0 12px;
+
+  border: 1px solid #cfdff0;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #061f47;
+
+  font-size: 12px;
+  font-weight: 850;
+  outline: none;
+  cursor: pointer;
+}
+
+/* 리스트 카드 */
+.documentRagListCard {
+  width: 100%;
+  padding: 18px;
+  box-sizing: border-box;
+
+  border: 1px solid #d8e4f2;
+  border-radius: 16px;
+  background: #ffffff;
+
+  box-shadow: none;
+}
+
+.documentRagListHeader {
+  min-height: 36px;
+  margin-bottom: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.documentRagListHeader > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.documentRagListHeader h2 {
+  margin: 0;
+
+  color: #061f47;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.documentRagListHeader span {
+  color: #6f86aa;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* 헤더형 문서 리스트 */
+.documentRagTable {
+  width: 100%;
+}
+
+.documentRagTableHead {
+  min-height: 42px;
+  padding: 0 16px;
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #d8e4f2;
+  border-radius: 10px 10px 0 0;
+  background: #f8fbff;
+
+  display: grid;
+  grid-template-columns: minmax(320px, 2fr) 0.7fr 0.85fr 0.85fr 1fr 1.2fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.documentRagTableHead span {
+  color: #6f86aa;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.documentRagTableRow {
+  min-height: 78px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #e4edf7;
+  background: #ffffff;
+
+  display: grid;
+  grid-template-columns: minmax(320px, 2fr) 0.7fr 0.85fr 0.85fr 1fr 1.2fr;
+  align-items: center;
+  gap: 14px;
+
+  transition: background 0.14s ease;
+}
+
+.documentRagTableRow:hover {
+  background: #f8fbff;
+}
+
+.documentRagTableRow:last-child {
+  border-bottom: 0;
+}
+
+.documentRagTitleCell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.documentRagTitleCell > div:last-child {
+  min-width: 0;
+}
+
+.documentRagTitleCell strong {
+  display: block;
+
+  color: #061f47;
+  font-size: 14px;
+  font-weight: 950;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.documentRagTitleCell p {
+  margin: 5px 0 0;
+
+  color: #6f7f98;
+  font-size: 12px;
+  font-weight: 800;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+
+.documentRagTableRow > div > span {
+  color: #061f47;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* 파일 배지 */
+.documentRagFileBadge {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 10px;
+  background: #eaf3ff;
+  color: #2e63ff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.documentRagTypeBadge {
+  height: 24px;
+  padding: 0 10px;
+
+  border-radius: 999px;
+  background: #eaf3ff;
+  color: #2e63ff !important;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px !important;
+  font-weight: 950 !important;
+}
+
+/* 상태 배지 */
+.documentRagStatusBadge {
+  height: 24px;
+  padding: 0 10px;
+
+  border-radius: 999px;
+  background: #e6f8ef;
+  color: #16844f !important;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  white-space: nowrap;
+}
+
+.documentRagStatusBadge i {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* 작업 버튼 */
+.documentRagTableActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.documentRagTableActions button {
+  border: 0;
+  background: transparent;
+  color: #123761;
+
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.documentRagTableActions button:hover {
+  text-decoration: underline;
+}
+
+.documentRagTableActions button.primary {
+  min-width: 76px;
+  height: 32px;
+  padding: 0 12px;
+
+  border-radius: 8px;
+  background: #123761;
+  color: #ffffff;
+}
+
+.documentRagTableActions button.primary:hover {
+  background: #0b2b50;
+  text-decoration: none;
+}
+
+/* 빈 상태 */
+.documentRagEmpty {
+  min-height: 280px;
+
+  border: 1px dashed #cfdff0;
+  border-radius: 14px;
+  background: #f8fbff;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.documentRagEmpty strong {
+  color: #061f47;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.documentRagEmpty p {
+  margin: 10px 0 0;
+
+  color: #7c8da5;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Drawer */
+.documentDrawerBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+
+  border: 0;
+  background: rgba(6, 31, 71, 0.18);
+  cursor: default;
+}
+
+.documentDetailDrawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 90;
+
+  width: 420px;
+  height: 100vh;
+
+  background: #ffffff;
+  box-shadow: -18px 0 34px rgba(6, 31, 71, 0.16);
+
+  display: flex;
+  flex-direction: column;
+
+  animation: documentDrawerIn 0.18s ease-out;
+}
+
+@keyframes documentDrawerIn {
+  from {
+    transform: translateX(40px);
+    opacity: 0.4;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.documentDetailHeader {
+  height: 72px;
+  padding: 0 22px;
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #e6edf6;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.documentDetailHeader h2 {
+  margin: 0;
+
+  color: #061f47;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.documentDetailHeader button {
+  width: 34px;
+  height: 34px;
+
+  border: 0;
+  border-radius: 10px;
+  background: #f0f5fb;
+  color: #6f7f98;
+
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.documentDetailBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+
+  padding: 24px 22px;
+  box-sizing: border-box;
+}
+
+.documentDetailBody h3 {
+  margin: 0 0 24px;
+
+  color: #061f47;
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1.45;
+}
+
+.documentDetailBody h4 {
+  margin: 28px 0 12px;
+
+  color: #8a98ad;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.documentInfoList {
+  margin: 0;
+  padding: 0;
+}
+
+.documentInfoList div {
+  min-height: 44px;
+
+  border-bottom: 1px solid #edf2f7;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.documentInfoList dt {
+  color: #8a98ad;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.documentInfoList dd {
+  margin: 0;
+
+  color: #061f47;
+  font-size: 13px;
+  font-weight: 950;
+  text-align: right;
+}
+
+.documentQuickActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.documentQuickActions button {
+  width: 100%;
+  height: 48px;
+  padding: 0 18px;
+
+  border: 1px solid #d8e4f2;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #061f47;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 13px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.documentQuickActions button.primary {
+  border-color: #123761;
+  background: #123761;
+  color: #ffffff;
+}
+
+.documentQuickActions button.primary:hover {
+  border-color: #0b2b50;
+  background: #0b2b50;
+}
+
+/* 다크모드 */
+.chatPage.dark .documentRagListPage,
+body.dark .documentRagListPage {
+  background: #0f172a;
+  color: #f8fbff;
+}
+
+.chatPage.dark .documentRagHeader h1,
+body.dark .documentRagHeader h1 {
+  color: #ffffff;
+}
+
+.chatPage.dark .documentRagHeader p,
+body.dark .documentRagHeader p {
+  color: #9badc9;
+}
+
+.chatPage.dark .documentRagSearchBox,
+body.dark .documentRagSearchBox,
+.chatPage.dark .documentRagFilterRow select,
+body.dark .documentRagFilterRow select {
+  background: #111c31;
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #dbe7f7;
+}
+
+.chatPage.dark .documentRagSearchBox input,
+body.dark .documentRagSearchBox input {
+  color: #f8fbff;
+}
+
+.chatPage.dark .documentRagSearchBox input::placeholder,
+body.dark .documentRagSearchBox input::placeholder {
+  color: #8fa1bd;
+}
+
+.chatPage.dark .documentRagSearchBox svg,
+body.dark .documentRagSearchBox svg {
+  color: #9badc9;
+}
+
+.chatPage.dark .documentRagListCard,
+body.dark .documentRagListCard {
+  background: #111c31;
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.chatPage.dark .documentRagListHeader h2,
+body.dark .documentRagListHeader h2 {
+  color: #ffffff;
+}
+
+.chatPage.dark .documentRagListHeader span,
+body.dark .documentRagListHeader span {
+  color: #9badc9;
+}
+
+.chatPage.dark .documentRagTableHead,
+body.dark .documentRagTableHead {
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+.chatPage.dark .documentRagTableHead span,
+body.dark .documentRagTableHead span {
+  color: #9badc9;
+}
+
+.chatPage.dark .documentRagTableRow,
+body.dark .documentRagTableRow {
+  background: #15233d;
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+.chatPage.dark .documentRagTableRow:hover,
+body.dark .documentRagTableRow:hover {
+  background: #1b2942;
+}
+
+.chatPage.dark .documentRagTitleCell strong,
+body.dark .documentRagTitleCell strong {
+  color: #ffffff;
+}
+
+.chatPage.dark .documentRagTitleCell p,
+
+body.dark .documentRagTitleCell p
+{
+  color: #9badc9;
+}
+
+.chatPage.dark .documentRagTableRow > div > span,
+body.dark .documentRagTableRow > div > span {
+  color: #dbe7f7;
+}
+
+.chatPage.dark .documentRagFileBadge,
+.chatPage.dark .documentRagTypeBadge,
+body.dark .documentRagFileBadge,
+body.dark .documentRagTypeBadge {
+  background: rgba(59, 130, 246, 0.14);
+  color: #93c5fd !important;
+}
+
+.chatPage.dark .documentRagStatusBadge,
+body.dark .documentRagStatusBadge {
+  background: rgba(16, 185, 129, 0.16);
+  color: #6ee7b7 !important;
+  border: 1px solid rgba(16, 185, 129, 0.32);
+}
+
+.chatPage.dark .documentRagTableActions button,
+body.dark .documentRagTableActions button {
+  color: #9cc2ff;
+}
+
+.chatPage.dark .documentRagTableActions button.primary,
+body.dark .documentRagTableActions button.primary {
+  background: #123761;
+  color: #ffffff;
+}
+
+.chatPage.dark .documentRagTableActions button.primary:hover,
+body.dark .documentRagTableActions button.primary:hover {
+  background: #0b2b50;
+}
+
+.chatPage.dark .documentDetailDrawer,
+body.dark .documentDetailDrawer {
+  background: #111c31;
+  border-left-color: rgba(148, 163, 184, 0.22);
+}
+
+.chatPage.dark .documentDetailHeader,
+body.dark .documentDetailHeader {
+  background: #111c31;
+  border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+.chatPage.dark .documentDetailHeader h2,
+.chatPage.dark .documentDetailBody h3,
+body.dark .documentDetailHeader h2,
+body.dark .documentDetailBody h3 {
+  color: #ffffff;
+}
+
+.chatPage.dark .documentInfoList div,
+body.dark .documentInfoList div {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+.chatPage.dark .documentInfoList dt,
+body.dark .documentInfoList dt {
+  color: #8fa1bd;
+}
+
+.chatPage.dark .documentInfoList dd,
+body.dark .documentInfoList dd {
+  color: #f8fbff;
+}
+
+.chatPage.dark .documentDetailBody h4,
+body.dark .documentDetailBody h4 {
+  color: #93c5fd;
+}
+
+/* 반응형 */
+@media (max-width: 1200px) {
+  .documentRagTableHead {
+    display: none;
+  }
+
+  .documentRagTableRow {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .documentRagTitleCell {
+    grid-column: 1 / -1;
+  }
+
+  .documentRagTableRow > div:not(.documentRagTitleCell):not(.documentRagTableActions) {
+    display: none;
+  }
+
+  .documentRagTableActions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 1100px) {
+  .documentRagHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .documentRagSearchBox {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .documentRagListPage {
+    padding: 22px 16px;
+  }
+
+  .documentRagFilterRow {
+    flex-wrap: wrap;
+  }
+
+  .documentRagFilterRow select {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .documentRagTableActions {
+    justify-content: stretch;
+  }
+
+  .documentRagTableActions button,
+  .documentRagTableActions button.primary {
+    flex: 1;
+  }
+}
+
+/* =========================================================
+   DocumentViewPage - 리스트 높이 확장 + 페이지네이션
+   ========================================================= */
+
+.documentRagListCard {
+  min-height: 620px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.documentRagTable {
+  flex: 1 !important;
+  min-height: 520px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.documentRagTableRow {
+  min-height: 96px !important;
+}
+
+/* 페이지네이션 */
+.documentRagPagination {
+  margin-top: auto !important;
+  padding: 22px 0 4px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+.documentRagPagination > button,
+.documentRagPageNumbers button {
+  min-width: 34px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+
+  border: 1px solid #cfdff0 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #123761 !important;
+
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+}
+
+.documentRagPagination > button:hover:not(:disabled),
+.documentRagPageNumbers button:hover {
+  background: #f3f8ff !important;
+  border-color: #b9d2ee !important;
+}
+
+.documentRagPagination > button:disabled {
+  opacity: 0.38 !important;
+  cursor: not-allowed !important;
+}
+
+.documentRagPageNumbers {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.documentRagPageNumbers button.active {
+  background: #123761 !important;
+  border-color: #123761 !important;
+  color: #ffffff !important;
+}
+
+/* 다크모드 */
+.chatPage.dark .documentRagPagination > button,
+.chatPage.dark .documentRagPageNumbers button,
+body.dark .documentRagPagination > button,
+body.dark .documentRagPageNumbers button {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .documentRagPagination > button:hover:not(:disabled),
+.chatPage.dark .documentRagPageNumbers button:hover,
+body.dark .documentRagPagination > button:hover:not(:disabled),
+body.dark .documentRagPageNumbers button:hover {
+  background: rgba(255, 255, 255, 0.11) !important;
+}
+
+.chatPage.dark .documentRagPageNumbers button.active,
+body.dark .documentRagPageNumbers button.active {
+  background: #123761 !important;
+  border-color: #123761 !important;
+  color: #ffffff !important;
+}
+
+/* 문서 보기 리스트 박스 아래로 늘리기 */
+.documentRagListCard {
+  min-height: 890px !important;
+}
+
+.documentRagTable {
+  min-height: 690px !important;
+}
+
+/* 문서 보기 필터 크기/디자인 재조정 */
+.documentRagFilterRowInCard,
+.documentRagFilterRow {
+  gap: 8px !important;
+}
+
+.documentRagFilterRowInCard select,
+.documentRagFilterRow select {
+  height: 32px !important;
+  min-width: 118px !important;
+  padding: 0 30px 0 12px !important;
+
+  border: 1px solid #cbdcf0 !important;
+  border-radius: 7px !important;
+  background-color: #ffffff !important;
+  color: #061f47 !important;
+
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+
+  box-shadow: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+
+/* 최신순은 너무 넓지 않게 */
+.documentRagFilterRowInCard select:last-child,
+.documentRagFilterRow select:last-child {
+  min-width: 104px !important;
+}
+
+/* hover/focus */
+.documentRagFilterRowInCard select:hover,
+.documentRagFilterRow select:hover,
+.documentRagFilterRowInCard select:focus,
+.documentRagFilterRow select:focus {
+  border-color: #aac6e8 !important;
+  background-color: #ffffff !important;
+}
+
+/* 검색/필터 묶음도 너무 커 보이지 않게 */
+.documentRagListTools {
+  gap: 8px !important;
+}
+
+.documentRagSearchBoxInCard {
+  width: 390px !important;
+  height: 38px !important;
+  border-radius: 9px !important;
+}
+
+.documentRagSearchBoxInCard input {
+  font-size: 12px !important;
+  font-weight: 750 !important;
+}
+
+/* 문서 보기 검색창 크기/디자인 재조정 */
+.documentRagSearchBoxInCard,
+.documentRagSearchBox {
+  width: 360px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+
+  border: 1px solid #cbdcf0 !important;
+  border-radius: 7px !important;
+  background-color: #ffffff !important;
+
+  gap: 8px !important;
+  box-shadow: none !important;
+}
+
+.documentRagSearchBoxInCard svg,
+.documentRagSearchBox svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: #7f95b5 !important;
+}
+
+.documentRagSearchBoxInCard input,
+.documentRagSearchBox input {
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  color: #061f47 !important;
+}
+
+.documentRagSearchBoxInCard input::placeholder,
+.documentRagSearchBox input::placeholder {
+  color: #7f8fa8 !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+}
+
+/* 검색창이 필터보다 너무 튀지 않게 */
+.documentRagListTools {
+  gap: 7px !important;
+}
+
+/* 필터 버튼 3개만 아래로 이동 */
+.documentRagFilterRowInCard {
+  transform: translateY(9px) !important;
+}
+
+/* 문서 보기 테이블 컬럼 간격 정렬 */
+.documentRagTableHead,
+.documentRagTableRow {
+  grid-template-columns:
+    minmax(420px, 2.4fr)
+    140px
+    150px
+    150px
+    190px
+    180px !important;
+
+  column-gap: 18px !important;
+}
+
+/* 제목 컬럼은 왼쪽 정렬 */
+.documentRagTableHead span:first-child,
+.documentRagTitleCell {
+  justify-self: start !important;
+}
+
+/* 나머지 컬럼은 가운데 기준으로 맞춤 */
+.documentRagTableHead span:not(:first-child),
+.documentRagTableRow > div:not(.documentRagTitleCell):not(.documentRagTableActions) {
+  justify-self: center !important;
+  text-align: center !important;
+}
+
+/* 작업 칸은 오른쪽 정렬 */
+.documentRagTableHead span:last-child {
+  justify-self: end !important;
+  padding-right: 48px !important;
+}
+
+.documentRagTableActions {
+  justify-self: end !important;
+  justify-content: flex-end !important;
+  min-width: 170px !important;
+}
+
+/* 문서 보기 작업 버튼 글씨체 부드럽게 */
+.documentRagTableActions button {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #123761 !important;
+}
+
+/* 문서 열기 버튼도 너무 두껍지 않게 */
+.documentRagTableActions button.primary {
+  height: 32px !important;
+  padding: 0 14px !important;
+
+  border-radius: 8px !important;
+  background: #123761 !important;
+  color: #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* =========================================================
+   문서 보기 목록 왼쪽 파일 아이콘 이미지
+   PDF / HWP / HWPX / DOC / DOCX / XLS / XLSX / CSV / PPT / PPTX 지원
+   ========================================================= */
+
+.documentRagFileBadge.documentRagFileImageBadge {
+  width: 50px !important;
+  height: 52px !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+.documentRagFileBadge.documentRagFileImageBadge img {
+  width: 34px !important;
+  height: 46px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* 기존 텍스트 뱃지 스타일이 왼쪽 아이콘에 남아있을 때 제거 */
+.documentRagTitleCell .documentRagFileImageBadge {
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+}
+
+/* 파일 형식 컬럼의 작은 텍스트 뱃지는 그대로 유지 */
+.documentRagTypeBadge {
+  white-space: nowrap !important;
+}

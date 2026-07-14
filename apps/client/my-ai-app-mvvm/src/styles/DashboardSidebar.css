@@ -1,0 +1,2340 @@
+/* ===== DashboardSidebar.css ===== */
+/* chatPage 전용 버전 */
+/* GPT 느낌의 작고 깔끔한 대시보드 사이드바 */
+
+.chatPage .dashboardShell {
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.chatPage .dashboardSidebar {
+  width: 280px;
+  min-width: 280px;
+  height: 100vh;
+  min-height: 100vh;
+  background: #fbfcff;
+  border-right: 1px solid #e3eaf4;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== 로고 영역 ===== */
+
+.chatPage .dashboardLogoArea {
+  height: 88px;
+  min-height: 88px;
+  padding: 20px 24px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid #e3eaf4;
+  flex: 0 0 88px;
+}
+
+.chatPage .dashboardLogoOpenBtn {
+  position: relative;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatPage .dashboardLogoMark {
+  width: 86px;
+  height: auto;
+  object-fit: contain;
+}
+
+.chatPage .dashboardLogoTextGroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.chatPage .dashboardLogoTextGroup span {
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #7d8ca7;
+  letter-spacing: 0.02em;
+}
+
+.chatPage .dashboardLogoTextGroup strong {
+  font-size: 17px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #0a2b5f;
+}
+
+.chatPage .dashboardLogoSwapArrow {
+  display: none;
+}
+
+/* ===== 사이드바 본문 ===== */
+
+.chatPage .dashboardSideNav {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 22px 0;
+  overflow: hidden;
+}
+
+/* ===== 새 채팅 버튼 ===== */
+
+.chatPage .sideNewChatWrap {
+  width: 100%;
+  margin: 0 0 28px;
+  flex: 0 0 auto;
+}
+
+.chatPage .sideNewChatBtn {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #d7e2f2;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0a2b5f;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  font-size: 16px;
+  font-weight: 850;
+  box-shadow: none;
+}
+
+.chatPage .sideNewChatBtn:hover,
+.chatPage .sideNewChatBtn.active {
+  background: #f5f8fd;
+  border-color: #bfcde3;
+  color: #0a2b5f;
+}
+
+/* 텍스트 + 대신 CSS 선으로 그리는 플러스 아이콘 */
+.chatPage .sideNewChatIcon {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1.7px solid #123f91;
+  background: #123f91;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  box-shadow: none;
+  font-size: 0;
+  line-height: 0;
+}
+
+.chatPage .sideNewChatIcon::before,
+.chatPage .sideNewChatIcon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.chatPage .sideNewChatIcon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.chatPage .sideNewChatBtn:hover .sideNewChatIcon,
+.chatPage .sideNewChatBtn.active .sideNewChatIcon {
+  background: #0a2b5f;
+  border-color: #0a2b5f;
+  color: #ffffff;
+}
+
+/* ===== 메뉴 ===== */
+
+.chatPage .sideMenuGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 1px;
+  flex: 0 0 auto;
+}
+
+.chatPage .sideMenuItem {
+  width: 100%;
+  min-height: 30px;
+  border: 0;
+  background: transparent;
+  color: #0a2b5f;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: left;
+  box-shadow: none;
+}
+
+.chatPage .sideMenuItem:hover,
+.chatPage .sideMenuItem.active {
+  color: #123f91;
+  background: transparent;
+}
+
+.chatPage .sideSvgIcon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5f708d;
+}
+
+.chatPage .sideSvgIcon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .sideMenuItem:hover .sideSvgIcon,
+.chatPage .sideMenuItem.active .sideSvgIcon,
+.chatPage .sideMenuItem.active span,
+.chatPage .sideMenuItem:hover span {
+  color: #123f91;
+}
+
+/* ===== 최근 기록 ===== */
+
+.chatPage .sideRecentSection {
+  margin: 34px -22px 0;
+  border-top: 1px solid #e3eaf4;
+  border-bottom: 1px solid #e3eaf4;
+  padding: 26px 28px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chatPage .sideRecentSection h3 {
+  margin: 0;
+  color: #0a2b5f;
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.chatPage .sideRecentEmpty {
+  height: calc(100% - 30px);
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #c5cfdd;
+  text-align: center;
+}
+
+.chatPage .sideRecentEmpty svg {
+  width: 46px;
+  height: 46px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .sideRecentEmpty p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #7d8ca7;
+}
+
+/* 나중에 AI 대화 기록 들어갈 때 */
+
+.chatPage .sideRecentChatList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 최근 기록 제목과 항목 사이 간격 */
+.chatPage .sideRecentTitle {
+  margin-bottom: 12px !important;
+}
+
+.chatPage .sideRecentChatItem {
+  width: 100%;
+  min-height: 36px;
+  border-radius: 9px;
+  padding: 7px 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #29406a;
+  background: transparent;
+  text-align: left;
+}
+
+.chatPage .sideRecentChatItem:hover {
+  background: #f2f6fb;
+}
+
+.chatPage .sideRecentChatIcon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  color: #617595;
+}
+
+.chatPage .sideRecentChatIcon svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .sideRecentChatText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chatPage .sideRecentChatText strong {
+  font-size: 12px;
+  font-weight: 800;
+  color: #24355d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chatPage .sideRecentChatText em {
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  color: #8a98af;
+}
+
+/* ===== 하단 프로필 ===== */
+
+.chatPage .sideProfileBox {
+  height: 84px;
+  min-height: 84px;
+  padding: 0 22px;
+  border-top: 1px solid #e3eaf4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 84px;
+  background: #fbfcff;
+}
+
+.chatPage .sideProfileLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.chatPage .dashboardProfileAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #123f91;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 900;
+  flex: 0 0 42px;
+}
+
+.chatPage .dashboardProfileMeta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chatPage .dashboardProfileMeta strong {
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 900;
+  color: #0a2b5f;
+}
+
+.chatPage .dashboardProfileMeta span {
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #7d8ca7;
+}
+
+.chatPage .sideSettingBtn {
+  border: 0;
+  background: transparent;
+  color: #5f708d;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 850;
+  padding: 0;
+  box-shadow: none;
+}
+
+.chatPage .sideSettingBtn:hover,
+.chatPage .sideSettingBtn.active {
+  color: #123f91;
+}
+
+.chatPage .sideSettingBtn .sideSvgIcon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+/* ===== 접기 버튼 ===== */
+
+.chatPage .dashboardSidebarToggleBtn {
+  color: #123f91;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: translateX(-70px);
+}
+
+.chatPage .dashboardSidebarToggleBtn:hover {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.chatPage .dashboardSidebarToggleBtn span {
+  width: 9px;
+  height: 9px;
+  border-right: 2.2px solid currentColor;
+  border-bottom: 2.2px solid currentColor;
+}
+
+/* ===== 접힌 사이드바 ===== */
+
+.chatPage.sidebarCollapsed .dashboardShell {
+  grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.chatPage.sidebarCollapsed .dashboardSidebar {
+  width: 64px;
+  min-width: 64px;
+  overflow: hidden;
+}
+
+.chatPage.sidebarCollapsed .dashboardLogoArea {
+  padding: 0;
+  justify-content: center;
+}
+
+.chatPage.sidebarCollapsed .dashboardLogoTextGroup {
+  display: none;
+}
+
+.chatPage.sidebarCollapsed .dashboardSideNav,
+.chatPage.sidebarCollapsed .dashboardNav {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 0 0;
+  overflow: hidden;
+}
+
+/* 접힌 상태 새 채팅은 + 아이콘만 */
+.chatPage.sidebarCollapsed .sideNewChatWrap {
+  width: 100%;
+  margin: 0 0 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.chatPage.sidebarCollapsed .sideNewChatBtn {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatPage.sidebarCollapsed .sideNewChatBtn > span:last-child {
+  display: none;
+}
+
+.chatPage.sidebarCollapsed .sideNewChatIcon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  background: #123f91;
+  border-color: #123f91;
+  color: #ffffff;
+}
+
+/* 접힌 상태 메뉴는 아이콘만 */
+.chatPage.sidebarCollapsed .sideMenuGroup {
+  width: 100%;
+  padding: 0;
+  gap: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.chatPage.sidebarCollapsed .sideMenuItem {
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.chatPage.sidebarCollapsed .sideMenuItem:hover,
+.chatPage.sidebarCollapsed .sideMenuItem.active {
+  background: #f3f7ff;
+}
+
+.chatPage.sidebarCollapsed .sideMenuItem > span:not(.sideSvgIcon) {
+  display: none;
+}
+
+.chatPage.sidebarCollapsed .sideSvgIcon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+}
+
+.chatPage.sidebarCollapsed .sideSvgIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.chatPage.sidebarCollapsed .sideRecentSection {
+  display: none;
+}
+
+.chatPage.sidebarCollapsed .sideProfileBox {
+  height: 84px;
+  min-height: 84px;
+  padding: 0;
+  justify-content: center;
+}
+
+.chatPage.sidebarCollapsed .sideProfileLeft {
+  gap: 0;
+}
+
+.chatPage.sidebarCollapsed .dashboardProfileMeta {
+  display: none;
+}
+
+.chatPage.sidebarCollapsed .dashboardProfileAvatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  font-size: 17px;
+}
+
+.chatPage.sidebarCollapsed .sideSettingBtn {
+  display: none;
+}
+
+/* 접힌 상태 로고 hover 시 화살표 */
+.chatPage.sidebarCollapsed .dashboardLogoOpenBtn {
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+}
+
+.chatPage.sidebarCollapsed .dashboardLogoMark {
+  width: 48px;
+  opacity: 1;
+}
+
+.chatPage.sidebarCollapsed .dashboardLogoSwapArrow {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid #123f91;
+  border-bottom: 2px solid #123f91;
+  transform: rotate(-45deg);
+  display: block;
+  opacity: 0;
+}
+
+.chatPage.sidebarCollapsed .dashboardLogoOpenBtn:hover .dashboardLogoMark {
+  opacity: 0;
+}
+
+.chatPage.sidebarCollapsed .dashboardLogoOpenBtn:hover .dashboardLogoSwapArrow {
+  opacity: 1;
+}
+
+/* ===== 고정됨 섹션 ===== */
+
+.chatPage .sidePinnedSection {
+  margin: 30px 0 0;
+  padding: 0 1px;
+  flex: 0 0 auto;
+}
+
+.chatPage .sidePinnedSection h3 {
+  margin: 0 0 12px;
+  color: #0a2b5f;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.chatPage .sidePinnedItem {
+  width: 100%;
+  min-height: 38px;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: transparent;
+  color: #0a2b5f;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.chatPage .sidePinnedItem:hover,
+.chatPage .sidePinnedItem.active {
+  background: #eef3fb;
+}
+
+.chatPage .sidePinnedIcon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  color: #5f708d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatPage .sidePinnedIcon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .sidePinnedItem span:last-child {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 최근 기록/고정됨: 말풍선 아이콘/시간 제거 + 메뉴 ===== */
+
+.chatPage .sidePinnedSection {
+  margin: 0 0 20px;
+  padding: 0;
+  flex: 0 0 auto;
+}
+
+.chatPage .sidePinnedSection h3,
+.chatPage .sideRecentTitle {
+  margin: 0 0 10px;
+  color: #0a2b5f;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.chatPage .sideChatList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chatPage .sideChatItemWrap {
+  position: relative;
+  width: 100%;
+}
+
+.chatPage .sideChatItem {
+  width: 100%;
+  min-height: 36px;
+  border-radius: 9px;
+  padding: 0 36px 0 10px;
+  background: transparent;
+  color: #0a2b5f;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.chatPage .sideChatItem span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chatPage .sideChatItemWrap:hover .sideChatItem,
+.chatPage .sideChatItemWrap.menuOpen .sideChatItem {
+  background: #eef3fb;
+}
+
+.chatPage .sideChatMoreBtn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  transform: translateY(-50%);
+  background: transparent;
+  color: #5f708d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 900;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chatPage .sideChatItemWrap:hover .sideChatMoreBtn,
+.chatPage .sideChatItemWrap.menuOpen .sideChatMoreBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.chatPage .sideChatMoreBtn:hover {
+  background: #dfe8f6;
+  color: #123f91;
+}
+
+.chatPage .sideChatMenu {
+  position: absolute;
+  top: 32px;
+  right: 4px;
+  width: 126px;
+  padding: 5px;
+  border: 1px solid #dce4ef;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(23, 42, 78, 0.16);
+  z-index: 100;
+}
+
+.chatPage .sideChatMenu button {
+  width: 100%;
+  height: 32px;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #24365e;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chatPage .sideChatMenu button:hover {
+  background: #f3f7ff;
+}
+
+.chatPage .sideChatMenu button.danger {
+  color: #d94b4b;
+}
+
+.chatPage .sideRecentChatIcon,
+.chatPage .sideRecentChatText em {
+  display: none !important;
+}
+
+.chatPage.sidebarCollapsed .sidePinnedSection,
+.chatPage.sidebarCollapsed .sideChatMenu {
+  display: none;
+}
+
+/* 최근 기록 항목을 좌우로 더 꽉 차게 */
+.chatPage .sideRecentChatList,
+.chatPage .sidePinnedList {
+  margin-left: -8px !important;
+  margin-right: -8px !important;
+  width: calc(100% + 16px) !important;
+}
+
+.chatPage .sideRecentChatItem,
+.chatPage .sidePinnedItem {
+  width: 100% !important;
+  min-height: 36px;
+  border-radius: 8px;
+  padding: 0 10px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chatPage .sideRecentChatText em,
+.chatPage .sidePinnedText em {
+  display: none !important;
+}
+
+/* ===== 고정됨 / 최근 기록 항목 텍스트 크기 진짜 통일 ===== */
+
+.chatPage .sideChatItem,
+.chatPage .sidePinnedItem {
+  font-size: 14px !important;
+  font-weight: 750 !important;
+  line-height: 1.2 !important;
+  color: #0a2b5f !important;
+}
+
+.chatPage .sideChatItem span,
+.chatPage .sidePinnedItem span,
+.chatPage .sidePinnedText strong {
+  font-size: 14px !important;
+  font-weight: 750 !important;
+  line-height: 1.2 !important;
+  color: #0a2b5f !important;
+}
+
+/* 최근 기록 항목 네모칸도 현재 구조 기준으로 꽉 채우기 */
+.chatPage .sideChatList,
+.chatPage .sidePinnedList {
+  margin-left: -8px !important;
+  margin-right: -8px !important;
+  width: calc(100% + 16px) !important;
+}
+
+.chatPage .sideChatItem,
+.chatPage .sidePinnedItem {
+  width: 100% !important;
+  min-height: 36px !important;
+  border-radius: 8px !important;
+  padding: 0 36px 0 12px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* 고정됨 / 최근 기록 제목 크기 통일 */
+.chatPage .sideRecentSection .sideRecentTitle,
+.chatPage .sideRecentSection .sidePinnedSection h3 {
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  font-weight: 900 !important;
+  color: #0a2b5f !important;
+}
+
+/* ===== 사이드바 내부 접기/펼치기 버튼 ===== */
+/* 이 코드는 src/styles/DashboardSidebar.css 맨 아래에 붙여주세요. */
+
+.chatPage .dashboardSidebar {
+  position: relative;
+  overflow: visible !important;
+}
+
+.chatPage .sidebarEdgeToggleBtn {
+  position: absolute;
+  top: 28px;
+  right: -17px;
+  z-index: 80;
+
+  width: 34px;
+  height: 34px;
+  border: 1px solid #dbe6f5;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #123f91;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 8px 18px rgba(18, 63, 145, 0.08);
+}
+
+.chatPage .sidebarEdgeToggleBtn:hover {
+  background: #f3f7ff;
+  border-color: #bfd3f3;
+}
+
+.chatPage .sidebarEdgeToggleBtn span {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  display: block;
+}
+
+.chatPage .sidebarEdgeToggleBtn span.close {
+  transform: rotate(135deg);
+  margin-left: 4px;
+}
+
+.chatPage .sidebarEdgeToggleBtn span.open {
+  transform: rotate(-45deg);
+  margin-right: 4px;
+}
+
+/* 예전 메인 헤더 토글 버튼은 더 이상 사용하지 않음 */
+.chatPage .dashboardSidebarToggleBtn {
+  display: none !important;
+}
+/* 접힌 상태에서는 사이드바 경계 버튼 숨김 */
+.chatPage.sidebarCollapsed .sidebarEdgeToggleBtn {
+  display: none !important;
+}
+
+/* 사이드바 접기 버튼: 왼쪽으로 이동 + 네모칸 제거 */
+.chatPage .sidebarEdgeToggleBtn {
+  right: 10px !important;   /* 기존 -17px보다 왼쪽으로 들어옴 */
+  top: 28px !important;
+
+  width: 32px !important;
+  height: 32px !important;
+
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+
+  color: #123f91 !important;
+}
+
+/* ===== 최근 기록 이름 바꾸기: 항목 안에서 바로 수정 ===== */
+/* 이 코드는 src/styles/DashboardSidebar.css 맨 아래에 붙여주세요. */
+
+.chatPage .sideChatItemWrap.renaming {
+  width: 100%;
+}
+
+.chatPage .sideChatRenameInput {
+  width: 100%;
+  height: 34px;
+  border: 1px solid #bfcde3;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #0a2b5f;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 800;
+  box-shadow: 0 0 0 3px rgba(18, 63, 145, 0.08);
+}
+
+.chatPage .sideChatRenameInput:focus {
+  border-color: #123f91;
+}
+
+/* 메뉴에서 이름 바꾸기 눌렀을 때 어두운 prompt처럼 안 뜨게 하기 위한 정리 */
+.chatPage .sideChatItemWrap.renaming .sideChatMoreBtn,
+.chatPage .sideChatItemWrap.renaming .sideChatMenu {
+  display: none !important;
+}
+
+
+/* ===== 사이드바 하단 프로필 이미지 적용 ===== */
+/* src/styles/DashboardSidebar.css 맨 아래에 추가 */
+
+.chatPage .dashboardProfileAvatar {
+  overflow: hidden;
+}
+
+.chatPage .dashboardProfileAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* ===== DashboardSidebar Dark Mode ===== */
+
+.chatPage.dark .dashboardSidebar {
+  background: #0f172a !important;
+  border-right-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.chatPage.dark .dashboardLogoArea {
+  border-bottom-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.chatPage.dark .dashboardLogoTextGroup span {
+  color: #8fa1bd !important;
+}
+
+.chatPage.dark .dashboardLogoTextGroup strong {
+  color: #f8fbff !important;
+}
+
+/* 새 채팅 버튼 */
+.chatPage.dark .sideNewChatBtn {
+  background: transparent !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .sideNewChatBtn:hover,
+.chatPage.dark .sideNewChatBtn.active {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  color: #ffffff !important;
+}
+
+.chatPage.dark .sideNewChatIcon {
+  background: #123f91 !important;
+  border-color: #123f91 !important;
+  color: #ffffff !important;
+}
+
+.chatPage.dark .sideNewChatBtn:hover .sideNewChatIcon,
+.chatPage.dark .sideNewChatBtn.active .sideNewChatIcon {
+  background: #123f91 !important;
+  border-color: #123f91 !important;
+}
+
+/* 메뉴 */
+.chatPage.dark .sideMenuItem {
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .sideSvgIcon {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideMenuItem:hover,
+.chatPage.dark .sideMenuItem.active,
+.chatPage.dark .sideMenuItem:hover span,
+.chatPage.dark .sideMenuItem.active span,
+.chatPage.dark .sideMenuItem:hover .sideSvgIcon,
+.chatPage.dark .sideMenuItem.active .sideSvgIcon {
+  color: #ffffff !important;
+}
+
+.chatPage.dark.sidebarCollapsed .sideMenuItem:hover,
+.chatPage.dark.sidebarCollapsed .sideMenuItem.active {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 최근 기록 영역 */
+.chatPage.dark .sideRecentSection {
+  border-top-color: rgba(148, 163, 184, 0.22) !important;
+  border-bottom-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.chatPage.dark .sideRecentSection h3,
+.chatPage.dark .sideRecentTitle,
+.chatPage.dark .sidePinnedSection h3,
+.chatPage.dark .sideRecentSection .sideRecentTitle,
+.chatPage.dark .sideRecentSection .sidePinnedSection h3 {
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .sideRecentEmpty {
+  color: rgba(148, 163, 184, 0.5) !important;
+}
+
+.chatPage.dark .sideRecentEmpty p {
+  color: #8fa1bd !important;
+}
+
+/* 고정됨 / 최근 기록 항목 */
+.chatPage.dark .sideChatItem,
+.chatPage.dark .sidePinnedItem,
+.chatPage.dark .sideChatItem span,
+.chatPage.dark .sidePinnedItem span,
+.chatPage.dark .sidePinnedText strong {
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .sideChatItemWrap:hover .sideChatItem,
+.chatPage.dark .sideChatItemWrap.menuOpen .sideChatItem,
+.chatPage.dark .sidePinnedItem:hover,
+.chatPage.dark .sidePinnedItem.active {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.chatPage.dark .sideChatMoreBtn {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideChatMoreBtn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+/* 최근 기록 메뉴 팝업 */
+.chatPage.dark .sideChatMenu {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32) !important;
+}
+
+.chatPage.dark .sideChatMenu button {
+  background: transparent !important;
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .sideChatMenu button:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.chatPage.dark .sideChatMenu button.danger {
+  color: #ff9a9a !important;
+}
+
+/* 하단 프로필 */
+.chatPage.dark .sideProfileBox {
+  background: #0f172a !important;
+  border-top-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.chatPage.dark .dashboardProfileAvatar {
+  background: #123f91 !important;
+  color: #ffffff !important;
+}
+
+.chatPage.dark .dashboardProfileMeta strong {
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .dashboardProfileMeta span {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideSettingBtn {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideSettingBtn:hover,
+.chatPage.dark .sideSettingBtn.active {
+  color: #ffffff !important;
+}
+
+/* 사이드바 접기/펼치기 */
+.chatPage.dark .sidebarEdgeToggleBtn {
+  color: #dbe7f7 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.chatPage.dark .sidebarEdgeToggleBtn:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+/* 접힌 상태 로고 hover 화살표 */
+.chatPage.dark.sidebarCollapsed .dashboardLogoSwapArrow {
+  border-right-color: #dbe7f7 !important;
+  border-bottom-color: #dbe7f7 !important;
+}
+
+/* 이름 바꾸기 input */
+.chatPage.dark .sideChatRenameInput {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  color: #f8fbff !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06) !important;
+}
+
+.chatPage.dark .sideChatRenameInput:focus {
+  border-color: #8fa1bd !important;
+}
+
+/* ===== Inline Rename Fix ===== */
+/* DashboardSidebar.css 맨 아래에 붙여도 됩니다. */
+
+.chatPage .sideChatItemWrap.renaming {
+  width: 100%;
+}
+
+.chatPage .sideChatRenameInput {
+  width: 100%;
+  height: 34px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #0a2b5f;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 800;
+  box-shadow: 0 0 0 3px rgba(18, 63, 145, 0.08);
+}
+
+.chatPage .sideChatRenameInput:focus {
+  border-color: #123f91;
+}
+
+.chatPage .sideChatItemWrap.renaming .sideChatMoreBtn,
+.chatPage .sideChatItemWrap.renaming .sideChatMenu {
+  display: none !important;
+}
+
+.chatPage.dark .sideChatRenameInput {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  color: #f8fbff !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06) !important;
+}
+
+.chatPage.dark .sideChatRenameInput:focus {
+  border-color: #8fa1bd !important;
+}
+
+/* ===== 최근 기록 스크롤 영역 ===== */
+
+/* 사이드바 전체는 화면 높이에 고정 */
+.chatPage .dashboardSidebar {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 메뉴 영역이 남은 공간을 차지 */
+.chatPage .dashboardSideNav {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 최근 기록만 스크롤 */
+.chatPage .sideRecentSection {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+/* 프로필은 맨 아래 고정 */
+.chatPage .sideProfileBox {
+  flex: 0 0 auto;
+}
+
+/* 스크롤바 디자인 */
+.chatPage .sideRecentSection::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chatPage .sideRecentSection::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatPage .sideRecentSection::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.chatPage .sideRecentSection::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}
+
+/* 다크모드 스크롤바 */
+.chatPage.dark .sideRecentSection::-webkit-scrollbar-thumb,
+body.dark .sideRecentSection::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.32);
+}
+
+.chatPage.dark .sideRecentSection::-webkit-scrollbar-thumb:hover,
+body.dark .sideRecentSection::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}
+
+/* 설정 버튼 왼쪽 알림 버튼 */
+.chatPage .sideProfileActions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.chatPage .sideNotificationWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.chatPage .sideNotificationBtn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0;
+
+  border: 1px solid #dbe6f5;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #123f91;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.chatPage .sideNotificationBtn:hover {
+  background: #f4f8ff;
+  border-color: #bfd3f3;
+}
+
+.chatPage .sideNotificationIcon {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chatPage .sideNotificationBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 900;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatPage .sideNotificationDropdown {
+  position: absolute;
+  right: 0;
+  bottom: 44px;
+  width: 300px;
+
+  border: 1px solid #dbe6f5;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(20, 39, 79, 0.16);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.chatPage .sideNotificationHeader {
+  height: 46px;
+  padding: 0 16px;
+  border-bottom: 1px solid #eef2f8;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chatPage .sideNotificationHeader strong {
+  color: #082b63;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.chatPage .sideNotificationHeader span {
+  color: #7d8ca7;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chatPage .sideNotificationList {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.chatPage .sideNotificationEmpty {
+  padding: 24px 16px;
+  color: #7d8ca7;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.chatPage .sideNotificationItem {
+  width: 100%;
+  min-height: 58px;
+  padding: 12px 14px;
+
+  border: 0;
+  border-bottom: 1px solid #eef2f8;
+  border-radius: 0;
+  background: #ffffff;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.chatPage .sideNotificationItem:hover {
+  background: #f7fbff;
+}
+
+.chatPage .sideNotificationDot {
+  width: 7px;
+  height: 7px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: #123f91;
+  flex-shrink: 0;
+}
+
+.chatPage .sideNotificationText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chatPage .sideNotificationText strong {
+  color: #082b63;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.chatPage .sideNotificationText em {
+  color: #6d7f9f;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.chatPage .sideNotificationAllBtn {
+  width: 100%;
+  height: 42px;
+
+  border: 0;
+  border-top: 1px solid #eef2f8;
+  border-radius: 0;
+  background: #ffffff;
+  color: #123f91;
+
+  font-size: 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.chatPage .sideNotificationAllBtn:hover {
+  background: #f4f8ff;
+}
+
+/* 알림 버튼: 테두리 제거 */
+.sideNotificationBtn,
+.chatPage .sideNotificationBtn {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  padding: 0 !important;
+
+  color: #123f91 !important;
+}
+
+/* 알림 버튼 hover */
+.sideNotificationBtn:hover,
+.chatPage .sideNotificationBtn:hover {
+  background: #eef6ff !important;
+  border-radius: 999px !important;
+}
+
+/* 알림창 기준점 */
+.sideNotificationWrap,
+.chatPage .sideNotificationWrap {
+  position: relative !important;
+}
+
+/* 알림창: 알림 버튼 바로 위에 뜨게 */
+.sideNotificationDropdown,
+.chatPage .sideNotificationDropdown {
+  position: absolute !important;
+
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(100% + 10px) !important;
+  transform: translateX(-50%) !important;
+
+  width: 220px !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+
+  box-shadow: 0 14px 36px rgba(15, 39, 70, 0.18) !important;
+  overflow: hidden !important;
+  z-index: 3000 !important;
+}
+
+/* 아래 작은 꼬리 */
+.sideNotificationDropdown::after,
+.chatPage .sideNotificationDropdown::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%) rotate(45deg);
+
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  box-shadow: 3px 3px 8px rgba(15, 39, 70, 0.08);
+}
+
+/* 알림창 내부가 꼬리보다 위에 보이게 */
+.sideNotificationHeader,
+.sideNotificationList,
+.sideNotificationAllBtn {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* 너무 커 보이지 않게 */
+.sideNotificationHeader,
+.chatPage .sideNotificationHeader {
+  height: 42px !important;
+  padding: 0 14px !important;
+}
+
+.sideNotificationList,
+.chatPage .sideNotificationList {
+  max-height: 180px !important;
+}
+
+.sideNotificationItem,
+.chatPage .sideNotificationItem {
+  min-height: 52px !important;
+  padding: 11px 13px !important;
+}
+
+.sideNotificationAllBtn,
+.chatPage .sideNotificationAllBtn {
+  height: 38px !important;
+}
+
+/* 알림 / 설정 아이콘 색 통일 + hover 원형 배경 */
+.sideProfileActions .sideNotificationBtn,
+.sideProfileActions .sideSettingBtn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  color: #6b7c99 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  cursor: pointer !important;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease !important;
+}
+
+/* SVG 색도 버튼 색 따라가게 */
+.sideProfileActions .sideNotificationBtn svg,
+.sideProfileActions .sideSettingBtn svg {
+  width: 18px !important;
+  height: 18px !important;
+  color: inherit !important;
+  stroke: currentColor !important;
+  fill: none !important;
+}
+
+/* 커서 올렸을 때 동그란 원 */
+.sideProfileActions .sideNotificationBtn:hover,
+.sideProfileActions .sideSettingBtn:hover {
+  background: #eef6ff !important;
+  color: #123f91 !important;
+}
+
+/* 클릭/활성 상태 */
+.sideProfileActions .sideNotificationBtn:active,
+.sideProfileActions .sideSettingBtn:active {
+  transform: scale(0.96) !important;
+}
+
+/* 설정 active일 때도 튀지 않게 */
+.sideProfileActions .sideSettingBtn.active {
+  background: #eef6ff !important;
+  color: #123f91 !important;
+}
+
+/* 선택된 사이드바 메뉴: 위치 그대로, 색만 변경 */
+.dashboardSidebar .sideMenuItem.active {
+  background: #eef2f7 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 마우스 올렸을 때도 색만 */
+.dashboardSidebar .sideMenuItem:hover {
+  background: #f5f7fa !important;
+}
+
+/* 클릭했을 때 검정 테두리 제거 */
+.dashboardSidebar .sideMenuItem:focus,
+.dashboardSidebar .sideMenuItem:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 선택된 사이드바 메뉴: 위치 그대로, 색만 유지 */
+.dashboardSidebar .sideMenuItem.active {
+  background: #eef2f7 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dashboardSidebar .sideMenuItem:hover {
+  background: #f5f7fa !important;
+}
+
+.dashboardSidebar .sideMenuItem:focus,
+.dashboardSidebar .sideMenuItem:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* 최근 기록: 현재 열려있는 채팅 표시 */
+.dashboardSidebar .sideChatItemWrap.active {
+  background: #eef2f7 !important;
+  border-radius: 8px !important;
+}
+
+.dashboardSidebar .sideChatItemWrap.active .sideChatItem span {
+  color: #061f47 !important;
+  font-weight: 950 !important;
+}
+
+/* 최근 기록: 채팅 화면에서 현재 채팅일 때만 표시 */
+.dashboardSidebar .sideChatItemWrap.active {
+  background: #eef2f7 !important;
+  border-radius: 8px !important;
+}
+
+/* 최근 기록 버튼 focus 때문에 다른 화면에서도 남는 색 제거 */
+.dashboardSidebar .sideChatItem:focus,
+.dashboardSidebar .sideChatItem:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* 문서 보기 / 문서 처리 선택 색은 그대로 */
+.dashboardSidebar .sideMenuItem.active {
+  background: #eef2f7 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 최근 기록 선택 배경: 왼쪽 끝까지 채우기 */
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.active {
+  margin-left: -24px !important;
+  width: calc(100% + 24px) !important;
+
+  padding-left: 24px !important;
+  box-sizing: border-box !important;
+
+  background: #eef2f7 !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+/* 안쪽 버튼은 배경 없애기 */
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.active .sideChatItem {
+  background: transparent !important;
+}
+
+/* 점점점 버튼 위치 유지 */
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.active .sideChatMoreBtn {
+  right: 8px !important;
+}
+
+/* =========================================================
+   Sidebar Dark Mode Final Override
+   기존 active/hover 커스텀 코드보다 반드시 아래에 있어야 함
+   ========================================================= */
+
+.chatPage.dark .sideMenuItem.active,
+.chatPage.dark .sideMenuItem:hover,
+body.dark .sideMenuItem.active,
+body.dark .sideMenuItem:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+}
+
+.chatPage.dark .sideMenuItem.active span,
+.chatPage.dark .sideMenuItem:hover span,
+.chatPage.dark .sideMenuItem.active .sideSvgIcon,
+.chatPage.dark .sideMenuItem:hover .sideSvgIcon,
+body.dark .sideMenuItem.active span,
+body.dark .sideMenuItem:hover span,
+body.dark .sideMenuItem.active .sideSvgIcon,
+body.dark .sideMenuItem:hover .sideSvgIcon {
+  color: #ffffff !important;
+}
+
+.chatPage.dark .sideChatItemWrap.active,
+body.dark .sideChatItemWrap.active {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.chatPage.dark .sideRecentSection .sideChatItemWrap.active,
+body.dark .sideRecentSection .sideChatItemWrap.active {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.chatPage.dark .sideChatItemWrap.active .sideChatItem,
+body.dark .sideChatItemWrap.active .sideChatItem {
+  background: transparent !important;
+}
+
+.chatPage.dark .sideChatItemWrap.active .sideChatItem span,
+body.dark .sideChatItemWrap.active .sideChatItem span {
+  color: #ffffff !important;
+}
+
+.chatPage.dark .sideSettingBtn.active,
+.chatPage.dark .sideSettingBtn:hover,
+body.dark .sideSettingBtn.active,
+body.dark .sideSettingBtn:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+}
+
+.chatPage.dark .sideNotificationDropdown,
+body.dark .sideNotificationDropdown {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38) !important;
+}
+
+.chatPage.dark .sideNotificationHeader,
+body.dark .sideNotificationHeader {
+  border-bottom-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+.chatPage.dark .sideNotificationHeader strong,
+body.dark .sideNotificationHeader strong {
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .sideNotificationHeader span,
+body.dark .sideNotificationHeader span,
+.chatPage.dark .sideNotificationEmpty,
+body.dark .sideNotificationEmpty {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideNotificationItem,
+body.dark .sideNotificationItem {
+  background: transparent !important;
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .sideNotificationItem:hover,
+body.dark .sideNotificationItem:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.chatPage.dark .sideNotificationText strong,
+body.dark .sideNotificationText strong {
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .sideNotificationText em,
+body.dark .sideNotificationText em {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideNotificationAllBtn,
+body.dark .sideNotificationAllBtn {
+  background: #15233d !important;
+  color: #dbe7f7 !important;
+  border-top-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+/* =========================================================
+   Profile Action Buttons Dark Mode Fix
+   알림 / 설정 아이콘 다크모드 최종 덮어쓰기
+   반드시 DashboardSidebar.css 맨 아래에 넣기
+   ========================================================= */
+
+.chatPage.dark .sideProfileActions .sideNotificationBtn,
+.chatPage.dark .sideProfileActions .sideSettingBtn,
+body.dark .sideProfileActions .sideNotificationBtn,
+body.dark .sideProfileActions .sideSettingBtn {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideProfileActions .sideNotificationBtn svg,
+.chatPage.dark .sideProfileActions .sideSettingBtn svg,
+body.dark .sideProfileActions .sideNotificationBtn svg,
+body.dark .sideProfileActions .sideSettingBtn svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+  fill: none !important;
+}
+
+/* hover 했을 때만 살짝 밝은 원 */
+.chatPage.dark .sideProfileActions .sideNotificationBtn:hover,
+.chatPage.dark .sideProfileActions .sideSettingBtn:hover,
+body.dark .sideProfileActions .sideNotificationBtn:hover,
+body.dark .sideProfileActions .sideSettingBtn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+/* 설정 페이지 들어갔을 때 설정 아이콘 active */
+.chatPage.dark .sideProfileActions .sideSettingBtn.active,
+body.dark .sideProfileActions .sideSettingBtn.active {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+/* 사이드바 선택 메뉴 둥근 네모 처리 */
+.dashboardSidebar .sideMenuItem.active {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+/* 다크모드에서도 둥근 네모 유지 */
+.chatPage.dark .dashboardSidebar .sideMenuItem.active,
+body.dark .dashboardSidebar .sideMenuItem.active {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+/* 사이드바 메뉴 hover / active 둥근 네모 통일 */
+.dashboardSidebar .sideMenuItem:hover,
+.dashboardSidebar .sideMenuItem.active,
+.dashboardSidebar .sideMenuItem.active:hover {
+  border-radius: 10px !important;
+  background: #eef2f7 !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* 다크모드 hover / active 둥근 네모 통일 */
+.chatPage.dark .dashboardSidebar .sideMenuItem:hover,
+.chatPage.dark .dashboardSidebar .sideMenuItem.active,
+.chatPage.dark .dashboardSidebar .sideMenuItem.active:hover,
+body.dark .dashboardSidebar .sideMenuItem:hover,
+body.dark .dashboardSidebar .sideMenuItem.active,
+body.dark .dashboardSidebar .sideMenuItem.active:hover {
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+/* =========================================================
+   최근 기록 hover / active 모양 통일
+   클릭했을 때랑 커서 올렸을 때 같은 모양
+   ========================================================= */
+
+.dashboardSidebar .sideRecentSection .sideChatItemWrap:hover,
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.active,
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.menuOpen {
+  margin-left: -24px !important;
+  width: calc(100% + 24px) !important;
+  padding-left: 24px !important;
+
+  background: #eef2f7 !important;
+  border-radius: 0 8px 8px 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 안쪽 버튼은 배경 없애서 바깥 wrap 배경만 보이게 */
+.dashboardSidebar .sideRecentSection .sideChatItemWrap:hover .sideChatItem,
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.active .sideChatItem,
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.menuOpen .sideChatItem {
+  background: transparent !important;
+}
+
+/* 점점점 버튼 위치도 hover/active 동일하게 */
+.dashboardSidebar .sideRecentSection .sideChatItemWrap:hover .sideChatMoreBtn,
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.active .sideChatMoreBtn,
+.dashboardSidebar .sideRecentSection .sideChatItemWrap.menuOpen .sideChatMoreBtn {
+  right: 8px !important;
+}
+
+/* 다크모드 */
+.chatPage.dark .dashboardSidebar .sideRecentSection .sideChatItemWrap:hover,
+.chatPage.dark .dashboardSidebar .sideRecentSection .sideChatItemWrap.active,
+.chatPage.dark .dashboardSidebar .sideRecentSection .sideChatItemWrap.menuOpen,
+body.dark .dashboardSidebar .sideRecentSection .sideChatItemWrap:hover,
+body.dark .dashboardSidebar .sideRecentSection .sideChatItemWrap.active,
+body.dark .dashboardSidebar .sideRecentSection .sideChatItemWrap.menuOpen {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+/* 유사어 사전 새 후보 개수 뱃지 */
+.sideMenuBadge {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+
+  border-radius: 999px;
+  background: #123761;
+  color: #ffffff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.sideMenuItem.active .sideMenuBadge {
+  background: #ffffff;
+  color: #123761;
+}
+
+.sidebarCollapsed .sideMenuBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  width: 8px;
+  min-width: 8px;
+  height: 8px;
+  padding: 0;
+
+  font-size: 0;
+}
+
+/* =========================================================
+   문서 처리 하위 메뉴: 작고 얇게 정리
+   ========================================================= */
+
+.sideMenuWithChildren {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 부모 문서 처리 버튼 */
+.sideMenuParentItem {
+  position: relative !important;
+  padding-right: 34px !important;
+  overflow: visible !important;
+}
+
+/* 오른쪽 화살표 */
+.sideMenuChevron {
+  position: absolute !important;
+  right: 16px !important;
+  top: 50% !important;
+
+  width: 6px !important;
+  height: 6px !important;
+
+  border-right: 2px solid currentColor !important;
+  border-bottom: 2px solid currentColor !important;
+
+  margin: 0 !important;
+  transform: translateY(-50%) rotate(45deg) !important;
+
+  opacity: 0.7 !important;
+  transition: transform 0.16s ease, opacity 0.16s ease !important;
+}
+
+.sideMenuWithChildren.open .sideMenuChevron {
+  transform: translateY(-50%) rotate(-135deg) !important;
+  opacity: 1 !important;
+}
+
+/* 자식 메뉴 전체 */
+.sideSubMenuList {
+  margin: 2px 0 4px 33px !important;
+  padding: 2px 0 2px 10px !important;
+
+  border-left: 1px solid #d8e4f2 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+/* 자식 메뉴 버튼 */
+.sideSubMenuItem {
+  width: calc(100% - 8px) !important;
+  height: 28px !important;
+  padding: 0 9px !important;
+
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #526c9c !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.02em !important;
+  text-align: left !important;
+
+  cursor: pointer !important;
+}
+
+/* hover */
+.sideSubMenuItem:hover {
+  background: #f4f8fd !important;
+  color: #061f47 !important;
+}
+
+/* 선택된 자식 메뉴 */
+.sideSubMenuItem.active {
+  background: #edf5ff !important;
+  color: #123761 !important;
+  font-weight: 850 !important;
+}
+
+/* 앞에 작은 점 */
+.sideSubDot {
+  width: 4px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: currentColor !important;
+  opacity: 0.55 !important;
+  flex-shrink: 0 !important;
+}
+
+/* 사이드바 접힘 상태에서는 하위 메뉴 숨김 */
+.sidebarCollapsed .sideSubMenuList,
+.sidebarCollapsed .sideMenuChevron {
+  display: none !important;
+}
+
+/* 다크모드 보정 */
+.chatPage.dark .sideSubMenuList,
+body.dark .sideSubMenuList {
+  border-left-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+.chatPage.dark .sideSubMenuItem,
+body.dark .sideSubMenuItem {
+  color: #9badc9 !important;
+}
+
+.chatPage.dark .sideSubMenuItem:hover,
+body.dark .sideSubMenuItem:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+.chatPage.dark .sideSubMenuItem.active,
+body.dark .sideSubMenuItem.active {
+  background: rgba(59, 130, 246, 0.14) !important;
+  color: #ffffff !important;
+}
+.sideNotificationAllBtn:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+}
+
+/* =========================================================
+   사이드바 심플 툴팁
+   기존 data-tooltip 방식은 쓰지 않고 React fixed 툴팁만 사용
+   ========================================================= */
+
+.dashboardSidebar [data-tooltip]::before,
+.dashboardSidebar [data-tooltip]::after {
+  display: none !important;
+  content: none !important;
+}
+
+.sidebarSimpleTooltip {
+  position: fixed !important;
+  z-index: 999999 !important;
+
+  transform: translateY(-50%) !important;
+
+  padding: 7px 10px !important;
+  border-radius: 6px !important;
+
+  background: #222 !important;
+  color: #ffffff !important;
+
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  white-space: nowrap !important;
+
+  pointer-events: none !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18) !important;
+}
+
+.sidebarSimpleTooltip::before {
+  content: "" !important;
+
+  position: absolute !important;
+  left: -4px !important;
+  top: 50% !important;
+  transform: translateY(-50%) rotate(45deg) !important;
+
+  width: 8px !important;
+  height: 8px !important;
+  background: #222 !important;
+}
+
+/* =========================================================
+   접힌 사이드바 정리 + 툴팁 위치 안정화
+   DashboardSidebar.css 맨 아래에 추가
+   ========================================================= */
+
+/* 접힌 상태에서도 사이드바는 툴팁을 밖으로 보여줄 수 있게 */
+.chatPage.sidebarCollapsed .dashboardSidebar {
+  width: 64px !important;
+  min-width: 64px !important;
+  overflow: visible !important;
+}
+
+/* 접힌 상태 nav는 가운데 정렬 */
+.chatPage.sidebarCollapsed .dashboardSideNav,
+.chatPage.sidebarCollapsed .dashboardNav {
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+/* 접힌 상태 메뉴 그룹 */
+.chatPage.sidebarCollapsed .sideMenuGroup {
+  width: 100% !important;
+  padding: 0 !important;
+  align-items: center !important;
+  gap: 18px !important;
+}
+
+/* 자료 등록 부모 메뉴가 padding 때문에 왼쪽으로 밀리던 문제 해결 */
+.chatPage.sidebarCollapsed .sideMenuWithChildren {
+  width: 42px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.chatPage.sidebarCollapsed .sideMenuParentItem,
+.chatPage.sidebarCollapsed .sideMenuItem {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+
+  padding: 0 !important;
+  gap: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* 접힌 상태 아이콘 가운데 고정 */
+.chatPage.sidebarCollapsed .sideMenuItem .sideSvgIcon,
+.chatPage.sidebarCollapsed .sideMenuParentItem .sideSvgIcon {
+  width: 22px !important;
+  height: 22px !important;
+  flex: 0 0 22px !important;
+  margin: 0 !important;
+}
+
+/* 접힌 상태 텍스트/화살표/하위 메뉴 숨김 */
+.chatPage.sidebarCollapsed .sideMenuItem > span:not(.sideSvgIcon),
+.chatPage.sidebarCollapsed .sideMenuChevron,
+.chatPage.sidebarCollapsed .sideSubMenuList {
+  display: none !important;
+}
+
+/* 접힌 상태 새 채팅 버튼도 중앙 고정 */
+.chatPage.sidebarCollapsed .sideNewChatWrap {
+  display: flex !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.chatPage.sidebarCollapsed .sideNewChatBtn {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.chatPage.sidebarCollapsed .sideNewChatBtn > span:last-child {
+  display: none !important;
+}
+
+/* 접힌 상태 하단이 겹치던 문제 해결: 프로필 사진 숨기고 알림/설정만 정렬 */
+.chatPage.sidebarCollapsed .sideProfileBox {
+  width: 64px !important;
+  height: 92px !important;
+  min-height: 92px !important;
+  padding: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: #fbfcff !important;
+}
+
+.chatPage.sidebarCollapsed .sideProfileLeft {
+  display: none !important;
+}
+
+.chatPage.sidebarCollapsed .sideProfileActions {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.chatPage.sidebarCollapsed .sideProfileActions .sideNotificationBtn,
+.chatPage.sidebarCollapsed .sideProfileActions .sideSettingBtn {
+  display: inline-flex !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 999px !important;
+}
+
+/* 다크모드 접힌 하단 배경 */
+.chatPage.dark.sidebarCollapsed .sideProfileBox,
+body.dark .chatPage.sidebarCollapsed .sideProfileBox {
+  background: #0f172a !important;
+}
+
+/* 툴팁은 레이아웃을 밀지 않고 항상 위에 표시 */
+.sidebarSimpleTooltip {
+  position: fixed !important;
+  z-index: 999999 !important;
+
+  transform: translateY(-50%) !important;
+
+  max-width: 260px !important;
+  padding: 7px 10px !important;
+  border-radius: 6px !important;
+
+  background: #222 !important;
+  color: #ffffff !important;
+
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.02em !important;
+  white-space: nowrap !important;
+
+  pointer-events: none !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18) !important;
+}
+
+.sidebarSimpleTooltip::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -4px !important;
+  top: 50% !important;
+  transform: translateY(-50%) rotate(45deg) !important;
+
+  width: 8px !important;
+  height: 8px !important;
+  background: #222 !important;
+}
+
+/* 사이드바 접힘 상태에서 남는 작은 점/뱃지 제거 */
+.sidebarCollapsed .sideMenuBadge,
+.sidebarCollapsed .sideNewBadge,
+.sidebarCollapsed .sideNoticeBadge,
+.sidebarCollapsed .synonymBadge,
+.sidebarCollapsed .synonymCandidateBadge {
+  display: none !important;
+}
+
+/* 접힌 사이드바에서 설명 말풍선 안 뜨게 */
+.sidebarCollapsed .sideTooltip,
+.sidebarCollapsed .sideMenuTooltip,
+.sidebarCollapsed .sidebarTooltip {
+  display: none !important;
+}

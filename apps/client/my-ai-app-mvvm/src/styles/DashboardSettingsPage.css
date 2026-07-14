@@ -1,0 +1,439 @@
+/* ===== DashboardSettingsPage.css ===== */
+/* chatPage 전용 설정 페이지 */
+
+.chatPage .settingsSimplePage {
+  min-height: 100vh;
+  padding: 34px 48px 56px;
+  background: #ffffff;
+}
+
+.chatPage .settingsSimpleShell {
+  width: min(680px, 100%);
+  margin: 0;
+}
+
+.chatPage .settingsSimpleTitle {
+  margin-bottom: 32px;
+}
+
+.chatPage .settingsSimpleTitle h2 {
+  margin: 0 0 8px;
+  color: #0a2b5f;
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 950;
+  letter-spacing: -0.5px;
+}
+
+.chatPage .settingsSimpleTitle p {
+  margin: 0;
+  color: #7c8da7;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.chatPage .settingsSimpleGroup {
+  margin-top: 30px;
+}
+
+.chatPage .settingsSimpleGroup h3 {
+  margin: 0 0 12px;
+  color: #0a2b5f;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.chatPage .settingsSimpleRow,
+.chatPage .settingsProfileRow {
+  min-height: 64px;
+  border-top: 1px solid #e1e9f4;
+  border-bottom: 1px solid #e1e9f4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.chatPage .settingsSimpleRow strong,
+.chatPage .settingsProfileInfo strong {
+  display: block;
+  color: #24365e;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.chatPage .settingsSimpleRow span,
+.chatPage .settingsProfileInfo span {
+  display: block;
+  margin-top: 4px;
+  color: #7c8da7;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* profile */
+.chatPage .settingsProfileRow {
+  padding: 14px 0;
+  justify-content: flex-start;
+}
+
+.chatPage .settingsProfileAvatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: #123f91;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 54px;
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.chatPage .settingsProfileAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chatPage .settingsProfileInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.chatPage .settingsProfileActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.chatPage .settingsProfileActions button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: #eef4ff;
+  color: #123f91;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.chatPage .settingsProfileActions button:hover {
+  background: #e4efff;
+}
+
+/* theme toggle */
+.chatPage .settingsSimpleToggle {
+  height: 34px;
+  padding: 3px;
+  border-radius: 999px;
+  background: #eef4ff;
+  display: inline-flex;
+  gap: 3px;
+  flex: 0 0 auto;
+}
+
+.chatPage .settingsSimpleToggle button {
+  height: 28px;
+  min-width: 64px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: #61718c;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.chatPage .settingsSimpleToggle button.active {
+  background: #123f91;
+  color: #ffffff;
+}
+
+.chatPage .settingsSimpleToggle button:focus,
+.chatPage .settingsSimpleToggle button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* logout */
+.chatPage .settingsSimpleLogout {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: #d94b4b;
+  font-size: 12px;
+  font-weight: 900;
+  flex: 0 0 auto;
+}
+
+.chatPage .settingsSimpleLogout:hover {
+  background: rgba(217, 75, 75, 0.08);
+}
+
+/* ===== Dark Mode ===== */
+
+.chatPage.dark .settingsSimplePage {
+  background: #0f172a;
+}
+
+.chatPage.dark .settingsSimpleTitle h2,
+.chatPage.dark .settingsSimpleGroup h3,
+.chatPage.dark .settingsSimpleRow strong,
+.chatPage.dark .settingsProfileInfo strong {
+  color: #f8fbff;
+}
+
+.chatPage.dark .settingsSimpleTitle p,
+.chatPage.dark .settingsSimpleRow span,
+.chatPage.dark .settingsProfileInfo span {
+  color: #9badc9;
+}
+
+.chatPage.dark .settingsSimpleRow,
+.chatPage.dark .settingsProfileRow {
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.chatPage.dark .settingsSimpleToggle,
+.chatPage.dark .settingsProfileActions button {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chatPage.dark .settingsSimpleToggle button {
+  color: #b9c7dd;
+}
+
+.chatPage.dark .settingsSimpleToggle button.active {
+  background: #123f91;
+  color: #ffffff;
+  box-shadow: none;
+  outline: none;
+}
+
+.chatPage.dark .settingsProfileActions button {
+  color: #d7e5ff;
+}
+
+.chatPage.dark .settingsProfileActions button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.chatPage.dark .settingsProfileAvatar {
+  background: #123f91;
+  color: #ffffff;
+}
+
+.chatPage.dark .settingsSimpleLogout {
+  background: transparent !important;
+  color: #dba0a0 !important;
+}
+
+.chatPage.dark .settingsSimpleLogout:hover {
+  background: rgba(255, 139, 139, 0.1) !important;
+}
+
+/* responsive */
+@media (max-width: 760px) {
+  .chatPage .settingsSimplePage {
+    padding: 30px 22px 44px;
+  }
+
+  .chatPage .settingsProfileRow {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .chatPage .settingsSimpleRow {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px 0;
+  }
+
+  .chatPage .settingsSimpleToggle,
+  .chatPage .settingsSimpleLogout {
+    width: 100%;
+  }
+
+  .chatPage .settingsSimpleToggle button {
+    flex: 1;
+  }
+
+  .chatPage .settingsSimpleLogout {
+    margin-left: 66px;
+  }
+}
+/* =========================================================
+   Settings Page Dark Mode Fix
+   설정 페이지 본문이 흰색으로 뜨는 문제 해결
+   반드시 DashboardSettingsPage.css 맨 아래에 넣기
+   ========================================================= */
+
+.chatPage.dark .settingsPage,
+.chatPage.dark .dashboardSettingsPage,
+body.dark .settingsPage,
+body.dark .dashboardSettingsPage {
+  background: #0f172a !important;
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .settingsPage *,
+.chatPage.dark .dashboardSettingsPage *,
+body.dark .settingsPage *,
+body.dark .dashboardSettingsPage * {
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.chatPage.dark .settingsPage h1,
+.chatPage.dark .settingsPage h2,
+.chatPage.dark .settingsPage h3,
+.chatPage.dark .settingsPage strong,
+.chatPage.dark .dashboardSettingsPage h1,
+.chatPage.dark .dashboardSettingsPage h2,
+.chatPage.dark .dashboardSettingsPage h3,
+.chatPage.dark .dashboardSettingsPage strong,
+body.dark .settingsPage h1,
+body.dark .settingsPage h2,
+body.dark .settingsPage h3,
+body.dark .settingsPage strong,
+body.dark .dashboardSettingsPage h1,
+body.dark .dashboardSettingsPage h2,
+body.dark .dashboardSettingsPage h3,
+body.dark .dashboardSettingsPage strong {
+  color: #f8fbff !important;
+}
+
+.chatPage.dark .settingsPage p,
+.chatPage.dark .settingsPage span,
+.chatPage.dark .settingsPage em,
+.chatPage.dark .settingsPage label,
+.chatPage.dark .settingsPage dt,
+.chatPage.dark .dashboardSettingsPage p,
+.chatPage.dark .dashboardSettingsPage span,
+.chatPage.dark .dashboardSettingsPage em,
+.chatPage.dark .dashboardSettingsPage label,
+.chatPage.dark .dashboardSettingsPage dt,
+body.dark .settingsPage p,
+body.dark .settingsPage span,
+body.dark .settingsPage em,
+body.dark .settingsPage label,
+body.dark .settingsPage dt,
+body.dark .dashboardSettingsPage p,
+body.dark .dashboardSettingsPage span,
+body.dark .dashboardSettingsPage em,
+body.dark .dashboardSettingsPage label,
+body.dark .dashboardSettingsPage dt {
+  color: #9badc9 !important;
+}
+
+/* 설정 페이지 카드 / 줄 */
+.chatPage.dark .settingsSection,
+.chatPage.dark .settingsCard,
+.chatPage.dark .settingRow,
+.chatPage.dark .profileCard,
+.chatPage.dark .accountInfoCard,
+.chatPage.dark .dashboardSettingsPage .settingsSection,
+.chatPage.dark .dashboardSettingsPage .settingsCard,
+.chatPage.dark .dashboardSettingsPage .settingRow,
+.chatPage.dark .dashboardSettingsPage .profileCard,
+.chatPage.dark .dashboardSettingsPage .accountInfoCard,
+body.dark .settingsSection,
+body.dark .settingsCard,
+body.dark .settingRow,
+body.dark .profileCard,
+body.dark .accountInfoCard {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  color: #f8fbff !important;
+}
+
+/* 설정 페이지 안쪽 구분선 */
+.chatPage.dark .settingsSectionTitle,
+.chatPage.dark .settingsRow,
+.chatPage.dark .settingRow,
+.chatPage.dark .accountRow,
+body.dark .settingsSectionTitle,
+body.dark .settingsRow,
+body.dark .settingRow,
+body.dark .accountRow {
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+/* 프로필 박스 */
+.chatPage.dark .settingsProfileBox,
+.chatPage.dark .profileInfoBox,
+.chatPage.dark .profileAvatarBox,
+body.dark .settingsProfileBox,
+body.dark .profileInfoBox,
+body.dark .profileAvatarBox {
+  background: #111c31 !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+/* 버튼 */
+.chatPage.dark .settingsPage button,
+.chatPage.dark .dashboardSettingsPage button,
+body.dark .settingsPage button,
+body.dark .dashboardSettingsPage button {
+  border-color: rgba(148, 163, 184, 0.26) !important;
+}
+
+.chatPage.dark .profileChangeBtn,
+.chatPage.dark .defaultProfileBtn,
+.chatPage.dark .logoutBtn,
+.chatPage.dark .themeModeBtn,
+.chatPage.dark .modeToggleBtn,
+body.dark .profileChangeBtn,
+body.dark .defaultProfileBtn,
+body.dark .logoutBtn,
+body.dark .themeModeBtn,
+body.dark .modeToggleBtn {
+  background: #15233d !important;
+  color: #dbe7f7 !important;
+  border-color: rgba(148, 163, 184, 0.26) !important;
+}
+
+.chatPage.dark .profileChangeBtn:hover,
+.chatPage.dark .defaultProfileBtn:hover,
+.chatPage.dark .themeModeBtn:hover,
+.chatPage.dark .modeToggleBtn:hover,
+body.dark .profileChangeBtn:hover,
+body.dark .defaultProfileBtn:hover,
+body.dark .themeModeBtn:hover,
+body.dark .modeToggleBtn:hover {
+  background: #1b2942 !important;
+  color: #ffffff !important;
+}
+
+/* 어둡게 버튼 선택 상태 */
+.chatPage.dark .themeModeBtn.active,
+.chatPage.dark .modeToggleBtn.active,
+body.dark .themeModeBtn.active,
+body.dark .modeToggleBtn.active {
+  background: #123f91 !important;
+  border-color: #123f91 !important;
+  color: #ffffff !important;
+}
+
+/* 로그아웃 */
+.chatPage.dark .logoutBtn,
+body.dark .logoutBtn {
+  color: #ff9a9a !important;
+}
+
+/* =========================================================
+   Dashboard Main Dark Background Fix
+   설정 페이지 오른쪽 큰 배경 흰색 방지
+   ========================================================= */
+
+.chatPage.dark .dashboardMain,
+.chatPage.dark .dashboardContent,
+.chatPage.dark .dashboardMainContent,
+.chatPage.dark .dashboardBody,
+body.dark .dashboardMain,
+body.dark .dashboardContent,
+body.dark .dashboardMainContent,
+body.dark .dashboardBody {
+  background: #0f172a !important;
+  color: #f8fbff !important;
+}

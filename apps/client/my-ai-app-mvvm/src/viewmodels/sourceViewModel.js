@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   fetchSourcesRequest,
   uploadSourceRequest,
+  registerExternalSourceRequest,
   deleteSourceRequest,
 } from "../models/sourceModel";
 
@@ -100,12 +101,15 @@ export function useSourceViewModel(conversationId) {
     };
   }, [conversationId]);
 
-  const uploadFile = async (file) => {
+  const uploadFile = async (file, metadata) => {
     if (!conversationId || !file) {
       console.error("업로드 실패: conversationId 또는 file 없음", {
         conversationId,
         file,
       });
+      setUploadError(
+        !conversationId ? "먼저 대화를 선택하거나 새로 만들어 주세요." : "업로드할 파일이 없습니다."
+      );
       return null;
     }
 
@@ -113,7 +117,7 @@ export function useSourceViewModel(conversationId) {
     setUploadError(null);
 
     try {
-      const uploaded = await uploadSourceRequest(conversationId, file);
+      const uploaded = await uploadSourceRequest(conversationId, file, metadata);
       // File 객체를 인메모리로 붙여 HwpxEditor 자동 로드에 사용 (세션 내에서만 유효)
       const newSource = { ...uploaded, file };
 
@@ -159,6 +163,59 @@ export function useSourceViewModel(conversationId) {
     return uploaded;
   };
 
+  // 자료 등록 페이지(사업단/주제/설명 메타데이터 포함) 전용 순차 업로드.
+  // entries: [{ file, business, topic, description }]
+  const registerFiles = async (entries) => {
+    const list = Array.from(entries || []);
+    if (list.length === 0) return [];
+
+    const uploaded = [];
+    setUploadProgress({ done: 0, total: list.length });
+
+    for (const entry of list) {
+      const { file, business, topic, description } = entry;
+      const result = await uploadFile(file, { business, topic, description });
+      if (result) uploaded.push(result);
+      setUploadProgress((prev) => (prev ? { ...prev, done: prev.done + 1 } : prev));
+    }
+
+    setUploadProgress(null);
+    return uploaded;
+  };
+
+  // 외부 자료(URL) 등록 — file-registration-metadata-contract.md §2
+  const registerExternalSource = async (payload) => {
+    if (!conversationId) {
+      console.error("외부 자료 등록 실패: conversationId 없음");
+      setUploadError("먼저 대화를 선택하거나 새로 만들어 주세요.");
+      return null;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const registered = await registerExternalSourceRequest(conversationId, payload);
+      setSources((prev) => {
+        const exists = prev.some((source) => source.id === registered.id);
+        if (exists) return prev;
+        return [...prev, registered];
+      });
+
+      if (registered.status === "processing") {
+        startPolling(conversationId, registered.id);
+      }
+
+      return registered;
+    } catch (error) {
+      console.error("외부 자료 등록 실패:", error);
+      setUploadError(error.message || "외부 자료 등록에 실패했습니다.");
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const deleteSource = async (sourceId) => {
     try {
       await deleteSourceRequest(conversationId, sourceId);
@@ -182,6 +239,8 @@ export function useSourceViewModel(conversationId) {
     clearUploadError,
     uploadFile,
     uploadFiles,
+    registerFiles,
+    registerExternalSource,
     deleteSource,
   };
 }

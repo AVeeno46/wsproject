@@ -11,7 +11,7 @@ import { ErrorBoundary } from "./core/ErrorBoundary";
 import { useAuthViewModel as useAuth } from "./viewmodels/authViewModel";
 
 import { LoginView } from "./features/auth/LoginView";
-import { ChatView } from "./features/chat/ChatView";
+import { DashboardView } from "./features/dashboard/DashboardView";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -31,14 +31,14 @@ function App() {
           <Route path="/chat"
             element={
               <ProtectedRoute>
-                <ChatView />
+                <DashboardView />
               </ProtectedRoute>
             }
           />
           <Route path="/chat/:conversationId"
             element={
               <ProtectedRoute>
-                <ChatView />
+                <DashboardView />
               </ProtectedRoute>
             }
           />
