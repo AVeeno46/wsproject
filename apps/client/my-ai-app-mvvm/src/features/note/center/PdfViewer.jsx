@@ -74,7 +74,15 @@ export function PdfViewer({ source }) {
       downloadSourceRequest(source.id)
         .then((res) => {
           if (requestIdRef.current !== requestId) return;
-          if (res) setFileData(res.buffer);
+          if (res) {
+            setFileData(res.buffer);
+            return;
+          }
+          // 로컬(IS_LOCAL) 모드는 파일 바이트를 저장하지 않아 다운로드가 null을
+          // 반환한다 — "불러오는 중..."에 영원히 머무는 대신 이유를 안내한다.
+          setError(
+            "지금은 서버 미연결(로컬) 모드라 저장된 파일을 다시 열 수 없습니다. 서버 연결 후 열람할 수 있습니다."
+          );
         })
         .catch(() => {
           if (requestIdRef.current !== requestId) return;

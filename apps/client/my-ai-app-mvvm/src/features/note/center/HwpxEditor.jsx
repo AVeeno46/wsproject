@@ -50,7 +50,15 @@ export function HwpxEditor({ source }) {
       downloadSourceRequest(source.id)
         .then((res) => {
           if (requestIdRef.current !== requestId) return;
-          if (res) open(res.buffer, res.fileName || name);
+          if (res) {
+            open(res.buffer, res.fileName || name);
+            return;
+          }
+          // 로컬(IS_LOCAL) 모드는 파일 바이트를 저장하지 않아 다운로드가 null을
+          // 반환한다 — 아래 "파일 다시 선택" 버튼과 함께 이유를 안내한다.
+          setLoadError(
+            '지금은 서버 미연결(로컬) 모드라 저장된 파일을 다시 불러올 수 없습니다. 파일을 다시 선택하면 볼 수 있습니다.'
+          );
         })
         .catch((err) => {
           if (requestIdRef.current !== requestId) return;

@@ -153,6 +153,18 @@ export default function RagCompletedDocumentPage({ sources = [], onRequestSummar
     setDetailDocument(null);
   };
 
+  // 세부정보 드로어가 열려 있을 때 Escape로 닫기
+  useEffect(() => {
+    if (!detailDocument) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setDetailDocument(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [detailDocument]);
+
   const handleSummaryClick = (document) => {
     onRequestSummary?.(document);
   };

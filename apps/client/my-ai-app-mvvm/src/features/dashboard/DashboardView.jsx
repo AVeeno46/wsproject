@@ -159,10 +159,17 @@ export function DashboardView() {
 
   // 대화 고정(pin)은 서버에 저장할 API가 없어 이 브라우저의 localStorage에만
   // 저장한다 — 다른 기기/브라우저에는 동기화되지 않는 클라이언트 전용 편의
-  // 기능(설정 페이지의 프로필 이미지와 같은 방식).
+  // 기능(설정 페이지의 프로필 이미지와 같은 방식). 같은 브라우저에서 여러
+  // 계정으로 로그인해도 고정 목록이 섞이지 않도록 키를 계정별로 분리한다.
+  const pinnedStorageKey = `pinnedChatIds:${user?.id || savedUserData?.id || "guest"}`;
+
   const [pinnedChatIds, setPinnedChatIds] = useState(() => {
     try {
-      const saved = localStorage.getItem("pinnedChatIds");
+      // 계정별 키 도입 전(공용 "pinnedChatIds" 키)에 저장된 값이 있으면
+      // 첫 로드에서 그대로 이어받는다(하위 호환).
+      const saved =
+        localStorage.getItem(pinnedStorageKey) ??
+        localStorage.getItem("pinnedChatIds");
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -171,11 +178,11 @@ export function DashboardView() {
 
   useEffect(() => {
     try {
-      localStorage.setItem("pinnedChatIds", JSON.stringify(pinnedChatIds));
+      localStorage.setItem(pinnedStorageKey, JSON.stringify(pinnedChatIds));
     } catch {
       // localStorage 사용 불가 환경이면 이번 세션에서만 고정 상태가 유지된다.
     }
-  }, [pinnedChatIds]);
+  }, [pinnedStorageKey, pinnedChatIds]);
 
   const pinnedChats = useMemo(
     () =>
@@ -365,6 +372,18 @@ export function DashboardView() {
   };
 
   const handleClosePreview = () => setPreviewSource(null);
+
+  // 미리보기가 열려 있을 때 Escape로 닫기
+  useEffect(() => {
+    if (!previewSource) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setPreviewSource(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [previewSource]);
 
   const handleClearNotifications = () => {
     setNotifications([]);

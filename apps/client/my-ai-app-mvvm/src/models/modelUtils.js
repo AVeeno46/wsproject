@@ -5,6 +5,20 @@ export const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+// 브라우저 전용 데이터(대화 고정, 유사어 사전 등)의 localStorage 키를 계정별로
+// 분리하기 위한 현재 로그인 사용자 id. 같은 브라우저에서 다른 계정으로 로그인해도
+// 서로의 로컬 데이터가 섞이지 않게 한다. (AuthContext가 로그인 시 userData를
+// localStorage에 저장하므로 여기서 동기적으로 읽을 수 있다.)
+export const getCurrentUserId = () => {
+  try {
+    const saved = localStorage.getItem("userData");
+    const parsed = saved ? JSON.parse(saved) : null;
+    return parsed?.id ? String(parsed.id) : "guest";
+  } catch {
+    return "guest";
+  }
+};
+
 export const handleUnauthorized = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("userData");
