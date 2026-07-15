@@ -52,25 +52,25 @@ export const useChatViewModel = (conversationId) => {
     }));
   };
 
-  const fetchHistory = async (targetNotebookId = conversationId) => {
-    if (!targetNotebookId) {
+  const fetchHistory = async (targetChatRoomId = conversationId) => {
+    if (!targetChatRoomId) {
       setChatHistory([]);
       return;
     }
 
-    const localHistory = readLocalChatHistory(targetNotebookId);
+    const localHistory = readLocalChatHistory(targetChatRoomId);
 
     // 서버 히스토리 API가 없어도 저장된 로컬 대화를 먼저 보여줌
     setChatHistory(localHistory);
 
     try {
-      const data = await fetchChatHistoryRequest(targetNotebookId);
+      const data = await fetchChatHistoryRequest(targetChatRoomId);
       const serverHistory = normalizeHistory(data);
 
       // 서버 기록이 있으면 서버 기준으로 맞추고, 없으면 로컬 기록 유지
       if (serverHistory.length > 0) {
         setChatHistory(serverHistory);
-        saveLocalChatHistory(targetNotebookId, serverHistory);
+        saveLocalChatHistory(targetChatRoomId, serverHistory);
       }
     } catch {
       setChatHistory(localHistory);

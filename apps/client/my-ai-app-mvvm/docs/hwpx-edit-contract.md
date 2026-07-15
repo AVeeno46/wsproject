@@ -11,6 +11,10 @@
 > [chat-image-api-contract.md](./chat-image-api-contract.md)의 `POST /workspace/chat/dialogize`
 > (서버팀 제안으로 `chat/stream`에서 이름 변경, 형식 동일) 하나로 통합된다.
 > 1단계(인제스트)·3단계(저장+재임베딩)는 기존 그대로 유효.
+>
+> **[업데이트] 식별자도 `dashboard_id` → `chatroom_id`로 변경.** 대화 목록 관리가
+> `dashboard`에서 `chatroom`으로 분리되면서, 아래 §1의 `dashboard_id`도 `chatroom_id`로
+> 읽는다 — 가정 계약, [chatroom-api-contract.md](./chatroom-api-contract.md) §5 참고.
 
 **적용 범위 (1단계 = 텍스트 칸 채우기/고치기)**
 - 사용자가 올린 문서 편집 **+ 빈 양식(템플릿) 채우기 = "AI 문서 생성"** 모두 *이 한 가지 동작*으로 처리된다. (시작 파일이 사용자 파일이냐 템플릿이냐 차이뿐, 형식은 동일)
@@ -38,7 +42,7 @@
  RAG    : block(문단) 단위로 묶어 임베딩 (id 보존)        ← hwpx 안 만짐
 
 [② AI 편집 — 채팅을 통해 트리거됨, 상세는 chat-image-api-contract.md]
- Client → Server :  POST /workspace/chat/dialogize { dashboard_id, query }  (자연어, file_id 지정 안 함)
+ Client → Server :  POST /workspace/chat/dialogize { chatroom_id, query }  (자연어, file_id 지정 안 함)
  Server          :  query 의도 판단(조회 vs 편집) — 편집이면 대상 file_id 도 RAG 검색으로 추정
  Server → RAG    :  { file_id, instruction }                             (내부 호출, 3.2 참고)
  RAG    : 관련 segment 검색 → Claude(tool-use) → edits [{id, newText}]

@@ -1,11 +1,11 @@
 // [View] 대시보드 화면
 // 폴더 기능 제거 버전. 화면(마크업/스타일)은 다운로드 프로토타입의 새 디자인을
 // 그대로 유지하고, 그 안의 가짜 로컬 상태만 실제 useChatViewModel/
-// useDashboardViewModel 등으로 교체합니다.
+// useChatRoomViewModel 등으로 교체합니다.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";
-import { useDashboardViewModel } from "../../viewmodels/dashboardViewModel";
+import { useChatRoomViewModel } from "../../viewmodels/chatRoomViewModel";
 import { useSourceViewModel } from "../../viewmodels/sourceViewModel";
 import { useChatViewModel } from "../../viewmodels/chatViewModel";
 import { useSynonymViewModel } from "../../viewmodels/synonymViewModel";
@@ -54,7 +54,7 @@ export function DashboardView() {
   const { requestLogout, user } = useAuthViewModel();
   const { theme, setTheme } = useTheme();
 
-  const { notebooks, createNotebook, removeNotebook, updateNotebookTitle } = useDashboardViewModel();
+  const { chatRooms, createChatRoom, removeChatRoom, updateChatRoomTitle } = useChatRoomViewModel();
   const { chatHistory, isThinking, sendMessage } = useChatViewModel(conversationId);
   const synonymViewModel = useSynonymViewModel();
   const {
@@ -177,18 +177,18 @@ export function DashboardView() {
 
   const pinnedChats = useMemo(
     () =>
-      notebooks
+      chatRooms
         .filter((n) => pinnedChatIds.includes(n.id))
         .map((n) => ({ id: n.id, title: n.title, pinned: true })),
-    [notebooks, pinnedChatIds]
+    [chatRooms, pinnedChatIds]
   );
 
   const recentChats = useMemo(
     () =>
-      notebooks
+      chatRooms
         .filter((n) => !pinnedChatIds.includes(n.id))
         .map((n) => ({ id: n.id, title: n.title, pinned: false })),
-    [notebooks, pinnedChatIds]
+    [chatRooms, pinnedChatIds]
   );
 
   const handlePinChat = (chatId) => {
@@ -210,22 +210,18 @@ export function DashboardView() {
     [chatHistory]
   );
 
-  // 실제로 노트북(대화)이 생성되는 시점은 사용자가 첫 메시지를 "전송"할 때뿐이다.
+  // 실제로 채팅방이 생성되는 시점은 사용자가 첫 메시지를 "전송"할 때뿐이다.
   // "새 채팅"/로고 클릭만으로는 아직 아무것도 만들지 않고, 첫 메시지를 보내면
-  // 그 시점에 노트북을 만들고 그 안으로 메시지를 넣는다. pendingFirstMessageRef는
-  // 노트북 생성 → /chat/:id로 이동 → conversationId가 바뀐 뒤(useEffect) 그 새
-  // 대화로 메시지를 실제 전송하기까지 잠깐 들고 있는 임시 버퍼다.
+  // 그 시점에 채팅방을 만들고 그 안으로 메시지를 넣는다. 방 이름은 클라이언트가
+  // 짓지 않고, 첫 메시지를 그대로 서버로 보내 서버가 생성한 이름을 받아온다
+  // (docs/chatroom-api-contract.md §2). pendingFirstMessageRef는 방 생성 →
+  // /chat/:id로 이동 → conversationId가 바뀐 뒤(useEffect) 그 새 방으로 메시지를
+  // 실제 전송하기까지 잠깐 들고 있는 임시 버퍼다.
   const pendingFirstMessageRef = useRef(null);
 
   const createConversationWithMessage = async (question) => {
-    const existing = new Set(notebooks.map((n) => n.title.trim()));
-    let title = "새 대화";
-    for (let i = 2; existing.has(title); i += 1) {
-      title = `새 대화 ${i}`;
-    }
-
     try {
-      const created = await createNotebook(title);
+      const created = await createChatRoom(question);
       if (created?.id) {
         pendingFirstMessageRef.current = question;
         navigate(`/chat/${created.id}`);
@@ -267,7 +263,7 @@ export function DashboardView() {
   };
 
   const handleRenameChat = (chatId) => {
-    const target = notebooks.find((n) => String(n.id) === String(chatId));
+    const target = chatRooms.find((n) => String(n.id) === String(chatId));
 
     if (!target) return;
 
@@ -292,7 +288,7 @@ export function DashboardView() {
     if (!nextTitle) return;
 
     try {
-      await updateNotebookTitle(chatId, nextTitle);
+      await updateChatRoomTitle(chatId, nextTitle);
     } catch (error) {
       console.error("대화 제목 저장 실패:", error);
     }
@@ -312,7 +308,7 @@ export function DashboardView() {
     }
 
     try {
-      await removeNotebook(chatId);
+      await removeChatRoom(chatId);
       setPinnedChatIds((prev) => prev.filter((id) => id !== chatId));
       if (String(chatId) === String(conversationId)) {
         navigate("/chat");

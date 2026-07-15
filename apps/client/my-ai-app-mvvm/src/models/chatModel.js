@@ -10,7 +10,8 @@ import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 export const fetchChatHistoryRequest = async (conversationId) => {
     // [로컬] 히스토리 미지원
     if (IS_LOCAL) return [];
-    // [서버] GET /workspace/chat/history/{dashboard_id}
+    // [서버] GET /workspace/chat/history/{chatroom_id}
+    // (식별자 이름만 dashboard_id → chatroom_id로 변경 — docs/chatroom-api-contract.md §5)
     const response = await apiFetch(`${API_URL}/chat/history/${conversationId}`, {
         method: 'GET',
         headers: { ...getAuthHeader() },
@@ -76,12 +77,13 @@ export const streamChatRequest = async (conversationId, query, handlers, signal)
 
     // [서버] POST /workspace/chat/dialogize — SSE(data:) 스트림을 청크 단위로 파싱
     // (엔드포인트 이름만 chat/stream → chat/dialogize로 변경, 요청/응답 형식은 동일 — 서버팀 제안)
+    // (요청 필드 dashboard_id → chatroom_id로 변경 — docs/chatroom-api-contract.md §5, 가정 계약)
     let response;
     try {
         response = await apiFetch(`${API_URL}/chat/dialogize`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-            body: JSON.stringify({ dashboard_id: Number(conversationId), query }),
+            body: JSON.stringify({ chatroom_id: Number(conversationId), query }),
             signal,
         });
     } catch (e) {

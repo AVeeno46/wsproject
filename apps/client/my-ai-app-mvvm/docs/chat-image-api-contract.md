@@ -2,8 +2,12 @@
 
 > 채팅 중심(Gemini/ChatGPT 스타일) UI의 **단일 진입점**에 대한 3자 간 계약서. 서버팀이 RAG
 > 작업으로 바빠서 클라이언트 쪽에서 스펙을 먼저 확정해 전달한다. 기존에 구현된 엔드포인트
-> (`/dashboard/individual/*`, `/workspace/file/*`, `/token/*`)의 명명 규칙·인증 방식·
-> 상태코드 패턴을 그대로 따른다.
+> (`/workspace/file/*`, `/token/*`)의 명명 규칙·인증 방식·상태코드 패턴을 그대로 따른다.
+>
+> **업데이트**: 대화 식별자가 `dashboard_id` → `chatroom_id`로 바뀐다(서버팀 제안,
+> `dashboard`는 서버 내부 전용으로 전환되고 대화 목록 관리는 새 `chatroom` 리소스로
+> 분리됨). 아래 §2.1/§2.2의 `dashboard_id`는 전부 `chatroom_id`로 읽는다. 자세한 내용은
+> [chatroom-api-contract.md](./chatroom-api-contract.md) 참고(가정 계약, 서버팀 확정 전).
 
 > **채팅 입력창 하나가 조회·편집·문서뷰어 3가지를 다 커버한다.** 사용자는 "이 문서 내용
 > 알려줘"(조회)와 "학점을 6으로 바꿔줘"(편집)를 구분 없이 같은 입력창에 자연어로 친다.
@@ -26,7 +30,7 @@
    구분되어 온다 (§2.1). `text` 청크의 내용 자체는 여전히 마크다운(표 `| | |`, 굵게,
    코드블록, 이미지 `![]()`) — `react-markdown` + `remark-gfm`으로 그대로 렌더링.
 2. **의도 판단(조회 vs 편집)은 서버/RAG 책임.** 클라이언트는 항상 같은 엔드포인트로 같은
-   형태(`{dashboard_id, query}`)의 요청만 보낸다. "이건 편집 요청이다"를 판단해서 대상
+   형태(`{chatroom_id, query}`)의 요청만 보낸다. "이건 편집 요청이다"를 판단해서 대상
    `file_id`를 찾고 편집안을 만드는 건 서버 쪽 로직 — 클라이언트는 응답 청크 타입만 보고
    분기 렌더링한다.
 3. **편집 적용은 서버 재호출 없이 로컬에서 끝난다.** `edit_proposal` 청크가 오면 클라이언트가
@@ -46,7 +50,7 @@
 
 ```
 [① 질문 전송 — 조회/편집 구분 없이 동일한 요청]
- Client → Server : POST /workspace/chat/dialogize { dashboard_id, query }
+ Client → Server : POST /workspace/chat/dialogize { chatroom_id, query }
  Server : query 의도 판단
    ├─ 조회 의도 → RAG에 검색 요청 → 답변 생성(마크다운 텍스트, 이미지 마크다운 포함)
    │              → Client로 { type: "text" } 청크 스트리밍
@@ -87,14 +91,15 @@
 ### 2.1 채팅 스트리밍
 
 > 엔드포인트 이름 변경 이력: 서버팀 제안으로 `chat/stream` → `chat/dialogize`로
-> 변경(요청/응답 형식은 동일, 경로 이름만 변경).
+> 변경(요청/응답 형식은 동일, 경로 이름만 변경). 이후 식별자도 `dashboard_id` →
+> `chatroom_id`로 변경(서버팀 제안, 가정 계약 — [chatroom-api-contract.md](./chatroom-api-contract.md) §5).
 
 ```
 POST /workspace/chat/dialogize
 
 Request
   header  JWT token
-  body    { dashboard_id (long), query (string) }
+  body    { chatroom_id (long), query (string) }
 
 Response (성공)
   Content-Type: text/event-stream
@@ -103,9 +108,9 @@ Response (성공)
 
 Status Code
   200                     스트림 시작 (헤더까지만 확정, 본문은 스트리밍)
-  400 Bad Request         query 비어있음 / dashboard_id 형식 오류
+  400 Bad Request         query 비어있음 / chatroom_id 형식 오류
   401 Unauthorized        JWT 없음/만료
-  404 Not Found           member가 해당 dashboard에 미소속
+  404 Not Found           member가 해당 chatroom에 미소속
   500 Internal Server Error
 ```
 
@@ -143,7 +148,7 @@ Status Code
 ### 2.2 채팅 히스토리 조회
 
 ```
-GET /workspace/chat/history/{dashboard_id}
+GET /workspace/chat/history/{chatroom_id}
 
 Request
   header  JWT token
