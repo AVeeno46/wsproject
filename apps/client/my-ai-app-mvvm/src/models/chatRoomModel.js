@@ -6,7 +6,7 @@ import { SERVER_URL, IS_LOCAL } from '../constants/constants';
 import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 
 const LS_KEY = 'local_chatrooms'; // 로컬 모드에서 채팅방 목록을 저장하는 키
-const BASE = `${SERVER_URL}/chatroom/individual`;
+const BASE = `${SERVER_URL}/chatroom`;
 
 const getLocalChatRooms = () => {
     try {
@@ -105,7 +105,8 @@ export const updateChatRoomTitleRequest = async (chatRoomId, title) => {
         saveLocalChatRooms(updatedChatRooms);
         return updatedChatRooms.find((n) => String(n.id) === String(chatRoomId));
     }
-    // [서버]
+    // [서버] 성공/실패는 상태 코드로만 판단 — 응답 바디(chatroom_name 등)는 필요
+    // 없음(서버팀 확인). 보낸 title을 그대로 클라이언트 상태에 반영한다.
     const response = await apiFetch(`${BASE}/update`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },

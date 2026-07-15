@@ -28,7 +28,7 @@
 ## 1. 채팅방 목록 조회
 
 ```
-GET /chatroom/individual/get-all
+GET /chatroom/get-all
 
 Request
   header  Authorization: Bearer <JWT>
@@ -44,7 +44,7 @@ Status Code
 ## 2. 채팅방 생성 (+ 첫 메시지 기반 이름 자동 생성)
 
 ```
-POST /chatroom/individual/create
+POST /chatroom/create
 
 Request
   header  Authorization: Bearer <JWT>
@@ -75,7 +75,7 @@ Status Code
 ## 3. 채팅방 삭제
 
 ```
-DELETE /chatroom/individual/delete/{chatroom_id}
+DELETE /chatroom/delete/{chatroom_id}
 
 Request
   header  Authorization: Bearer <JWT>
@@ -90,7 +90,7 @@ Response
 ## 4. 채팅방 이름 수정
 
 ```
-PATCH /chatroom/individual/update
+PATCH /chatroom/update
 
 Request
   header  Authorization: Bearer <JWT>
@@ -99,7 +99,7 @@ Request
             chatroom_name (string)
 
 Response
-  body  { chatroom_id (long), chatroom_name (string) }
+  body  없음 — 성공/실패는 상태 코드로만 판단(서버팀 확인, 아래 참고)
 
 Status Code
   200 OK
@@ -110,6 +110,11 @@ Status Code
 
 - 서버가 자동으로 이름을 짓더라도(§2), 사용자가 사이드바 "이름 바꾸기"로 수동으로
   바꾸는 기능은 그대로 유지한다.
+- **[확정] 응답 바디에 `chatroom_name`을 다시 돌려줄 필요 없음** — 클라이언트가
+  이미 보낸 값을 그대로 화면에 반영하면 되고, 성공/실패는 상태 코드만으로
+  충분하다고 서버팀이 확인함. [chatRoomModel.js](../src/models/chatRoomModel.js)의
+  `updateChatRoomTitleRequest`도 이미 응답 바디를 파싱하지 않고 상태 코드만
+  본다 — 반영 완료.
 
 ## 5. 채팅 관련 API의 식별자 변경 (dashboard_id → chatroom_id)
 
@@ -124,15 +129,43 @@ GET  /workspace/chat/history/{dashboard_id}                →  /workspace/chat/
 
 ## 6. 미정 / 확인 필요
 
-- [ ] 위 4개 엔드포인트의 정확한 경로/HTTP 메서드 — `/chatroom/individual/*`는
-      기존 `/dashboard/individual/*` 구조를 그대로 본뜬 가정치
-- [ ] `create` 응답이 이름만 주는지, 아니면 첫 AI 답변까지 함께 주는지(§2)
+- [x] ~~`/chatroom/individual/*`인지 `/chatroom/*`인지~~ → **확정**: chatroom은
+      공용(그룹) 계획이 따로 없어서 `individual` 구분자 자체가 불필요 —
+      `/chatroom/*`로 확정(위 §1~4에 반영됨).
+- [x] ~~update 응답에 chatroom_name이 필요한지~~ → **확정**: 불필요, 상태 코드로만
+      판단(§4 참고).
+- [ ] 위 엔드포인트들의 정확한 HTTP 메서드/세부 스펙(경로 자체는 확정)
+- [ ] `create` 응답이 이름만 주는지, 아니면 첫 AI 답변까지 함께 주는지(§2) —
+      §8의 SSE 방식 논의와 함께 다시 정리 예정
 - [ ] 요청/응답 필드명이 정말 `chatroom_id`/`chatroom_name`인지(스네이크 케이스
       확인 — 기존 `dashboard_id`/`dashboard_name` 패턴을 그대로 따른 가정)
 - [ ] `chat/dialogize`, `chat/history`의 식별자가 실제로 `chatroom_id`로
       바뀌는지, 아니면 필드명은 유지한 채 값만 chatroom 기준으로 바뀌는지
 - [ ] 기존 `/dashboard/individual/*`가 완전히 응답을 안 주는지(폐기), 아니면
       당분간 같이 열려 있는지
+
+## 8. (논의 중) create + dialogize를 둘 다 SSE로 묶는 방식
+
+서버팀이 제안한 아이디어(아직 결론 안 남, "추후 다시 이야기"하기로 함):
+
+- 지금 가정한 흐름(§2)은 "create(순수 JSON 응답) 1번 → 그 결과로 받은
+  `chatroom_id`로 dialogize(SSE) 1번" 총 2번 호출.
+- 서버팀 제안: **create도 SSE로 열어서**, `chatroom_id`는 단순 DB 연산이라
+  빠르게 먼저 내려주고(첫 이벤트), 그 id를 받는 즉시 클라이언트가 바로
+  dialogize를 호출해 답변 스트리밍을 시작한다. `chatroom_name`(LLM 등으로
+  생성되어 더 오래 걸릴 수 있는 값)은 같은 create 스트림에서 나중에 오는
+  이벤트로 받아서, 그때 사이드바 제목만 갱신한다.
+- 즉 "create 스트림에서 온 이벤트 → 이름 갱신", "dialogize 스트림에서 온
+  이벤트 → 채팅 말풍선에 출력"으로 두 스트림을 분리해서 처리하는 그림.
+- **아직 결정된 게 아니므로 클라이언트 코드는 손대지 않는다** — 지금 있는
+  "create(JSON) → dialogize(SSE)" 2단계 흐름을 그대로 유지하고, 이 아이디어가
+  확정되면 그때 `chatRoomModel.js`/`chatModel.js`/`DashboardView.jsx`의
+  `createConversationWithMessage`/`handleSendMessage`를 다시 설계한다.
+- **클라이언트 쪽 입장**: 단순 2단계 방식 vs SSE 이원화 중 어느 쪽이 최종이든
+  **서버팀이 원하는 방향을 따르기로 함**. (참고로 논의 시점에 클라이언트가 낸
+  의견은 "이름 생성이 LLM처럼 시간이 걸릴 수 있다면 SSE 이원화가 체감 응답
+  속도에 유리하고, 단순 DB 저장 수준이면 지금의 2단계 방식도 충분하다"였음 —
+  최종 판단은 서버의 이름 생성 로직 특성에 달려있음.)
 
 ## 7. 클라이언트 상태
 
