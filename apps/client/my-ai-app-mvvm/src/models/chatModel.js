@@ -74,10 +74,11 @@ export const streamChatRequest = async (conversationId, query, handlers, signal)
         return;
     }
 
-    // [서버] POST /workspace/chat/stream — SSE(data:) 스트림을 청크 단위로 파싱
+    // [서버] POST /workspace/chat/dialogize — SSE(data:) 스트림을 청크 단위로 파싱
+    // (엔드포인트 이름만 chat/stream → chat/dialogize로 변경, 요청/응답 형식은 동일 — 서버팀 제안)
     let response;
     try {
-        response = await apiFetch(`${API_URL}/chat/stream`, {
+        response = await apiFetch(`${API_URL}/chat/dialogize`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
             body: JSON.stringify({ dashboard_id: Number(conversationId), query }),

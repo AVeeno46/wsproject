@@ -46,7 +46,7 @@
 
 ```
 [① 질문 전송 — 조회/편집 구분 없이 동일한 요청]
- Client → Server : POST /workspace/chat/stream { dashboard_id, query }
+ Client → Server : POST /workspace/chat/dialogize { dashboard_id, query }
  Server : query 의도 판단
    ├─ 조회 의도 → RAG에 검색 요청 → 답변 생성(마크다운 텍스트, 이미지 마크다운 포함)
    │              → Client로 { type: "text" } 청크 스트리밍
@@ -86,8 +86,11 @@
 
 ### 2.1 채팅 스트리밍
 
+> 엔드포인트 이름 변경 이력: 서버팀 제안으로 `chat/stream` → `chat/dialogize`로
+> 변경(요청/응답 형식은 동일, 경로 이름만 변경).
+
 ```
-POST /workspace/chat/stream
+POST /workspace/chat/dialogize
 
 Request
   header  JWT token
