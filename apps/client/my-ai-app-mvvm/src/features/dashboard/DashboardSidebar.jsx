@@ -349,6 +349,34 @@ function DashboardSidebar({
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            className={`sideMenuItem ${
+              activeSideMenu === "synonyms" ? "active" : ""
+            }`}
+            {...getTooltipProps("비슷한 뜻의 검색어를 관리합니다")}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMenuClick?.("synonyms");
+            }}
+          >
+            <span className="sideSvgIcon">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="sideBubbleIcon">
+                <path
+                  d="M6.7 5.2h10.6c1.35 0 2.45 1.1 2.45 2.45v5.7c0 1.35-1.1 2.45-2.45 2.45h-5.95l-4.15 3.15c-.55.42-1.35.03-1.35-.66V15.8H6.7c-1.35 0-2.45-1.1-2.45-2.45v-5.7c0-1.35 1.1-2.45 2.45-2.45Z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.85"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path d="M8.3 9.1h7.4" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" />
+                <path d="M8.3 12.2h5.2" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span>검색어 관리</span>
+          </button>
         </section>
 
         <section className="sideRecentSection">

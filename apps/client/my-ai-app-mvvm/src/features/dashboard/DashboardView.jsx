@@ -1,19 +1,21 @@
 // [View] 대시보드 화면
-// 폴더 기능 제거 버전. 검색어(유사어) 사전 페이지는 백엔드가 없어 이번 단계에서 제외.
-// 화면(마크업/스타일)은 다운로드 프로토타입의 새 디자인을 그대로 유지하고,
-// 그 안의 가짜 로컬 상태만 실제 useChatViewModel/useDashboardViewModel로 교체합니다.
+// 폴더 기능 제거 버전. 화면(마크업/스타일)은 다운로드 프로토타입의 새 디자인을
+// 그대로 유지하고, 그 안의 가짜 로컬 상태만 실제 useChatViewModel/
+// useDashboardViewModel 등으로 교체합니다.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";
 import { useDashboardViewModel } from "../../viewmodels/dashboardViewModel";
 import { useSourceViewModel } from "../../viewmodels/sourceViewModel";
 import { useChatViewModel } from "../../viewmodels/chatViewModel";
+import { useSynonymViewModel } from "../../viewmodels/synonymViewModel";
 import { useTheme } from "../../core/ThemeContext";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardChatPage from "./DashboardChatPage";
 import DashboardSettingsPage from "./DashboardSettingsPage";
 import DashboardProcessingPage from "./DashboardProcessingPage";
 import RagCompletedDocumentPage from "./RagCompletedDocumentPage";
+import SynonymDictionaryPage from "./SynonymDictionaryPage";
 import "../../styles/DashboardChatPage.css";
 import "../../styles/DashboardSidebar.css";
 import "../../styles/DashboardSettingsPage.css";
@@ -54,6 +56,7 @@ export function DashboardView() {
 
   const { notebooks, createNotebook, removeNotebook, updateNotebookTitle } = useDashboardViewModel();
   const { chatHistory, isThinking, sendMessage } = useChatViewModel(conversationId);
+  const synonymViewModel = useSynonymViewModel();
   const {
     sources,
     isUploading,
@@ -482,6 +485,19 @@ export function DashboardView() {
     if (activeSideMenu === "edit") {
       return (
         <RagCompletedDocumentPage sources={sources} onRequestSummary={sendSummaryRequest} />
+      );
+    }
+
+    if (activeSideMenu === "synonyms") {
+      return (
+        <SynonymDictionaryPage
+          items={synonymViewModel.items}
+          addItem={synonymViewModel.addItem}
+          updateKeyword={synonymViewModel.updateKeyword}
+          updateSynonyms={synonymViewModel.updateSynonyms}
+          deleteItem={synonymViewModel.deleteItem}
+          save={synonymViewModel.save}
+        />
       );
     }
 

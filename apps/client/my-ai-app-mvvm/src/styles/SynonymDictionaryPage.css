@@ -1,0 +1,627 @@
+.synonymDictionaryPage {
+  width: 100%;
+  min-height: calc(100vh - 76px);
+  padding: 34px 52px 48px;
+  box-sizing: border-box;
+background: #ffffff;
+  color: #06285e;
+}
+
+.synonymDictionaryPage * {
+  box-sizing: border-box;
+}
+
+/* 상단 */
+.synonymPageHeader {
+  margin-bottom: 26px;
+}
+
+.synonymPageHeader h1 {
+  margin: 0;
+  color: #102a56;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.synonymPageHeader p {
+  margin: 10px 0 0;
+  color: #6b7c99;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* 요약 카드 */
+.synonymSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.synonymSummaryGrid article {
+  min-height: 118px;
+  padding: 22px;
+  border: 1px solid #dce8f7;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.synonymSummaryGrid span {
+  display: block;
+  color: #6b7c99;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.synonymSummaryGrid strong {
+  display: block;
+  margin-top: 12px;
+  color: #123f91;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.synonymSummaryGrid em {
+  display: block;
+  margin-top: 8px;
+  color: #8b9ab3;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* 메인 카드 */
+.synonymCard {
+  border: 1px solid #dce8f7;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.synonymCardHeader {
+  padding: 24px 26px;
+  border-bottom: 1px solid #edf2f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.synonymCardHeader h2 {
+  margin: 0;
+  color: #102a56;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.synonymCardHeader p {
+  margin: 6px 0 0;
+  color: #6b7c99;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.synonymHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.synonymHeaderActions input {
+  width: 240px;
+  height: 40px;
+  padding: 0 14px;
+
+  border: 1px solid #d6e4f5;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0a2b5f;
+
+  font-size: 13px;
+  font-weight: 750;
+  outline: none;
+}
+
+.synonymHeaderActions input::placeholder {
+  color: #8b9ab3;
+}
+
+.synonymHeaderActions button {
+  height: 40px;
+  min-width: 112px;
+  padding: 0 18px;
+
+  border: 1px solid #123f91;
+  border-radius: 10px;
+  background: #123f91;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+/* 테이블 */
+.synonymTable {
+  padding: 20px 26px 8px;
+}
+
+.synonymTableHead,
+.synonymTableRow {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) 150px;
+  gap: 12px;
+  align-items: center;
+}
+
+.synonymTableHead {
+  padding: 0 4px 10px;
+  color: #6b7c99;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.synonymTableBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.synonymTableRow input {
+  height: 42px;
+  padding: 0 14px;
+
+  border: 1px solid #dbe6f5;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #102a56;
+
+  font-size: 13px;
+  font-weight: 800;
+  outline: none;
+  cursor: text;
+}
+
+.synonymTableRow input:focus,
+.synonymTableRow.editing input {
+  border-color: #123f91;
+  box-shadow: 0 0 0 3px rgba(18, 63, 145, 0.08);
+}
+
+.synonymRowActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.synonymDoneBtn,
+.synonymDeleteBtn {
+  height: 38px;
+  min-width: 62px;
+  padding: 0 14px;
+
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.synonymDoneBtn {
+  border: 1px solid #b8cef0;
+  background: #ffffff;
+  color: #123f91;
+}
+
+.synonymDeleteBtn {
+  border: 1px solid #f1b8b8;
+  background: #fffafa;
+  color: #d14343;
+}
+
+.synonymEmptyRow {
+  min-height: 88px;
+  color: #7c8da7;
+  font-size: 13px;
+  font-weight: 850;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 하단 버튼 */
+.synonymFooter {
+  padding: 20px 26px 26px;
+  border-top: 1px solid #edf2f8;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.synonymCancelBtn,
+.synonymSaveBtn {
+  height: 42px;
+  min-width: 72px;
+  padding: 0 18px;
+
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.synonymCancelBtn {
+  border: 1px solid #d6e4f5;
+  background: #ffffff;
+  color: #526c9c;
+}
+
+.synonymSaveBtn {
+  border: 1px solid #123f91;
+  background: #123f91;
+  color: #ffffff;
+}
+
+/* 다크모드 */
+.chatPage.dark .synonymDictionaryPage,
+body.dark .synonymDictionaryPage {
+  background: #0f172a;
+  color: #f8fbff;
+}
+
+.chatPage.dark .synonymPageHeader h1,
+.chatPage.dark .synonymCardHeader h2,
+body.dark .synonymPageHeader h1,
+body.dark .synonymCardHeader h2 {
+  color: #ffffff;
+}
+
+.chatPage.dark .synonymPageHeader p,
+.chatPage.dark .synonymCardHeader p,
+body.dark .synonymPageHeader p,
+body.dark .synonymCardHeader p {
+  color: #9badc9;
+}
+
+.chatPage.dark .synonymSummaryGrid article,
+.chatPage.dark .synonymCard,
+body.dark .synonymSummaryGrid article,
+body.dark .synonymCard {
+  background: #111c31;
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.chatPage.dark .synonymSummaryGrid span,
+.chatPage.dark .synonymTableHead,
+body.dark .synonymSummaryGrid span,
+body.dark .synonymTableHead {
+  color: #9badc9;
+}
+
+.chatPage.dark .synonymSummaryGrid strong,
+body.dark .synonymSummaryGrid strong {
+  color: #93c5fd;
+}
+
+.chatPage.dark .synonymSummaryGrid em,
+body.dark .synonymSummaryGrid em {
+  color: #8fa1bd;
+}
+
+.chatPage.dark .synonymCardHeader,
+.chatPage.dark .synonymFooter,
+body.dark .synonymCardHeader,
+body.dark .synonymFooter {
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+.chatPage.dark .synonymHeaderActions input,
+.chatPage.dark .synonymTableRow input,
+body.dark .synonymHeaderActions input,
+body.dark .synonymTableRow input {
+  background: #15233d;
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #f8fbff;
+}
+
+.chatPage.dark .synonymHeaderActions input::placeholder,
+body.dark .synonymHeaderActions input::placeholder {
+  color: #8fa1bd;
+}
+
+.chatPage.dark .synonymTableRow input:focus,
+.chatPage.dark .synonymTableRow.editing input,
+body.dark .synonymTableRow input:focus,
+body.dark .synonymTableRow.editing input {
+  border-color: #4f8cff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.16);
+}
+
+.chatPage.dark .synonymDoneBtn,
+.chatPage.dark .synonymCancelBtn,
+body.dark .synonymDoneBtn,
+body.dark .synonymCancelBtn {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #dbe7f7;
+}
+
+.chatPage.dark .synonymDeleteBtn,
+body.dark .synonymDeleteBtn {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.32);
+  color: #ff8a8a;
+}
+
+.chatPage.dark .synonymSaveBtn,
+.chatPage.dark .synonymHeaderActions button,
+body.dark .synonymSaveBtn,
+body.dark .synonymHeaderActions button {
+  background: #123761;
+  border-color: #123761;
+  color: #ffffff;
+}
+
+/* 반응형 */
+@media (max-width: 960px) {
+  .synonymDictionaryPage {
+    padding: 28px 24px 40px;
+  }
+
+  .synonymSummaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .synonymCardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .synonymHeaderActions {
+    width: 100%;
+  }
+
+  .synonymHeaderActions input {
+    flex: 1;
+    width: auto;
+  }
+
+  .synonymTableHead {
+    display: none;
+  }
+
+  .synonymTableRow {
+    grid-template-columns: 1fr;
+  }
+
+  .synonymRowActions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 640px) {
+  .synonymDictionaryPage {
+    padding: 24px 16px 34px;
+  }
+
+  .synonymHeaderActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .synonymHeaderActions button {
+    width: 100%;
+  }
+
+  .synonymFooter {
+    flex-direction: column;
+  }
+
+  .synonymCancelBtn,
+  .synonymSaveBtn {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   유사어 사전 버튼 디자인 강제 보정
+   ========================================================= */
+
+/* 표 오른쪽 작업 칸 */
+.synonymRowActions,
+.dictionaryRowActions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+/* 완료 버튼 */
+.synonymDoneBtn,
+.dictionaryEditBtn {
+  min-width: 58px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+
+  border: 1px solid #b9ddff !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #123761 !important;
+
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  cursor: pointer !important;
+}
+
+/* 삭제 버튼 */
+.synonymDeleteBtn,
+.dictionaryDeleteBtn {
+  min-width: 58px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+
+  border: 1px solid #ffb8b8 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #e54848 !important;
+
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  cursor: pointer !important;
+}
+
+/* hover */
+.synonymDoneBtn:hover,
+.dictionaryEditBtn:hover {
+  background: #eef6ff !important;
+  border-color: #8fc8ff !important;
+}
+
+.synonymDeleteBtn:hover,
+.dictionaryDeleteBtn:hover {
+  background: #fff1f1 !important;
+  border-color: #ff9f9f !important;
+}
+
+/* 하단 버튼 영역 */
+.synonymFooter,
+.dictionaryPageActions {
+  padding: 18px 26px 24px !important;
+  border-top: 1px solid #edf2f8 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+}
+
+/* 취소 버튼 */
+.synonymCancelBtn,
+.dictionaryCancelBtn {
+  min-width: 72px !important;
+  height: 40px !important;
+  padding: 0 18px !important;
+
+  border: 1px solid #b9ddff !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #123761 !important;
+
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  cursor: pointer !important;
+}
+
+/* 저장 버튼 */
+.synonymSaveBtn,
+.dictionarySaveBtn {
+  min-width: 72px !important;
+  height: 40px !important;
+  padding: 0 18px !important;
+
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: #123761 !important;
+  color: #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  cursor: pointer !important;
+}
+
+/* 상단 + 단어 추가 버튼 */
+.synonymHeaderActions button,
+.dictionaryAddTopBtn {
+  min-width: 104px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+
+  border: 1px solid #123761 !important;
+  border-radius: 10px !important;
+  background: #123761 !important;
+  color: #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  cursor: pointer !important;
+}
+
+/* 다크모드 버튼 보정 */
+.chatPage.dark .synonymDoneBtn,
+.chatPage.dark .dictionaryEditBtn,
+body.dark .synonymDoneBtn,
+body.dark .dictionaryEditBtn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .synonymDeleteBtn,
+.chatPage.dark .dictionaryDeleteBtn,
+body.dark .synonymDeleteBtn,
+body.dark .dictionaryDeleteBtn {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.34) !important;
+  color: #ff8a8a !important;
+}
+
+.chatPage.dark .synonymCancelBtn,
+.chatPage.dark .dictionaryCancelBtn,
+body.dark .synonymCancelBtn,
+body.dark .dictionaryCancelBtn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #dbe7f7 !important;
+}
+
+.chatPage.dark .synonymSaveBtn,
+.chatPage.dark .dictionarySaveBtn,
+.chatPage.dark .synonymHeaderActions button,
+.chatPage.dark .dictionaryAddTopBtn,
+body.dark .synonymSaveBtn,
+body.dark .dictionarySaveBtn,
+body.dark .synonymHeaderActions button,
+body.dark .dictionaryAddTopBtn {
+  background: #123761 !important;
+  border-color: #123761 !important;
+  color: #ffffff !important;
+}
+
