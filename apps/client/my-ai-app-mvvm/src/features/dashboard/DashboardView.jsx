@@ -16,10 +16,12 @@ import DashboardSettingsPage from "./DashboardSettingsPage";
 import DashboardProcessingPage from "./DashboardProcessingPage";
 import RagCompletedDocumentPage from "./RagCompletedDocumentPage";
 import SynonymDictionaryPage from "./SynonymDictionaryPage";
+import { DocWorkspace } from "../note/center/DocWorkspace";
 import "../../styles/DashboardChatPage.css";
 import "../../styles/DashboardSidebar.css";
 import "../../styles/DashboardSettingsPage.css";
 import "../../styles/DashboardProcessingPage.css";
+import "../../styles/DocumentPreviewPanel.css";
 
 import fileIconUrl from "../../assets/file.png";
 import pdfIconUrl from "../../assets/pdf.png";
@@ -351,6 +353,19 @@ export function DashboardView() {
     setActiveSideMenu("chat");
   };
 
+  // "등록된 자료" 목록에서 문서를 열람하기 위한 미리보기 패널.
+  // 채팅 화면 바로 옆에 열리는 자리(previewOpen 레이아웃, DashboardChatPage.css)를
+  // 그대로 재사용 — document는 RagCompletedDocumentPage가 화면용으로 가공한
+  // 객체라, 실제 뷰어가 필요로 하는 원본 source를 id로 다시 찾아서 연다.
+  const [previewSource, setPreviewSource] = useState(null);
+
+  const handleOpenDocumentPreview = (document) => {
+    const source = sources.find((s) => String(s.id) === String(document?.id));
+    if (source) setPreviewSource(source);
+  };
+
+  const handleClosePreview = () => setPreviewSource(null);
+
   const handleClearNotifications = () => {
     setNotifications([]);
     setIsNotificationOpen(false);
@@ -504,7 +519,11 @@ export function DashboardView() {
 
     if (activeSideMenu === "edit") {
       return (
-        <RagCompletedDocumentPage sources={sources} onRequestSummary={sendSummaryRequest} />
+        <RagCompletedDocumentPage
+          sources={sources}
+          onRequestSummary={sendSummaryRequest}
+          onOpenDocument={handleOpenDocumentPreview}
+        />
       );
     }
 
@@ -613,6 +632,24 @@ export function DashboardView() {
 
         <main className="dashboardMainArea">{renderMainContent()}</main>
       </div>
+
+      {previewSource && (
+        <>
+          <button
+            type="button"
+            className="documentPreviewBackdrop"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClosePreview();
+            }}
+            aria-label="문서 미리보기 닫기"
+          />
+
+          <div className="documentPreviewOverlay" onClick={(e) => e.stopPropagation()}>
+            <DocWorkspace activeSource={previewSource} onClose={handleClosePreview} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

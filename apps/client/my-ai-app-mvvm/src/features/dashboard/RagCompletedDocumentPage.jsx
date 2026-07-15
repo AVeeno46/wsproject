@@ -54,7 +54,7 @@ const getDocumentIcon = (fileType = "") => {
   return fileIcon;
 };
 
-export default function RagCompletedDocumentPage({ sources = [], onRequestSummary }) {
+export default function RagCompletedDocumentPage({ sources = [], onRequestSummary, onOpenDocument }) {
   const [searchText, setSearchText] = useState("");
   const [businessFilter, setBusinessFilter] = useState("전체");
   const [topicFilter, setTopicFilter] = useState("전체");
@@ -157,10 +157,8 @@ export default function RagCompletedDocumentPage({ sources = [], onRequestSummar
     onRequestSummary?.(document);
   };
 
-  const handleOpenDocument = () => {
-    // 문서 뷰어(hwpx/pdf 열람)는 새 대시보드 디자인에 아직 넣을 자리가 없어
-    // 보류 중 — 자리가 정해지면 DocWorkspace/DocViewer로 연결한다.
-    alert("문서 뷰어는 아직 이 화면에 연결되지 않았습니다. 추후 연결 예정입니다.");
+  const handleOpenDocument = (document) => {
+    onOpenDocument?.(document);
   };
 
   return (
@@ -273,7 +271,7 @@ export default function RagCompletedDocumentPage({ sources = [], onRequestSummar
                     세부정보
                   </button>
 
-                  <button type="button" className="primary" onClick={handleOpenDocument}>
+                  <button type="button" className="primary" onClick={() => handleOpenDocument(document)}>
                     문서 열기
                   </button>
                 </div>

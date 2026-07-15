@@ -1,0 +1,267 @@
+/* ===== DocumentPreviewPanel.css ===== */
+/* "등록된 자료" 목록에서 문서를 열람하는 미리보기 패널(DocWorkspace/DocViewer).
+   처음엔 채팅 옆에 나란히 배치하는 flex 분할 레이아웃(previewOpen)으로
+   만들었는데, "등록된 자료" 목록 페이지는 그 레이아웃을 고려해 만들어진 화면이
+   아니라서 목록이 눌리는 문제가 있었다. 그래서 "세부정보" 드로어와 같은 방식—
+   화면 전체 레이아웃과 무관한 고정 오버레이(뒷 화면은 그대로 두고 오른쪽에서
+   덮어씀)로 바꿨다. */
+
+.documentPreviewBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+
+  border: 0;
+  background: rgba(6, 31, 71, 0.18);
+  cursor: default;
+}
+
+.documentPreviewOverlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 90;
+
+  width: min(920px, 80vw);
+  height: 100vh;
+
+  box-shadow: -18px 0 34px rgba(6, 31, 71, 0.16);
+  animation: documentPreviewIn 0.18s ease-out;
+}
+
+@keyframes documentPreviewIn {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .documentPreviewOverlay {
+    width: 100vw;
+  }
+}
+
+.chatPage .documentPanel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--chat-surface);
+  border-left: 1px solid var(--chat-line);
+}
+
+.chatPage .documentPanelCloseBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--chat-text-muted);
+  background: var(--chat-surface-soft);
+  border: 1px solid var(--chat-line);
+}
+
+.chatPage .documentPanelCloseBtn:hover {
+  color: var(--chat-text-main);
+  background: var(--chat-line-soft);
+}
+
+/* ===== 빈 상태 / 로딩 / 오류 (docPreviewBox) ===== */
+
+.chatPage .docPreviewBox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 32px;
+  text-align: center;
+  color: var(--chat-text-muted);
+}
+
+.chatPage .docPreviewBox h2 {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--chat-text-main);
+}
+
+.chatPage .docPreviewBox p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chatPage .docIcon {
+  font-size: 32px;
+}
+
+.chatPage .docPreviewBox.dragActive {
+  background: var(--chat-surface-soft);
+}
+
+.chatPage .hwpxError {
+  color: #d64545;
+}
+
+.chatPage .hwpxOpenBtn {
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--chat-navy);
+  color: #fff;
+  font-size: 13px;
+}
+
+/* ===== 뷰어 툴바 (HwpxEditor/PdfViewer 공용) ===== */
+
+.chatPage .hwpxEditor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatPage .hwpxToolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 44px 10px 16px;
+  border-bottom: 1px solid var(--chat-line);
+}
+
+.chatPage .hwpxToolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.chatPage .hwpxFileName {
+  font-size: 13px;
+  color: var(--chat-text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatPage .hwpxDirty {
+  font-size: 11px;
+  color: var(--chat-navy);
+  white-space: nowrap;
+}
+
+.chatPage .hwpxToolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.chatPage .hwpxGhostBtn {
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--chat-text-body);
+  border: 1px solid var(--chat-line);
+  white-space: nowrap;
+}
+
+.chatPage .hwpxGhostBtn:hover:not(:disabled) {
+  background: var(--chat-surface-soft);
+}
+
+.chatPage .hwpxGhostBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.chatPage .hwpxPrimaryBtn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #fff;
+  background: var(--chat-navy);
+  white-space: nowrap;
+}
+
+.chatPage .hwpxPrimaryBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.chatPage .hwpxDocScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: var(--chat-surface-soft);
+}
+
+/* ===== PDF 전용 ===== */
+
+.chatPage .pdfPageNav {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--chat-line);
+}
+
+.chatPage .pdfPageJump {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chatPage .pdfPageInput {
+  width: 40px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--chat-line);
+  background: var(--chat-surface);
+  color: var(--chat-text-body);
+  text-align: center;
+  font-size: 12px;
+}
+
+.chatPage .pdfPageInfo {
+  font-size: 12px;
+  color: var(--chat-text-muted);
+}
+
+.chatPage .pdfLoadingText {
+  color: var(--chat-text-muted);
+  font-size: 13px;
+}
+
+.chatPage .pdfPage {
+  box-shadow: 0 2px 10px rgba(10, 43, 95, 0.12);
+}
+
+.chatPage.dark .pdfPage {
+  box-shadow: none;
+}
