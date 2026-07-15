@@ -210,7 +210,14 @@ export function DashboardView() {
     [chatHistory]
   );
 
-  const handleCreateConversation = async () => {
+  // 실제로 노트북(대화)이 생성되는 시점은 사용자가 첫 메시지를 "전송"할 때뿐이다.
+  // "새 채팅"/로고 클릭만으로는 아직 아무것도 만들지 않고, 첫 메시지를 보내면
+  // 그 시점에 노트북을 만들고 그 안으로 메시지를 넣는다. pendingFirstMessageRef는
+  // 노트북 생성 → /chat/:id로 이동 → conversationId가 바뀐 뒤(useEffect) 그 새
+  // 대화로 메시지를 실제 전송하기까지 잠깐 들고 있는 임시 버퍼다.
+  const pendingFirstMessageRef = useRef(null);
+
+  const createConversationWithMessage = async (question) => {
     const existing = new Set(notebooks.map((n) => n.title.trim()));
     let title = "새 대화";
     for (let i = 2; existing.has(title); i += 1) {
@@ -219,13 +226,34 @@ export function DashboardView() {
 
     try {
       const created = await createNotebook(title);
-      if (created?.id) navigate(`/chat/${created.id}`);
+      if (created?.id) {
+        pendingFirstMessageRef.current = question;
+        navigate(`/chat/${created.id}`);
+      }
     } catch (error) {
       console.error("대화 생성 실패:", error);
     }
 
     setActiveSideMenu("chat");
   };
+
+  const handleSendMessage = (question) => {
+    if (conversationId) {
+      sendMessage(question);
+      return;
+    }
+
+    createConversationWithMessage(question);
+  };
+
+  useEffect(() => {
+    if (!conversationId || !pendingFirstMessageRef.current) return;
+
+    const question = pendingFirstMessageRef.current;
+    pendingFirstMessageRef.current = null;
+    sendMessage(question);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
 
   const handleRecentChatClick = (chatId) => {
     navigate(`/chat/${chatId}`);
@@ -301,7 +329,12 @@ export function DashboardView() {
     handleCancelRenameChat();
 
     if (menuId === "chat") {
-      handleCreateConversation();
+      // 노트북(대화)은 실제로 첫 메시지를 보낼 때만 생성된다(handleSendMessage
+      // 참고). "새 채팅"/로고는 그냥 빈 작성 화면(/chat, conversationId 없음)으로
+      // 보내기만 하고, 아무것도 만들지 않는다 — 그래서 아무 것도 치지 않고
+      // 반복해서 눌러도 "새 대화" 목록이 쌓이지 않는다.
+      setActiveSideMenu("chat");
+      navigate("/chat");
       return;
     }
 
@@ -445,18 +478,9 @@ export function DashboardView() {
 
   const renderMainContent = () => {
     if (activeSideMenu === "chat") {
-      if (!conversationId) {
-        return (
-          <section className="dashboardContent chatHomeContent">
-            <div className="chatHomeInner">
-              <div className="chatHeroText">
-                <h2>대화를 선택하거나 새로 만들어 보세요</h2>
-              </div>
-            </div>
-          </section>
-        );
-      }
-
+      // conversationId가 없어도(= 아직 노트북이 생성되지 않은 빈 작성 화면) 입력창
+      // 자체는 그대로 보여준다 — 실제 노트북 생성은 handleSendMessage가 첫 메시지를
+      // 보낼 때 처리한다.
       return (
         <DashboardChatPage
           userName={profileName}
@@ -464,7 +488,7 @@ export function DashboardView() {
           setChatInput={setChatInput}
           chatMessages={chatMessages}
           isThinking={isThinking}
-          sendMessage={sendMessage}
+          sendMessage={handleSendMessage}
           selectedFiles={selectedFiles}
           clearSelectedFiles={clearSelectedFiles}
           removeSelectedFile={removeSelectedFile}
