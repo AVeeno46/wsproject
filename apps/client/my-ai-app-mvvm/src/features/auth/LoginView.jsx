@@ -1,7 +1,7 @@
 // [View] 로그인 화면.
 // 입력값(아이디/비밀번호) 같은 화면 상태만 직접 들고,
 // 실제 로그인 처리는 useAuthViewModel(ViewModel)에 맡깁니다.
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthViewModel } from "../../viewmodels/authViewModel";
 import "../../styles/LoginPage.css";
@@ -10,19 +10,14 @@ export function LoginView() {
   const navigate = useNavigate();
   const { requestLogin, isSubmitting, error } = useAuthViewModel();
 
-  const [loginId, setLoginId] = useState("");
+  // 첫 렌더에서 동기적으로 localStorage를 읽어 저장된 아이디를 복원한다.
+  // effect로 미루지 않으므로 첫 렌더 깜빡임과 cascading render 경고가 없다.
+  const savedLoginId = localStorage.getItem("savedLoginId") || "";
+
+  const [loginId, setLoginId] = useState(savedLoginId);
   const [loginPw, setLoginPw] = useState("");
-  const [keepLogin, setKeepLogin] = useState(false);
+  const [keepLogin, setKeepLogin] = useState(!!savedLoginId);
   const [loginType, setLoginType] = useState("normal");
-
-  useEffect(() => {
-    const savedId = localStorage.getItem("savedLoginId");
-
-    if (savedId) {
-      setLoginId(savedId);
-      setKeepLogin(true);
-    }
-  }, []);
 
   // 비밀번호는 평문으로 브라우저에 남기지 않는다 — 아이디만 기억해두고
   // 비밀번호는 매번 다시 입력받는다(자동완성은 브라우저 자체 기능에 맡김).

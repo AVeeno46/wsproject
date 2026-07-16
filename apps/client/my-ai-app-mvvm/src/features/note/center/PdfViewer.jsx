@@ -42,7 +42,10 @@ export function PdfViewer({ source }) {
     return () => observer.disconnect();
   }, [fileData]);
 
+  // source가 바뀌면 뷰어 리셋 후 자동 로드 — 외부 자원(파일 바이트)을 불러오는
+  // effect라 정당한 자리(React "Connecting to an external system" 패턴).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFileData(null);
     setError(null);
     setNumPages(null);

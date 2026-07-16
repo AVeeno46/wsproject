@@ -214,9 +214,12 @@ export const useChatViewModel = (conversationId) => {
     setIsThinking(false);
   };
 
+  // conversationId가 바뀌면 그 대화의 히스토리를 가져오는 데이터 페칭 effect —
+  // 정당한 자리(React "Fetching data" 패턴).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchHistory(conversationId);
-  }, [conversationId]);
+  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     saveLocalChatHistory(conversationId, chatHistory);

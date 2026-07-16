@@ -9,7 +9,7 @@ import { useChatRoomViewModel } from "../../viewmodels/chatRoomViewModel";
 import { useSourceViewModel } from "../../viewmodels/sourceViewModel";
 import { useChatViewModel } from "../../viewmodels/chatViewModel";
 import { useSynonymViewModel } from "../../viewmodels/synonymViewModel";
-import { useTheme } from "../../core/ThemeContext";
+import { useTheme } from "../../core/useTheme";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardChatPage from "./DashboardChatPage";
 import DashboardSettingsPage from "./DashboardSettingsPage";
@@ -40,7 +40,11 @@ export function DashboardView() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [profileImage, setProfileImage] = useState("");
+  // 첫 렌더에서 동기적으로 localStorage를 읽어 프로필 이미지를 복원한다.
+  // effect로 미루지 않으므로 첫 렌더 깜빡임과 cascading render 경고가 없다.
+  const [profileImage, setProfileImage] = useState(
+    () => localStorage.getItem("docaiProfileImage") || ""
+  );
   const [activeChatMenuId, setActiveChatMenuId] = useState(null);
   const [renamingChatId, setRenamingChatId] = useState(null);
   const [renamingChatTitle, setRenamingChatTitle] = useState("");
@@ -98,14 +102,6 @@ export function DashboardView() {
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
-    }
-  }, []);
-
-  useEffect(() => {
-    const savedProfileImage = localStorage.getItem("docaiProfileImage");
-
-    if (savedProfileImage) {
-      setProfileImage(savedProfileImage);
     }
   }, []);
 

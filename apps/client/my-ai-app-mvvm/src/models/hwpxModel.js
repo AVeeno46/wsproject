@@ -27,7 +27,7 @@ export const injectEmptyRuns = (xml) => {
     if (/<hp:t>/.test(tc.outer)) {
       out += tc.outer; // 이미 텍스트 있음(중첩 표 포함) → 스킵
     } else {
-      out += tc.outer.replace(/<(hp:run)([^/]*)\/>/g, '<$1$2><hp:t><\/hp:t><\/$1>');
+      out += tc.outer.replace(/<(hp:run)([^/]*)\/>/g, '<$1$2><hp:t></hp:t></$1>');
     }
     cursor = start + tc.outer.length;
   }

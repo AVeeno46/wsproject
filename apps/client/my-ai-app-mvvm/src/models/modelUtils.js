@@ -82,6 +82,6 @@ export const apiFetch = async (url, options = {}) => {
     return response;
   } catch (e) {
     if (e.message === "인증이 만료되었습니다. 다시 로그인해주세요.") throw e;
-    throw new Error("서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.");
+    throw new Error("서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.", { cause: e });
   }
 };

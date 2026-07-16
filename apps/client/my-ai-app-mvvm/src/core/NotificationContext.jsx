@@ -2,11 +2,10 @@
 // AuthContext의 token 유무에 따라 연결을 시작/종료합니다(로그인/로그아웃 생명주기).
 // 화면(벨 아이콘/드롭다운 등)은 아직 없고, useNotifications()로 데이터만 꺼내 쓸 수 있게
 // 먼저 만들어둔 상태 — UI가 나오면 이 훅에 붙이면 됩니다.
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { AuthContext } from "./AuthContext";
+import { useContext, useEffect, useRef, useState } from "react";
+import { AuthContext } from "./authContextValue";
+import { NotificationContext } from "./notificationContextValue";
 import { createNotificationConnection } from "../models/notificationModel";
-
-const NotificationContext = createContext(null);
 
 export const NotificationProvider = ({ children }) => {
   const { token } = useContext(AuthContext);
@@ -17,6 +16,9 @@ export const NotificationProvider = ({ children }) => {
     if (!token) {
       connectionRef.current?.stop();
       connectionRef.current = null;
+      // 외부 시스템(SignalR 연결)의 로그아웃 정리 — "prop 변경 시 렌더 중 조정"이
+      // 아니라 연결 해제와 함께 알림 목록을 비우는 것이라 effect가 맞는 자리.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotifications([]);
       return;
     }
@@ -61,5 +63,3 @@ export const NotificationProvider = ({ children }) => {
     </NotificationContext.Provider>
   );
 };
-
-export const useNotifications = () => useContext(NotificationContext);

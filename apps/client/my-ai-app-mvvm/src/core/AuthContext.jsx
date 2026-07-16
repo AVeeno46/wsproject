@@ -1,7 +1,5 @@
-import { createContext, useState } from 'react';
-
-// 인증 상태와 관련된 정보를 관리하는 컨텍스트
-export const AuthContext = createContext(null);
+import { useState } from 'react';
+import { AuthContext } from './authContextValue';
 
 // 인증 상태를 제공하는 프로바이더 컴포넌트
 export const AuthProvider = ({ children }) => {

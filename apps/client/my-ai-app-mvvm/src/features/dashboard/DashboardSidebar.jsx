@@ -1,6 +1,6 @@
 // [Component] 대시보드 왼쪽 사이드바.
 // 사이드바 UI만 담당합니다.
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../../styles/DashboardSidebar.css";
 
 function DashboardSidebar({
@@ -39,6 +39,19 @@ function DashboardSidebar({
   const [isProcessingSubOpen, setIsProcessingSubOpen] = useState(
     isProcessingMenuActive
   );
+  // isProcessingMenuActive가 바뀌는 순간(예: 다른 메뉴에서 자료 등록으로 이동)만
+  // 하위 메뉴를 강제로 펼친다. effect 대신 렌더 중 비교하는 React 권장 패턴
+  // (https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes)
+  // — setState-in-effect 경고 없이 리렌더 한 번으로 처리된다.
+  const [prevIsProcessingMenuActive, setPrevIsProcessingMenuActive] = useState(
+    isProcessingMenuActive
+  );
+
+  if (isProcessingMenuActive !== prevIsProcessingMenuActive) {
+    setPrevIsProcessingMenuActive(isProcessingMenuActive);
+    if (isProcessingMenuActive) setIsProcessingSubOpen(true);
+  }
+
   const [sidebarTooltip, setSidebarTooltip] = useState(null);
 
   const showSidebarTooltip = (event, text) => {
@@ -64,12 +77,6 @@ function DashboardSidebar({
     onFocus: (event) => showSidebarTooltip(event, text),
     onBlur: hideSidebarTooltip,
   });
-
-  useEffect(() => {
-    if (isProcessingMenuActive) {
-      setIsProcessingSubOpen(true);
-    }
-  }, [isProcessingMenuActive]);
 
   const handleLogoClick = (event) => {
     event.stopPropagation();

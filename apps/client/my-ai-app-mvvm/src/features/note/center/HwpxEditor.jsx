@@ -22,9 +22,11 @@ export function HwpxEditor({ source }) {
   const handleZoomIn = () => setScale((s) => Math.min(MAX_SCALE, +(s + SCALE_STEP).toFixed(2)));
   const handleZoomReset = () => setScale(1);
 
-  // source가 바뀌면 에디터 리셋 후 자동 로드
+  // source가 바뀌면 에디터 리셋 후 자동 로드 — 외부 자원(파일 바이트)을 불러오는
+  // effect라 정당한 자리(React "Connecting to an external system" 패턴).
   useEffect(() => {
     close();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadError(null);
     setScale(1);
 

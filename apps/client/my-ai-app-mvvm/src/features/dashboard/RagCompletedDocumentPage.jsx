@@ -141,9 +141,15 @@ export default function RagCompletedDocumentPage({ sources = [], onRequestSummar
     return filteredDocuments.slice(startIndex, startIndex + PAGE_SIZE);
   }, [filteredDocuments, currentPage]);
 
-  useEffect(() => {
+  // 검색어/필터가 바뀌면 1페이지로 되돌린다. effect 대신 렌더 중 이전 값과
+  // 비교하는 React 권장 패턴(setState-in-effect 경고 없이 리렌더 한 번으로 처리).
+  const filterSignature = `${searchText}|${businessFilter}|${topicFilter}|${sortType}`;
+  const [prevFilterSignature, setPrevFilterSignature] = useState(filterSignature);
+
+  if (filterSignature !== prevFilterSignature) {
+    setPrevFilterSignature(filterSignature);
     setCurrentPage(1);
-  }, [searchText, businessFilter, topicFilter, sortType]);
+  }
 
   const handleOpenDetail = (document) => {
     setDetailDocument(document);

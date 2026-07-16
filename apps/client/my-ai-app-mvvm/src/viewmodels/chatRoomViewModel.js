@@ -82,7 +82,10 @@ export const useChatRoomViewModel = () => {
         }
     };
 
+    // 마운트 시 채팅방 목록을 서버(또는 로컬)에서 가져오는 데이터 페칭 effect —
+    // 정당한 자리(React "Fetching data" 패턴).
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchChatRooms();
     }, []);
 
