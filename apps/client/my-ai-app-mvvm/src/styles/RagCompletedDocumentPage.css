@@ -10,6 +10,11 @@
   background: #f6f9fd;
   overflow-y: auto;
   overflow-x: hidden;
+
+  /* 아래 표의 반응형 전환 기준을 "브라우저 창 너비"가 아니라 "이 화면이 실제로
+     쓸 수 있는 너비"로 잡는다 — 사이드바가 항상 옆에 있어서 뷰포트 너비만
+     보는 media query로는 실제 가용폭을 알 수 없다. */
+  container-type: inline-size;
 }
 
 /* 상단 제목 + 검색 */
@@ -173,7 +178,16 @@
   background: #f8fbff;
 
   display: grid;
-  grid-template-columns: minmax(320px, 2fr) 0.7fr 0.85fr 0.85fr 1fr 1.2fr;
+  /* 기준을 "노트북(사이드바 제외 실사용 폭 약 950~1000px)"에 맞춰 항상
+     6칸이 다 들어가게 하고, 더 넓은 모니터에서는 칸을 늘리는 대신 아래
+     "큰 화면 여백" 컨테이너 쿼리에서 gap/padding만 넓힌다. */
+  grid-template-columns:
+    minmax(200px, 2fr)
+    minmax(60px, 0.6fr)
+    minmax(90px, 0.9fr)
+    minmax(90px, 0.9fr)
+    minmax(90px, 0.9fr)
+    minmax(170px, 1.1fr);
   align-items: center;
   gap: 14px;
 }
@@ -193,7 +207,16 @@
   background: #ffffff;
 
   display: grid;
-  grid-template-columns: minmax(320px, 2fr) 0.7fr 0.85fr 0.85fr 1fr 1.2fr;
+  /* 기준을 "노트북(사이드바 제외 실사용 폭 약 950~1000px)"에 맞춰 항상
+     6칸이 다 들어가게 하고, 더 넓은 모니터에서는 칸을 늘리는 대신 아래
+     "큰 화면 여백" 컨테이너 쿼리에서 gap/padding만 넓힌다. */
+  grid-template-columns:
+    minmax(200px, 2fr)
+    minmax(60px, 0.6fr)
+    minmax(90px, 0.9fr)
+    minmax(90px, 0.9fr)
+    minmax(90px, 0.9fr)
+    minmax(170px, 1.1fr);
   align-items: center;
   gap: 14px;
 
@@ -713,8 +736,11 @@ body.dark .documentDetailBody h4 {
   color: #93c5fd;
 }
 
-/* 반응형 */
-@media (max-width: 1200px) {
+/* 반응형 — 표는 이제 노트북 폭(사이드바 제외 실사용 폭) 기준으로 항상 6칸이
+   들어가도록 만들어져 있어서, 그보다도 더 좁을 때만(예: 창을 반으로 나눠 쓰는
+   경우) 카드형으로 전환한다. 뷰포트가 아니라 documentRagListPage 컨테이너
+   자체의 너비를 기준으로 삼는다(사이드바 폭과 무관하게 정확히 판단하기 위함). */
+@container (max-width: 820px) {
   .documentRagTableHead {
     display: none;
   }
@@ -980,18 +1006,19 @@ body.dark .documentRagPageNumbers button.active {
   transform: translateY(9px) !important;
 }
 
-/* 문서 보기 테이블 컬럼 간격 정렬 */
-.documentRagTableHead,
-.documentRagTableRow {
-  grid-template-columns:
-    minmax(420px, 2.4fr)
-    140px
-    150px
-    150px
-    190px
-    180px !important;
+/* 큰 모니터(24인치 이상 등)에서는 칸 너비를 늘리지 않고 여백(간격/좌우 패딩)만
+   넉넉하게 넓힌다 — 노트북 기준 칸 비율은 그대로 유지, 답답해 보이지 않게만. */
+@container (min-width: 1400px) {
+  .documentRagTableHead,
+  .documentRagTableRow {
+    column-gap: 28px;
+  }
 
-  column-gap: 18px !important;
+  .documentRagTableHead,
+  .documentRagTableRow {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
 }
 
 /* 제목 컬럼은 왼쪽 정렬 */
