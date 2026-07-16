@@ -7,15 +7,30 @@
 import { API_URL, IS_LOCAL } from '../constants/constants';
 import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 
-export const fetchChatHistoryRequest = async (conversationId) => {
-    // [로컬] 히스토리 미지원
+// 한 번에 불러올 메시지 개수 — chatViewModel의 페이지네이션과 동일한 기본값을 씀
+export const CHAT_HISTORY_PAGE_SIZE = 30;
+
+// before: 이 메시지 id보다 이전(더 오래된) 메시지만 가져옴(무한 스크롤용, 최초 로드 시 생략)
+// limit: 한 번에 가져올 개수 — docs/chat-image-api-contract.md §2.2 가정 계약
+export const fetchChatHistoryRequest = async (
+    conversationId,
+    { before, limit = CHAT_HISTORY_PAGE_SIZE } = {}
+) => {
+    // [로컬] 히스토리는 chatViewModel이 localStorage 전체를 직접 관리하고
+    // 페이지네이션도 화면에서만 흉내 낸다 — 이 함수는 로컬에선 안 쓰임.
     if (IS_LOCAL) return [];
-    // [서버] GET /workspace/chat/history/{chatroom_id}
+    // [서버] GET /workspace/chat/history/{chatroom_id}?limit=&before=
     // (식별자 이름만 dashboard_id → chatroom_id로 변경 — docs/chatroom-api-contract.md §5)
-    const response = await apiFetch(`${API_URL}/chat/history/${conversationId}`, {
-        method: 'GET',
-        headers: { ...getAuthHeader() },
-    });
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (before) params.set('before', before);
+
+    const response = await apiFetch(
+        `${API_URL}/chat/history/${conversationId}?${params.toString()}`,
+        {
+            method: 'GET',
+            headers: { ...getAuthHeader() },
+        }
+    );
     if (response.status === 401) return handleUnauthorized();
     if (!response.ok) throw new Error('채팅 히스토리를 불러오지 못했습니다.');
     return response.json();

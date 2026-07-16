@@ -2,7 +2,11 @@
 // 대화 목록(chatHistory) 관리, 메시지 전송, 스트리밍 응답을 화면 상태로 반영합니다.
 // model(chatModel)에서 데이터를 가져오고, View(ChatPanel)는 이 hook만 사용합니다.
 import { useEffect, useRef, useState } from "react";
-import { fetchChatHistoryRequest, streamChatRequest } from "../models/chatModel";
+import {
+  CHAT_HISTORY_PAGE_SIZE,
+  fetchChatHistoryRequest,
+  streamChatRequest,
+} from "../models/chatModel";
 
 const getChatStorageKey = (conversationId) => `chat_history_${conversationId}`;
 
@@ -30,9 +34,23 @@ const saveLocalChatHistory = (conversationId, history) => {
 };
 
 export const useChatViewModel = (conversationId) => {
-  const [chatHistory, setChatHistory] = useState(() =>
-    readLocalChatHistory(conversationId)
+  // chatHistory = 지금 화면에 보이는 메시지(최신 쪽). 무한 스크롤로 위로
+  // 올리면 hiddenOlderHistory(로컬 모드의 아직 안 보여준 과거분)에서 꺼내
+  // 앞에 붙인다 — 로컬 저장은 항상 "hiddenOlderHistory + chatHistory" 전체를
+  // 합쳐서 하므로, 페이지네이션으로 화면에 안 보인다고 과거 대화가 사라지지
+  // 않는다.
+  const [chatHistory, setChatHistory] = useState(() => {
+    const full = readLocalChatHistory(conversationId);
+    return full.slice(-CHAT_HISTORY_PAGE_SIZE);
+  });
+  const [hiddenOlderHistory, setHiddenOlderHistory] = useState(() => {
+    const full = readLocalChatHistory(conversationId);
+    return full.slice(0, Math.max(0, full.length - CHAT_HISTORY_PAGE_SIZE));
+  });
+  const [hasMoreHistory, setHasMoreHistory] = useState(
+    () => hiddenOlderHistory.length > 0
   );
+  const [isLoadingMoreHistory, setIsLoadingMoreHistory] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState(null);
   // 진행 중인 스트리밍 요청의 AbortController (질문 취소용)
@@ -55,32 +73,95 @@ export const useChatViewModel = (conversationId) => {
   const fetchHistory = async (targetChatRoomId = conversationId) => {
     if (!targetChatRoomId) {
       setChatHistory([]);
+      setHiddenOlderHistory([]);
+      setHasMoreHistory(false);
       return;
     }
 
-    const localHistory = readLocalChatHistory(targetChatRoomId);
+    const fullLocalHistory = readLocalChatHistory(targetChatRoomId);
+    const localWindow = fullLocalHistory.slice(-CHAT_HISTORY_PAGE_SIZE);
+    const localHidden = fullLocalHistory.slice(
+      0,
+      Math.max(0, fullLocalHistory.length - CHAT_HISTORY_PAGE_SIZE)
+    );
 
-    // 서버 히스토리 API가 없어도 저장된 로컬 대화를 먼저 보여줌
-    setChatHistory(localHistory);
+    // 서버 히스토리 API가 없어도(로컬 모드 포함) 저장된 로컬 대화를 먼저 보여줌
+    setChatHistory(localWindow);
+    setHiddenOlderHistory(localHidden);
+    setHasMoreHistory(localHidden.length > 0);
 
     try {
-      const data = await fetchChatHistoryRequest(targetChatRoomId);
+      // 최초 로드는 최신 CHAT_HISTORY_PAGE_SIZE개만 요청(무한 스크롤 첫 페이지)
+      const data = await fetchChatHistoryRequest(targetChatRoomId, {
+        limit: CHAT_HISTORY_PAGE_SIZE,
+      });
       const serverHistory = normalizeHistory(data);
 
       // 서버 기록이 있으면 서버 기준으로 맞추고, 없으면 로컬 기록 유지
       if (serverHistory.length > 0) {
         setChatHistory(serverHistory);
+        // 서버가 페이지네이션을 지원한다는 가정 하에, 받은 개수가 요청한
+        // limit과 같으면 이전 페이지가 더 있을 수 있다고 간주한다
+        // (docs/chat-image-api-contract.md §2.2 — 정확한 has_more 플래그는 미정).
+        setHasMoreHistory(serverHistory.length >= CHAT_HISTORY_PAGE_SIZE);
+        setHiddenOlderHistory([]);
         saveLocalChatHistory(targetChatRoomId, serverHistory);
       }
     } catch {
-      setChatHistory(localHistory);
+      setChatHistory(localWindow);
+      setHiddenOlderHistory(localHidden);
+      setHasMoreHistory(localHidden.length > 0);
+    }
+  };
+
+  // 메시지 목록 맨 위로 스크롤했을 때 이전 대화를 추가로 불러온다(무한 스크롤).
+  const loadMoreHistory = async (targetChatRoomId = conversationId) => {
+    if (!targetChatRoomId || !hasMoreHistory || isLoadingMoreHistory) return;
+
+    setIsLoadingMoreHistory(true);
+
+    try {
+      // [로컬] 이미 localStorage에서 다 읽어와 hiddenOlderHistory에 들고 있으니,
+      // 네트워크 요청 없이 그 안에서 한 페이지만 꺼내 앞에 붙인다. (서버 모드에서는
+      // hiddenOlderHistory를 항상 비워두므로 이 분기를 타지 않는다.)
+      if (hiddenOlderHistory.length > 0) {
+        const nextChunk = hiddenOlderHistory.slice(-CHAT_HISTORY_PAGE_SIZE);
+        const remaining = hiddenOlderHistory.slice(
+          0,
+          hiddenOlderHistory.length - nextChunk.length
+        );
+
+        setChatHistory((prev) => [...nextChunk, ...prev]);
+        setHiddenOlderHistory(remaining);
+        setHasMoreHistory(remaining.length > 0);
+        return;
+      }
+
+      // [서버] 지금 화면에 보이는 것 중 가장 오래된 메시지의 id를 커서로 삼아
+      // 그 이전 것만 추가로 요청한다.
+      const oldestLoaded = chatHistory[0];
+      const data = await fetchChatHistoryRequest(targetChatRoomId, {
+        before: oldestLoaded?.id,
+        limit: CHAT_HISTORY_PAGE_SIZE,
+      });
+      const olderMessages = normalizeHistory(data);
+
+      setChatHistory((prev) => [...olderMessages, ...prev]);
+      setHasMoreHistory(olderMessages.length >= CHAT_HISTORY_PAGE_SIZE);
+    } catch (err) {
+      setError(err.message || "이전 대화를 불러오지 못했습니다.");
+    } finally {
+      setIsLoadingMoreHistory(false);
     }
   };
 
   const updateHistory = (updater) => {
     setChatHistory((prev) => {
       const next = typeof updater === "function" ? updater(prev) : updater;
-      saveLocalChatHistory(conversationId, next);
+      // 새 메시지는 항상 맨 뒤에 붙으므로, 화면에 숨겨둔 과거분(hiddenOlderHistory,
+      // 페이지네이션으로 아직 안 보여준 부분) 앞에 그대로 이어 붙여서 저장해야
+      // 무한 스크롤로 감춰둔 과거 대화가 저장 시 사라지지 않는다.
+      saveLocalChatHistory(conversationId, [...hiddenOlderHistory, ...next]);
       return next;
     });
   };
@@ -221,12 +302,11 @@ export const useChatViewModel = (conversationId) => {
     fetchHistory(conversationId);
   }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    saveLocalChatHistory(conversationId, chatHistory);
-  }, [conversationId, chatHistory]);
-
   return {
     chatHistory,
+    hasMoreHistory,
+    isLoadingMoreHistory,
+    loadMoreHistory,
     isThinking,
     error,
     sendMessage,

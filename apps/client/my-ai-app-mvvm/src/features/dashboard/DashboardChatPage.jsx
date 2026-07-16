@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 // [Component] 대시보드 챗봇 페이지
@@ -20,6 +20,9 @@ function DashboardChatPage({
   chatInput,
   setChatInput,
   chatMessages,
+  hasMoreHistory,
+  isLoadingMoreHistory,
+  onLoadMoreHistory,
   isThinking,
   sendMessage,
   selectedFiles,
@@ -38,10 +41,62 @@ function DashboardChatPage({
 }) {
   const hasMessages = chatMessages.length > 0;
   const displayName = userName?.trim() || "관리자";
+  const messageListRef = useRef(null);
+  // 위로 스크롤해서 이전 대화를 더 불러올 때, 새로 앞에 붙은 만큼 스크롤 위치가
+  // 화면상 그대로 유지되도록(아래로 안 튀도록) 불러오기 직전의 스크롤 높이/위치를
+  // 잠깐 담아둔다. null이면 "맨 아래로 이동" 쪽(새 메시지 전송) 경로를 탄다.
+  const pendingScrollRestoreRef = useRef(null);
+
+  // 실제 스크롤이 일어나는 조상(.dashboardMainArea, DashboardView.jsx)을 찾는다.
+  // chatMessageList 자신은 overflow:visible이라 스크롤 컨테이너가 아니다.
+  const getScrollContainer = () =>
+    messageListRef.current?.closest(".dashboardMainArea") || null;
+
+  // 메시지 목록 맨 위 근처로 스크롤하면 이전 대화를 추가로 요청한다.
+  useEffect(() => {
+    const scrollContainer = getScrollContainer();
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      if (
+        scrollContainer.scrollTop < 120 &&
+        hasMoreHistory &&
+        !isLoadingMoreHistory
+      ) {
+        pendingScrollRestoreRef.current = {
+          scrollHeight: scrollContainer.scrollHeight,
+          scrollTop: scrollContainer.scrollTop,
+        };
+        onLoadMoreHistory?.();
+      }
+    };
+
+    scrollContainer.addEventListener("scroll", handleScroll);
+    return () => scrollContainer.removeEventListener("scroll", handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMoreHistory, isLoadingMoreHistory]);
 
   useEffect(() => {
     if (!hasMessages) return;
 
+    const pending = pendingScrollRestoreRef.current;
+
+    // 이전 대화를 앞에 붙인 경우 — 맨 아래로 가는 대신, 늘어난 높이만큼만
+    // scrollTop을 보정해서 사용자가 보던 위치가 그대로 유지되게 한다.
+    if (pending) {
+      pendingScrollRestoreRef.current = null;
+
+      requestAnimationFrame(() => {
+        const scrollContainer = getScrollContainer();
+        if (!scrollContainer) return;
+
+        const heightDiff = scrollContainer.scrollHeight - pending.scrollHeight;
+        scrollContainer.scrollTop = pending.scrollTop + heightDiff;
+      });
+      return;
+    }
+
+    // 그 외(새 메시지 전송/수신 등)엔 기존처럼 맨 아래로 스크롤
     requestAnimationFrame(() => {
       chatMessagesEndRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -82,7 +137,11 @@ function DashboardChatPage({
         )}
 
         {hasMessages && (
-          <div className="chatMessageList">
+          <div className="chatMessageList" ref={messageListRef}>
+            {isLoadingMoreHistory && (
+              <div className="chatHistoryLoadingMore">이전 대화 불러오는 중...</div>
+            )}
+
             {chatMessages.map((message) => (
               <div
                 className={`chatMessageRow ${

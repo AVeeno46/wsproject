@@ -61,7 +61,14 @@ export function DashboardView() {
   const { theme, setTheme } = useTheme();
 
   const { chatRooms, createChatRoom, removeChatRoom, updateChatRoomTitle } = useChatRoomViewModel();
-  const { chatHistory, isThinking, sendMessage } = useChatViewModel(conversationId);
+  const {
+    chatHistory,
+    hasMoreHistory,
+    isLoadingMoreHistory,
+    loadMoreHistory,
+    isThinking,
+    sendMessage,
+  } = useChatViewModel(conversationId);
   const synonymViewModel = useSynonymViewModel();
   const {
     sources,
@@ -513,6 +520,9 @@ export function DashboardView() {
           chatInput={chatInput}
           setChatInput={setChatInput}
           chatMessages={chatMessages}
+          hasMoreHistory={hasMoreHistory}
+          isLoadingMoreHistory={isLoadingMoreHistory}
+          onLoadMoreHistory={loadMoreHistory}
           isThinking={isThinking}
           sendMessage={handleSendMessage}
           selectedFiles={selectedFiles}

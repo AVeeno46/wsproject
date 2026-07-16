@@ -145,31 +145,48 @@ Status Code
   `onSourceRef` 콜백으로 분기하도록 구현됨(§5 참고). 서버가 위 3종 청크 형식으로만 보내주면
   클라이언트 쪽 추가 작업 없이 그대로 동작한다.
 
-### 2.2 채팅 히스토리 조회
+### 2.2 채팅 히스토리 조회 (+ 페이지네이션, 가정 계약)
+
+> **[업데이트] 무한 스크롤(위로 스크롤 → 이전 대화 추가 로드)을 위해 페이지네이션
+> 파라미터를 새로 가정해서 클라이언트에 먼저 구현해뒀다.** 처음엔 최근 N개만
+> 불러오고, 사용자가 메시지 목록 맨 위로 스크롤하면 그 이전 메시지를 추가로
+> 불러와 앞에 붙이는 방식(카카오톡/디스코드 등과 동일한 패턴). 실제 서버가 이
+> 파라미터를 지원하는지는 미확인 — 아래는 "이렇게 받아줄 것이다"라는 가정.
 
 ```
-GET /workspace/chat/history/{chatroom_id}
+GET /workspace/chat/history/{chatroom_id}?limit={n}&before={message_id}
 
 Request
   header  JWT token
+  query   limit  (number, 한 번에 가져올 개수 — 기본 30, 클라이언트 PAGE_SIZE와 동일)
+          before (string, 선택 — 이 message_id보다 이전(더 오래된) 메시지만 조회.
+                  최초 로드 시에는 생략하고, "이전 대화 더 보기"에서만 실어 보냄)
 
 Response
   body  [{
+    id (string, 이 메시지의 고유 id — before 파라미터로 재사용됨)
     role (string: "user" | "ai"),
     text (string),
     created_at (string, ISO 8601)
-  }]
+  }]   (과거 → 최신 순으로 최대 limit개)
 
 Status Code
   200 OK
   400 Bad Request
   401 Unauthorized
-  404 Not Found         member가 해당 dashboard에 미소속
+  404 Not Found         member가 해당 chatroom에 미소속
   500 Internal Server Error
 ```
 
+- 응답 배열 길이가 `limit`과 같으면 "더 있을 수도 있다"고 간주해서 클라이언트가
+  다음 페이지를 요청할 수 있게 한다(서버가 별도로 `has_more` 같은 플래그를 줄
+  수 있다면 그게 더 정확함 — 미정, §6 참고).
+- 각 메시지에 **고유 `id`가 응답에 포함**되어야 한다 — 클라이언트가 그 id를 다음
+  `before` 파라미터로 그대로 되돌려 보내는 커서 방식이라, id가 없으면 페이지네이션
+  자체가 안 됨.
 - 클라이언트 [chatModel.js](../src/models/chatModel.js)의 `fetchChatHistoryRequest`가
-  이미 이 배열 형태를 기대하고 있음(`role`/`text`/`createdAt` 순으로 매핑).
+  이미 이 배열 형태(+ 페이지네이션 파라미터)를 기대하고 있음(`role`/`text`/`createdAt`
+  순으로 매핑).
 
 ### 2.3 문서 이미지 서빙
 
@@ -228,7 +245,11 @@ Status Code
       `file_id`/`bin_id` 목록을 미리 넣어줘야 함 (서버·RAG 협의 필요)
 - [ ] 채팅 히스토리 조회 시 과거의 `edit_proposal`/`source_ref`도 같이 복원해야 하는지
       (§2.2는 현재 `role`/`text`만 정의 — 편집 제안 이력까지 필요하면 스키마 확장 필요)
-- [ ] 채팅 히스토리 페이지네이션 필요 여부 (대화가 길어지면 전체 반환은 비효율적일 수 있음)
+- [x] ~~채팅 히스토리 페이지네이션 필요 여부~~ → **결정**: 필요함. 서버 스펙이
+      아직 없어서 클라이언트가 먼저 가정 계약(§2.2의 `limit`/`before`/응답 `id`)으로
+      구현해뒀다 — 서버는 이 파라미터를 지원하도록 만들어달라고 요청하는 흐름.
+      실제 파라미터명/커서 방식(메시지 id vs 타임스탬프)/`has_more` 플래그 제공
+      여부는 서버팀 확인 필요.
 - [ ] AI 생성 이미지 전용 갤러리(사이드바 기능) — 이번 범위 밖, 이미지 서빙 방식이 자리잡은
       뒤 "이 대화에서 인용된 이미지 목록" API로 별도 설계
 - [ ] 대화 내용 전문 검색 — 범위(제목만 vs 본문 포함) 미정, 이번 계약에서 제외
@@ -237,29 +258,35 @@ Status Code
 
 ## 5. 클라이언트 상태
 
-**이미 준비된 것 (서버 스펙 없이도 목 데이터로 검증 완료)**
+> **[업데이트]** 이 섹션은 원래 note(좌/중앙/우) 3분할 레이아웃 시절
+> (`ChatMessage.jsx`/`ChatPanel.jsx`/`ChatView.jsx`/`DocPanelContext.jsx`) 기준으로
+> 쓰여 있었는데, 그 파일들은 전부 대시보드 UI로 마이그레이션하면서 삭제됐다. 아래는
+> 지금 실제 구현([DashboardChatPage.jsx](../src/features/dashboard/DashboardChatPage.jsx)
+> 기준)에 맞춰 다시 정리한 내용.
+
+**이미 준비된 것**
 - [chatModel.js](../src/models/chatModel.js)의 `streamChatRequest` — `data:` 뒤 JSON을
   `parseChunk`로 파싱해 `type`별(`text`/`edit_proposal`/`source_ref`)로 콜백 분기 완료.
   JSON이 아니면(구버전 서버 호환) `text` 청크로 폴백.
 - [chatViewModel.js](../src/viewmodels/chatViewModel.js) — 메시지 객체에 `editProposal`,
-  `sourceRefs`(배열) 필드 반영 완료. `cancelMessage()`로 `AbortController.abort()` 호출,
-  진행 중 응답은 부분 텍스트로 유지.
-- [ChatMessage.jsx](../src/features/note/right/ChatMessage.jsx) — `react-markdown` +
-  `remark-gfm`으로 `text` 렌더링, `sourceRefs`는 클릭 가능한 문서 카드(📄)로, `editProposal`은
-  `edits` 목록 + `reason` + [적용] 버튼이 있는 diff 카드로 렌더링. 복사 버튼도 포함.
-  ([AiDiffViewer.jsx](../src/features/note/center/AiDiffViewer.jsx)는 미사용 스텁으로
-  남아있음 — 실제 diff UI는 이 파일 안에 인라인으로 구현됨)
-- 질문 취소 — `ChatPanel.jsx`에서 답변 생성 중 전송 버튼이 정지(■) 버튼으로 바뀌어
-  `cancelMessage`를 호출하도록 연결 완료.
-- 문서 캔버스 열기 — [DocPanelContext.jsx](../src/features/chat/context/DocPanelContext.jsx)
-  `open(source)`로 `source_ref` 클릭 시 캔버스 여는 구조 준비됨.
+  `sourceRefs`(배열) 필드는 여전히 반영됨. `cancelMessage()`로 `AbortController.abort()`
+  호출하는 함수 자체는 존재.
+- [DashboardChatPage.jsx](../src/features/dashboard/DashboardChatPage.jsx) — `text`는
+  `react-markdown` + `remark-gfm`으로 렌더링(표/코드블록/이미지 포함, 이미지 로드 실패 시
+  안내문구로 대체하는 `MarkdownImage` 포함). 히스토리 페이지네이션(무한 스크롤)도 반영됨.
 
-**아직 안 한 것 (서버 스펙과 무관하게 클라이언트에서 마저 해야 할 실제 작업)**
-- **`editProposal`의 [적용] 버튼이 아직 어디에도 연결 안 됨.** `ChatMessage.jsx`는
-  `onApplyEdits` prop을 받게만 되어 있고, `ChatPanel.jsx`도 그 prop을 그대로 통과시키지만,
-  현재 [ChatView.jsx](../src/features/chat/ChatView.jsx)가 `ChatPanel`에 `onApplyEdits`를
-  넘기지 않아서 **[적용] 버튼을 눌러도 아무 동작도 안 함**. 실제로 `hwpxModel.js`의 편집
-  엔진(§0-3, `applyEdits`)을 호출해 열려 있는 hwpx 문서에 반영하는 핸들러를 `ChatView.jsx`
-  에 구현해서 내려줘야 §0-3 흐름(로컬 적용)이 완성됨.
-- 위 항목 때문에, 편집 제안이 와도 지금은 "읽기 전용 diff 카드"로만 보임 — 서버 스펙이
-  나와서 실제 `edit_proposal` 청크가 오기 전이라도 이 배선은 로컬 mock으로 먼저 검증 가능.
+**아직 안 한 것 (새 대시보드 UI로 옮기면서 이관 안 된 기능들 — 재구현 필요)**
+- **질문 취소(정지 버튼) UI가 없음.** `chatViewModel.js`의 `cancelMessage`는 여전히
+  존재하지만, `DashboardChatPage.jsx`/`DashboardView.jsx` 어디에서도 호출되지 않는다.
+  즉 지금은 답변 생성 중에 사용자가 멈출 방법이 없다.
+- **`editProposal`(AI 편집 제안) 렌더링이 화면에 없음.** `chatViewModel.js`는 여전히
+  메시지에 `editProposal` 필드를 채워 넣지만, `DashboardChatPage.jsx`는 이 필드를 전혀
+  읽지 않는다 — 즉 서버가 실제로 편집 제안 청크를 보내도 화면에 diff 카드나 [적용]
+  버튼이 뜨지 않는다. hwpx 편집 엔진(`hwpxModel.js`의 `applyEdits`) 연결도 없음.
+- **`sourceRefs`(참조 문서) 클릭 → 문서 열람도 화면에 없음.** 마찬가지로 필드는 채워지지만
+  렌더링/클릭 핸들러가 없다. 문서 뷰어 자체는
+  [DocumentPreviewPanel.css](../src/styles/DocumentPreviewPanel.css) 기반으로 "등록된
+  자료" 목록에서 여는 것만 되어 있고(§ 별도), 채팅 답변에서 바로 연결하는 건 아직임.
+- 이 세 가지는 전부 "서버 스펙이 없어서" 못 한 게 아니라, **UI 마이그레이션 과정에서
+  범위 밖으로 미뤄둔 채 아직 다시 안 만든 것**이다 — 필요해지면 새 디자인에 맞춰
+  다시 구현해야 한다.

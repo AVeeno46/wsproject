@@ -421,6 +421,13 @@
   gap: 22px;
 }
 
+.chatPage .chatHistoryLoadingMore {
+  text-align: center;
+  padding: 6px 0 4px;
+  color: var(--chat-text-muted);
+  font-size: 12px;
+}
+
 .chatPage .chatMessageRow {
   display: flex;
   align-items: flex-start;
