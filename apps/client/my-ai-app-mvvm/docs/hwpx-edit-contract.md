@@ -143,10 +143,11 @@ return new (true, FailReason.None, save.fileId);   // 임베딩까지 끝난 뒤
 - 전제조건: 오케스트레이터가 RAG를 호출할 클라이언트(`_ragClient` 등, gRPC/HTTP 무엇이든)를
   아직 갖고 있지 않음 — 이번에 RAG 연동을 처음 배선하는 거라면 여기서 같이 준비돼야 함.
 
-**클라이언트 구현 상태**: `ChatView.jsx`의 `handleFileDrop`, `SourceSidebar.jsx`의
-`uploadFiles` 둘 다 `for...of` + `await`로 순차 처리하도록 이미 반영됨. 파일 하나가
-실패해도(reject 아님, `uploadFile`이 내부에서 에러를 잡고 `null` 반환) 현재는 **나머지
-파일 업로드를 계속 진행**한다 — 실패 시 전체 중단이 필요하면 별도 정책 결정 필요(미정).
+**클라이언트 구현 상태**: `DashboardProcessingPage.jsx`의 `handleDrop`,
+`sourceViewModel.js`의 `registerFiles`/`uploadFiles` 둘 다 `for...of` + `await`로 순차
+처리하도록 이미 반영됨. 파일 하나가 실패해도(reject 아님, `uploadFile`이 내부에서
+에러를 잡고 `null` 반환) 현재는 **나머지 파일 업로드를 계속 진행**한다 — 실패 시 전체
+중단이 필요하면 별도 정책 결정 필요(미정).
 
 ### 3.2 AI 편집 (② 단계) — **Server↔RAG 내부 계약** (Client는 직접 호출하지 않음)
 

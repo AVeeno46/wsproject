@@ -19,9 +19,10 @@
    그 자리에 현재 열려있는 **대화 id**(`conversationId`)를 넣어 보낸다. 화면 개념과 API 필드명이
    불일치하는 상태 — §4 참고.
 2. **여러 파일을 한 번에 드롭해도 순차 업로드한다.** 한 파일의 업로드 응답을 받은 뒤에 다음
-   파일을 보낸다([ChatView.jsx](../src/features/chat/ChatView.jsx)의 `handleFileDrop`) —
-   서버가 동시에 여러 문서를 임베딩 요청받지 않도록 보장하기 위함. 즉 서버 입장에서 한 요청에는
-   항상 파일이 1개만 들어온다.
+   파일을 보낸다([DashboardProcessingPage.jsx](../src/features/dashboard/DashboardProcessingPage.jsx)의
+   `handleDrop` → [sourceViewModel.js](../src/viewmodels/sourceViewModel.js)의
+   `registerFiles`) — 서버가 동시에 여러 문서를 임베딩 요청받지 않도록 보장하기 위함. 즉
+   서버 입장에서 한 요청에는 항상 파일이 1개만 들어온다.
 3. **업로드 직후엔 서버 재다운로드 없이 메모리의 File 객체를 바로 쓴다.** 업로드 성공 시
    클라이언트가 이미 갖고 있던 `File` 객체를 응답 결과에 붙여서(`{ ...uploaded, file }}`)
    뷰어가 바로 열 수 있게 한다([sourceViewModel.js](../src/viewmodels/sourceViewModel.js)의
@@ -180,6 +181,13 @@ Status Code
 - [ ] **업로드 완료 시점 = RAG 임베딩 완료 시점인지** — 업로드 응답(`fail_reason=0`)이 오면
       바로 RAG 검색 대상이 되는지, 아니면 별도 완료 신호(웹소켓/폴링)가 필요한지
       ([chat-image-api-contract.md](./chat-image-api-contract.md)와도 연결되는 항목)
+- [ ] **임베딩 진행률(%) 숫자 제공 여부** — 지금은 서버가 `processing`/`ready`/`failed`
+      3단계 상태만 준다고 가정해서, 화면의 "등록 진행률" %는 진짜 진행률이 아니라
+      처리 중이면 0%, 완료되면 100%로 억지로 표시하는 상태(`DashboardProcessingPage.jsx`의
+      `getSourceProgress`). 실제로 몇 %까지 처리됐는지 보여주려면 서버가 그 값을
+      어떤 형태로든(상태 조회 응답 필드 추가, 또는 SignalR/폴링으로 push) 내려줘야
+      함 — 클라이언트는 숫자를 받는 대로 표시할 준비만 하면 되는 구조라 반영 자체는
+      어렵지 않음
 - [ ] **`MAX_FILE_SIZE_MB`(200MB) 클라이언트 제한값**이 서버 설정과 일치하는지
 
 ---
@@ -191,7 +199,7 @@ Status Code
   ([sourceModel.js](../src/models/sourceModel.js))
 - 401 자동 토큰 재발급 + 1회 재시도(`apiFetch`, [modelUtils.js](../src/models/modelUtils.js))
 - 업로드/목록/삭제 실패 시 에러 메시지를 화면에 노출(`uploadError`,
-  [SourceSidebar.jsx](../src/features/note/left/SourceSidebar.jsx))
+  [DashboardProcessingPage.jsx](../src/features/dashboard/DashboardProcessingPage.jsx))
 - `IS_LOCAL=true`일 때는 4개 API 전부 `localStorage`로 대체 동작(서버 없이 UI 검증 가능)
 
 **아직 안 한 것**
