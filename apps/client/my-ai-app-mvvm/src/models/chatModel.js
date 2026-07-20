@@ -10,8 +10,8 @@ import { apiFetch, getAuthHeader, handleUnauthorized } from './modelUtils';
 // 한 번에 불러올 메시지 개수 — chatViewModel의 페이지네이션과 동일한 기본값을 씀
 export const CHAT_HISTORY_PAGE_SIZE = 30;
 
-// before: 이 메시지 id보다 이전(더 오래된) 메시지만 가져옴(무한 스크롤용, 최초 로드 시 생략)
-// limit: 한 번에 가져올 개수 — docs/chat-image-api-contract.md §2.2 가정 계약
+// before: 이 chat_id(long)보다 이전(더 오래된) 메시지만 가져옴(무한 스크롤용, 최초 로드 시 생략)
+// limit: 한 번에 가져올 개수(선택) — docs/chat-image-api-contract.md §2.2 가정 계약
 export const fetchChatHistoryRequest = async (
     conversationId,
     { before, limit = CHAT_HISTORY_PAGE_SIZE } = {}

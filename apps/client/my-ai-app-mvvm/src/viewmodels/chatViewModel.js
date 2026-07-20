@@ -60,12 +60,15 @@ export const useChatViewModel = (conversationId) => {
     if (!Array.isArray(data)) return [];
 
     return data.map((message, index) => ({
+      // 메시지 고유 id는 chat_id 필드로 통일(chatroom_id와 이름 짝을 맞춤 —
+      // docs/chat-image-api-contract.md §2.2). message.id는 구버전 서버 호환용 폴백.
       id:
-        message.id ||
+        message.chat_id ??
+        message.id ??
         `${message.role || message.sender || "message"}-${index}-${Date.now()}`,
       role: message.role || message.sender || "ai",
       text: message.text || message.content || message.message || "",
-      createdAt: message.createdAt || new Date().toISOString(),
+      createdAt: message.createdAt || message.created_at || new Date().toISOString(),
       ...message,
     }));
   };

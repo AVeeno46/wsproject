@@ -187,11 +187,16 @@ export function DashboardView() {
     }
   }, [pinnedStorageKey, pinnedChatIds]);
 
+  // 방금 생성된 채팅방은 chatroom_name 이벤트가 도착하기 전까지 title이 빈
+  // 문자열일 수 있다(서버 SSE 이원화 — docs/chatroom-api-contract.md §2) —
+  // 그동안 사이드바에 빈 항목 대신 안내 문구를 보여준다.
+  const displayTitle = (title) => title || "이름 생성 중...";
+
   const pinnedChats = useMemo(
     () =>
       chatRooms
         .filter((n) => pinnedChatIds.includes(n.id))
-        .map((n) => ({ id: n.id, title: n.title, pinned: true })),
+        .map((n) => ({ id: n.id, title: displayTitle(n.title), pinned: true })),
     [chatRooms, pinnedChatIds]
   );
 
@@ -199,7 +204,7 @@ export function DashboardView() {
     () =>
       chatRooms
         .filter((n) => !pinnedChatIds.includes(n.id))
-        .map((n) => ({ id: n.id, title: n.title, pinned: false })),
+        .map((n) => ({ id: n.id, title: displayTitle(n.title), pinned: false })),
     [chatRooms, pinnedChatIds]
   );
 
@@ -233,11 +238,15 @@ export function DashboardView() {
 
   const createConversationWithMessage = async (question) => {
     try {
-      const created = await createChatRoom(question);
-      if (created?.id) {
-        pendingFirstMessageRef.current = question;
-        navigate(`/chat/${created.id}`);
-      }
+      // chatroom_id는 빠르고 chatroom_name은 느리므로(서버 SSE 이원화 —
+      // docs/chatroom-api-contract.md §2), 이름을 기다리지 않고 id를 받는 즉시
+      // 이동 + 첫 메시지 전송 준비를 한다. 이름은 오는 대로 사이드바에 반영된다.
+      await createChatRoom(question, {
+        onId: (id) => {
+          pendingFirstMessageRef.current = question;
+          navigate(`/chat/${id}`);
+        },
+      });
     } catch (error) {
       console.error("대화 생성 실패:", error);
     }

@@ -43,6 +43,13 @@ Status Code
 
 ## 2. 채팅방 생성 (+ 첫 메시지 기반 이름 자동 생성)
 
+> **[확정] SSE 방식으로 결정** — `chatroom_id`는 DB insert라 빠르게 나오지만
+> `chatroom_name`은 RAG 호출이 필요해 느리다. 그래서 create를 SSE로 열어
+> `chatroom_id`를 먼저 이벤트로 보내고(클라이언트는 이 id를 받는 즉시
+> `dialogize`(§5)를 병렬로 호출해 답변 스트리밍을 시작), `chatroom_name`은
+> 같은 스트림에서 나중에 오는 이벤트로 받아 사이드바 제목만 갱신한다. (서버팀
+> 확정 — 기존 §8 "논의 중" 항목이 이 방향으로 결론남.)
+
 ```
 POST /chatroom/create
 
@@ -52,10 +59,15 @@ Request
             first_message (string, 사용자가 처음 입력한 채팅 내용)
 
 Response (성공)
-  body  { chatroom_id (long), chatroom_name (string) }
+  Content-Type: text/event-stream
+  각 청크: data: {JSON}\n\n
+  종료 시: data: [DONE]\n\n
+
+  이벤트 1 (빠름, DB insert 직후)  data: { "chatroom_id": 123 }
+  이벤트 2 (느림, RAG 이름 생성 후) data: { "chatroom_id": 123, "chatroom_name": "..." }
 
 Status Code
-  200/201 성공
+  200                    스트림 시작(헤더까지만 확정, 본문은 스트리밍)
   400 Bad Request       first_message 비어있음
   401 Unauthorized       JWT 없음/만료
   500 Internal Server Error
@@ -63,14 +75,17 @@ Status Code
 
 - 클라이언트는 방 제목을 직접 짓지 않는다(기존 "새 대화", "새 대화 2" 식 클라이언트
   자동 넘버링 로직은 제거). `first_message`만 보내면 서버가 그 내용을 바탕으로
-  `chatroom_name`을 만들어서 응답으로 돌려준다.
-- 이 호출은 **방 생성 + 이름 생성만** 하는 것으로 가정한다. 실제 AI 응답(스트리밍
-  답변)은 이 응답을 받은 뒤 클라이언트가 별도로 `POST /workspace/chat/dialogize`
-  (§4)를 `first_message`와 동일한 텍스트로 호출해서 받는다 — 즉 클라이언트 입장에서
-  "첫 메시지 전송"은 create 1번 + dialogize 1번, 총 2번의 요청이 된다.
-  - 만약 서버가 create 응답에서 **AI 답변까지 한 번에** 주는 방식을 원한다면(요청
-    1번으로 방 생성+첫 답변까지), 이 문서와 클라이언트 흐름을 다시 조정해야 한다 —
-    서버팀 확인 필요(§6).
+  `chatroom_name`을 만들어서 이벤트로 돌려준다.
+- 클라이언트는 `chatroom_id` 이벤트를 받는 즉시(이름을 기다리지 않고) 그 id로
+  `/chat/{id}` 화면으로 이동하고 `POST /workspace/chat/dialogize`(§5)를
+  `first_message`와 동일한 텍스트로 호출한다. `chatroom_name` 이벤트는 오는 대로
+  사이드바 제목만 갱신 — 이름 대기와 답변 대기가 직렬이 아니라 병렬이 되어
+  체감 대기시간이 줄어든다.
+- **[반영 완료]** [chatRoomModel.js](../src/models/chatRoomModel.js)의
+  `createChatRoomRequest`가 SSE 파싱으로 구현됨(`onId`/`onName` 콜백),
+  [chatRoomViewModel.js](../src/viewmodels/chatRoomViewModel.js)/
+  [DashboardView.jsx](../src/features/dashboard/DashboardView.jsx)의
+  `createConversationWithMessage`가 `onId` 시점에 바로 이동하도록 반영됨.
 
 ## 3. 채팅방 삭제
 
@@ -135,37 +150,15 @@ GET  /workspace/chat/history/{dashboard_id}                →  /workspace/chat/
 - [x] ~~update 응답에 chatroom_name이 필요한지~~ → **확정**: 불필요, 상태 코드로만
       판단(§4 참고).
 - [ ] 위 엔드포인트들의 정확한 HTTP 메서드/세부 스펙(경로 자체는 확정)
-- [ ] `create` 응답이 이름만 주는지, 아니면 첫 AI 답변까지 함께 주는지(§2) —
-      §8의 SSE 방식 논의와 함께 다시 정리 예정
+- [x] ~~create 응답이 이름만 주는지, 첫 AI 답변까지 함께 주는지~~ → **확정**:
+      SSE로 `chatroom_id`(빠름) → `chatroom_name`(느림) 두 이벤트만 준다. AI
+      답변은 별도로 클라이언트가 `dialogize`(§5)를 호출해서 받는다(§2 참고).
 - [ ] 요청/응답 필드명이 정말 `chatroom_id`/`chatroom_name`인지(스네이크 케이스
       확인 — 기존 `dashboard_id`/`dashboard_name` 패턴을 그대로 따른 가정)
 - [ ] `chat/dialogize`, `chat/history`의 식별자가 실제로 `chatroom_id`로
       바뀌는지, 아니면 필드명은 유지한 채 값만 chatroom 기준으로 바뀌는지
 - [ ] 기존 `/dashboard/individual/*`가 완전히 응답을 안 주는지(폐기), 아니면
       당분간 같이 열려 있는지
-
-## 8. (논의 중) create + dialogize를 둘 다 SSE로 묶는 방식
-
-서버팀이 제안한 아이디어(아직 결론 안 남, "추후 다시 이야기"하기로 함):
-
-- 지금 가정한 흐름(§2)은 "create(순수 JSON 응답) 1번 → 그 결과로 받은
-  `chatroom_id`로 dialogize(SSE) 1번" 총 2번 호출.
-- 서버팀 제안: **create도 SSE로 열어서**, `chatroom_id`는 단순 DB 연산이라
-  빠르게 먼저 내려주고(첫 이벤트), 그 id를 받는 즉시 클라이언트가 바로
-  dialogize를 호출해 답변 스트리밍을 시작한다. `chatroom_name`(LLM 등으로
-  생성되어 더 오래 걸릴 수 있는 값)은 같은 create 스트림에서 나중에 오는
-  이벤트로 받아서, 그때 사이드바 제목만 갱신한다.
-- 즉 "create 스트림에서 온 이벤트 → 이름 갱신", "dialogize 스트림에서 온
-  이벤트 → 채팅 말풍선에 출력"으로 두 스트림을 분리해서 처리하는 그림.
-- **아직 결정된 게 아니므로 클라이언트 코드는 손대지 않는다** — 지금 있는
-  "create(JSON) → dialogize(SSE)" 2단계 흐름을 그대로 유지하고, 이 아이디어가
-  확정되면 그때 `chatRoomModel.js`/`chatModel.js`/`DashboardView.jsx`의
-  `createConversationWithMessage`/`handleSendMessage`를 다시 설계한다.
-- **클라이언트 쪽 입장**: 단순 2단계 방식 vs SSE 이원화 중 어느 쪽이 최종이든
-  **서버팀이 원하는 방향을 따르기로 함**. (참고로 논의 시점에 클라이언트가 낸
-  의견은 "이름 생성이 LLM처럼 시간이 걸릴 수 있다면 SSE 이원화가 체감 응답
-  속도에 유리하고, 단순 DB 저장 수준이면 지금의 2단계 방식도 충분하다"였음 —
-  최종 판단은 서버의 이름 생성 로직 특성에 달려있음.)
 
 ## 7. 클라이언트 상태
 
@@ -176,6 +169,11 @@ GET  /workspace/chat/history/{dashboard_id}                →  /workspace/chat/
   넘겨서 방을 만드는 이번 계약과 흐름이 잘 맞음
 - `IS_LOCAL=true`일 때는 서버 없이 로컬에서 이름을 자동 생성(첫 메시지 앞부분을
   잘라서 사용)해서 동일한 UX로 검증 가능
+- **[반영 완료]** create의 SSE 이원화(§2) — `chatRoomModel.js`/
+  `chatRoomViewModel.js`/`DashboardView.jsx` 전부 `chatroom_id` 이벤트를
+  받는 즉시 이동+dialogize를 시작하고, `chatroom_name` 이벤트로 사이드바
+  제목만 나중에 갱신하도록 구현됨. 로컬 모드도 같은 콜백 순서(id→name)로
+  동작해 UX가 서버 모드와 동일하게 검증 가능.
 
 **아직 안 한 것**
 - 실제 서버 스펙 확정 후 [chatRoomModel.js](../src/models/chatRoomModel.js)/

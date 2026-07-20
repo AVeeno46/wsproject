@@ -56,17 +56,24 @@ export const fetchChatRoomsRequest = async () => {
 };
 
 // firstMessage를 같이 보내서, 서버가 그 내용을 바탕으로 채팅방 이름을 생성해 돌려준다.
-export const createChatRoomRequest = async (firstMessage) => {
-    // [로컬]
+// chatroom_id는 DB insert라 빠르지만 chatroom_name은 RAG 호출이 필요해 느리므로,
+// 서버가 SSE로 두 이벤트를 나눠 보낸다(id 먼저, name 나중) — docs/chatroom-api-contract.md §2.
+// onId(id)  — chatroom_id 이벤트가 오는 즉시 호출(호출자는 이 시점에 바로 화면 이동+dialogize 시작)
+// onName(name) — chatroom_name 이벤트가 오는 즉시 호출(사이드바 제목만 갱신)
+export const createChatRoomRequest = async (firstMessage, { onId, onName } = {}) => {
+    // [로컬] 서버 SSE와 동일한 순서(id → name)로 콜백을 호출해 서버 모드와 같은 UX로 검증 가능
     if (IS_LOCAL) {
         const chatRooms = getLocalChatRooms();
         const existingTitles = new Set(chatRooms.map((n) => n.title.trim()));
+        const id = Date.now().toString();
+        onId?.(id);
         const title = makeTitleFromMessage(firstMessage, existingTitles);
-        const newChatRoom = { id: Date.now().toString(), title, createdAt: new Date().toISOString() };
+        onName?.(title);
+        const newChatRoom = { id, title, createdAt: new Date().toISOString() };
         saveLocalChatRooms([...chatRooms, newChatRoom]);
         return newChatRoom;
     }
-    // [서버]
+    // [서버] SSE(data:) 스트림 — { chatroom_id } 이벤트 후 { chatroom_id, chatroom_name } 이벤트
     const response = await apiFetch(`${BASE}/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
@@ -74,7 +81,47 @@ export const createChatRoomRequest = async (firstMessage) => {
     });
     if (response.status === 401) return handleUnauthorized();
     if (!response.ok) throw new Error('채팅방 생성에 실패했습니다.');
-    return toClient(await response.json());
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let chatroomId = null;
+    let chatroomName = null;
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+            if (!line.startsWith('data:')) continue;
+            const raw = line.slice(5).trim();
+            if (!raw || raw === '[DONE]') continue;
+
+            let parsed;
+            try {
+                parsed = JSON.parse(raw);
+            } catch {
+                continue;
+            }
+
+            if (parsed.chatroom_id != null && chatroomId == null) {
+                chatroomId = parsed.chatroom_id;
+                onId?.(String(chatroomId));
+            }
+            if (parsed.chatroom_name) {
+                chatroomName = parsed.chatroom_name;
+                onName?.(chatroomName);
+            }
+        }
+    }
+
+    if (chatroomId == null) throw new Error('채팅방 생성에 실패했습니다.');
+    return { id: String(chatroomId), title: chatroomName || '' };
 };
 
 export const deleteChatRoomRequest = async (chatRoomId) => {

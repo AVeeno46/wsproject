@@ -153,20 +153,29 @@ Status Code
 > 불러와 앞에 붙이는 방식(카카오톡/디스코드 등과 동일한 패턴). 실제 서버가 이
 > 파라미터를 지원하는지는 미확인 — 아래는 "이렇게 받아줄 것이다"라는 가정.
 
+> **[업데이트] 필드 타입/네이밍 — 서버팀 피드백 반영**: `before`/메시지 id를
+> string이 아니라 **long**으로, 메시지 id 필드명은 그냥 `id`가 아니라
+> **`chat_id`**로 통일한다(채팅방 id가 `chatroom_id`인 것과 짝을 맞춰서, 어디는
+> `id`/어디는 `chatroom_id`/어디는 `chat_id`처럼 뒤섞이지 않도록 — 이 원칙은
+> 앞으로 추가되는 다른 리소스의 식별자에도 동일하게 적용). `limit`도 선택
+> 파라미터로 명시(생략 시 서버 기본값, 클라이언트도 기본 30을 보냄).
+
 ```
-GET /workspace/chat/history/{chatroom_id}?limit={n}&before={message_id}
+GET /workspace/chat/history/{chatroom_id}?limit={n}&before={chat_id}
 
 Request
   header  JWT token
-  query   limit  (number, 한 번에 가져올 개수 — 기본 30, 클라이언트 PAGE_SIZE와 동일)
-          before (string, 선택 — 이 message_id보다 이전(더 오래된) 메시지만 조회.
+  query   limit  (number, 선택 — 한 번에 가져올 개수, 기본 30·클라이언트 PAGE_SIZE와 동일)
+          before (long, 선택 — 이 chat_id보다 이전(더 오래된) 메시지만 조회.
                   최초 로드 시에는 생략하고, "이전 대화 더 보기"에서만 실어 보냄)
 
 Response
   body  [{
-    id (string, 이 메시지의 고유 id — before 파라미터로 재사용됨)
+    chat_id (long, 이 메시지의 고유 id — before 파라미터로 재사용됨)
     role (string: "user" | "ai"),
-    text (string),
+    type (string: "text" | "file", 선택 — 생략 시 "text"로 간주)
+    text (string, 파일만 있고 텍스트가 없으면 빈 문자열)
+    attachments (array, 선택 — [{ file_id (long), file_name (string) }], 없으면 생략)
     created_at (string, ISO 8601)
   }]   (과거 → 최신 순으로 최대 limit개)
 
@@ -180,13 +189,26 @@ Status Code
 
 - 응답 배열 길이가 `limit`과 같으면 "더 있을 수도 있다"고 간주해서 클라이언트가
   다음 페이지를 요청할 수 있게 한다(서버가 별도로 `has_more` 같은 플래그를 줄
-  수 있다면 그게 더 정확함 — 미정, §6 참고).
-- 각 메시지에 **고유 `id`가 응답에 포함**되어야 한다 — 클라이언트가 그 id를 다음
-  `before` 파라미터로 그대로 되돌려 보내는 커서 방식이라, id가 없으면 페이지네이션
+  수 있다면 그게 더 정확함 — 미정, §4 참고).
+- 각 메시지에 **고유 `chat_id`가 응답에 포함**되어야 한다 — 클라이언트가 그 값을
+  다음 `before` 파라미터로 그대로 되돌려 보내는 커서 방식이라, 없으면 페이지네이션
   자체가 안 됨.
+- **[확정] 파일 포함 메시지 형식**: 메시지에 `type: "file"` + `attachments:
+  [{file_id, file_name}]`를 추가하는 방식으로 서버팀과 합의. `type`은 렌더링
+  분기용 표시(파일이 있으면 "file", 없으면 "text"/생략)이고, `attachments`가
+  실제 데이터다 — 텍스트와 파일이 한 메시지에 같이 있어도(`text` + `attachments`
+  둘 다 채워짐) 표현 가능. `file_id`만 있으면 클라이언트가 이미 있는
+  `/workspace/file/get/{file_id}` 다운로드 경로([file-upload-api-contract.md](./file-upload-api-contract.md)
+  §2.4)를 그대로 재사용해서 열람할 수 있다.
+  - **아직 반영 안 함**: 채팅 입력창의 파일 첨부 버튼은 현재 UI만 있고 실제
+    업로드 로직에 연결되어 있지 않다(`DashboardChatPage.jsx`). 이 히스토리
+    응답의 `type`/`attachments` 파싱·렌더링은 그 업로드 경로가 정해지면 같이
+    구현한다.
 - 클라이언트 [chatModel.js](../src/models/chatModel.js)의 `fetchChatHistoryRequest`가
-  이미 이 배열 형태(+ 페이지네이션 파라미터)를 기대하고 있음(`role`/`text`/`createdAt`
-  순으로 매핑).
+  이미 이 배열 형태(+ 페이지네이션 파라미터)를 기대하고 있음(`chat_id`/`role`/`text`/`createdAt`
+  순으로 매핑, [chatViewModel.js](../src/viewmodels/chatViewModel.js)의
+  `normalizeHistory`에서 `chat_id`를 우선 읽고 없으면 구버전 호환으로 `id`도
+  받아준다).
 
 ### 2.3 문서 이미지 서빙
 
@@ -246,10 +268,14 @@ Status Code
 - [ ] 채팅 히스토리 조회 시 과거의 `edit_proposal`/`source_ref`도 같이 복원해야 하는지
       (§2.2는 현재 `role`/`text`만 정의 — 편집 제안 이력까지 필요하면 스키마 확장 필요)
 - [x] ~~채팅 히스토리 페이지네이션 필요 여부~~ → **결정**: 필요함. 서버 스펙이
-      아직 없어서 클라이언트가 먼저 가정 계약(§2.2의 `limit`/`before`/응답 `id`)으로
+      아직 없어서 클라이언트가 먼저 가정 계약(§2.2의 `limit`/`before`/응답 `chat_id`)으로
       구현해뒀다 — 서버는 이 파라미터를 지원하도록 만들어달라고 요청하는 흐름.
       실제 파라미터명/커서 방식(메시지 id vs 타임스탬프)/`has_more` 플래그 제공
       여부는 서버팀 확인 필요.
+- [x] ~~히스토리 응답의 파일 첨부 형식~~ → **확정**: 메시지에 `type: "file"` +
+      `attachments: [{file_id, file_name}]`을 추가하는 방식으로 합의(§2.2 참고).
+      단, 채팅 입력창의 파일 첨부 업로드 경로 자체가 아직 없어서 클라이언트
+      파싱/렌더링 구현은 그 경로가 정해진 뒤로 미룸.
 - [ ] AI 생성 이미지 전용 갤러리(사이드바 기능) — 이번 범위 밖, 이미지 서빙 방식이 자리잡은
       뒤 "이 대화에서 인용된 이미지 목록" API로 별도 설계
 - [ ] 대화 내용 전문 검색 — 범위(제목만 vs 본문 포함) 미정, 이번 계약에서 제외
