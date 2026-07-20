@@ -154,7 +154,9 @@ export const updateChatRoomTitleRequest = async (chatRoomId, title) => {
     }
     // [서버] 성공/실패는 상태 코드로만 판단 — 응답 바디(chatroom_name 등)는 필요
     // 없음(서버팀 확인). 보낸 title을 그대로 클라이언트 상태에 반영한다.
-    const response = await apiFetch(`${BASE}/update`, {
+    // 경로는 update가 아니라 update-name — 실제 서버 컨트롤러 코드로 확인됨
+    // (WorkspaceChatRoomController.cs의 [HttpPatch("update-name")]).
+    const response = await apiFetch(`${BASE}/update-name`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({ chatroom_id: Number(chatRoomId), chatroom_name: title }),

@@ -104,8 +104,13 @@ Response
 
 ## 4. 채팅방 이름 수정
 
+> **[확정] 경로는 `/chatroom/update`가 아니라 `/chatroom/update-name`** — 실제
+> 서버 컨트롤러 소스(`WorkspaceChatRoomController.cs`의
+> `[HttpPatch("update-name")]`)로 확인됨. [chatRoomModel.js](../src/models/chatRoomModel.js)의
+> `updateChatRoomTitleRequest`도 이 경로로 수정 완료.
+
 ```
-PATCH /chatroom/update
+PATCH /chatroom/update-name
 
 Request
   header  Authorization: Bearer <JWT>
@@ -127,9 +132,8 @@ Status Code
   바꾸는 기능은 그대로 유지한다.
 - **[확정] 응답 바디에 `chatroom_name`을 다시 돌려줄 필요 없음** — 클라이언트가
   이미 보낸 값을 그대로 화면에 반영하면 되고, 성공/실패는 상태 코드만으로
-  충분하다고 서버팀이 확인함. [chatRoomModel.js](../src/models/chatRoomModel.js)의
-  `updateChatRoomTitleRequest`도 이미 응답 바디를 파싱하지 않고 상태 코드만
-  본다 — 반영 완료.
+  충분하다고 서버팀이 확인함. `updateChatRoomTitleRequest`도 이미 응답 바디를
+  파싱하지 않고 상태 코드만 본다 — 반영 완료.
 
 ## 5. 채팅 관련 API의 식별자 변경 (dashboard_id → chatroom_id)
 
@@ -149,14 +153,23 @@ GET  /workspace/chat/history/{dashboard_id}                →  /workspace/chat/
       `/chatroom/*`로 확정(위 §1~4에 반영됨).
 - [x] ~~update 응답에 chatroom_name이 필요한지~~ → **확정**: 불필요, 상태 코드로만
       판단(§4 참고).
-- [ ] 위 엔드포인트들의 정확한 HTTP 메서드/세부 스펙(경로 자체는 확정)
+- [x] ~~위 엔드포인트들의 정확한 HTTP 메서드/세부 스펙~~ → **확정**: 서버 컨트롤러
+      소스(`WorkspaceChatRoomController.cs`) 직접 확인. `create`=POST,
+      `update-name`=PATCH(경로가 `update`가 아니라 `update-name`이었음, 위에서
+      수정), `delete/{id}`=DELETE, `get-all`=GET — 전부 §1~4에 반영됨.
 - [x] ~~create 응답이 이름만 주는지, 첫 AI 답변까지 함께 주는지~~ → **확정**:
       SSE로 `chatroom_id`(빠름) → `chatroom_name`(느림) 두 이벤트만 준다. AI
       답변은 별도로 클라이언트가 `dialogize`(§5)를 호출해서 받는다(§2 참고).
-- [ ] 요청/응답 필드명이 정말 `chatroom_id`/`chatroom_name`인지(스네이크 케이스
-      확인 — 기존 `dashboard_id`/`dashboard_name` 패턴을 그대로 따른 가정)
-- [ ] `chat/dialogize`, `chat/history`의 식별자가 실제로 `chatroom_id`로
-      바뀌는지, 아니면 필드명은 유지한 채 값만 chatroom 기준으로 바뀌는지
+- [x] ~~요청/응답 필드명이 정말 `chatroom_id`/`chatroom_name`인지~~ → **확정**:
+      서버 DTO(`ResponseGetChatRoom(chatroom_id, chatroom_name)` 등)와 정확히
+      일치. 스네이크 케이스 가정 맞음.
+- [x] ~~`chat/dialogize`의 식별자가 실제로 `chatroom_id`로 바뀌는지~~ → **확정**:
+      `RequestChatbot(chatroom_id, query)` DTO로 확인, §5에 반영된 그대로.
+      (`chat/history`는 서버 코드 자체가 아직 없어서 미확인 — 아래 참고)
+- [ ] **`chat/history` 엔드포인트 자체가 서버 코드에 없음** — 컨트롤러를 직접
+      확인했지만 히스토리 관련 코드가 전혀 없다. 클라이언트가 가정한 페이지네이션
+      계약([chat-image-api-contract.md](./chat-image-api-contract.md) §2.2)은
+      여전히 전부 미구현 상태.
 - [ ] 기존 `/dashboard/individual/*`가 완전히 응답을 안 주는지(폐기), 아니면
       당분간 같이 열려 있는지
 
