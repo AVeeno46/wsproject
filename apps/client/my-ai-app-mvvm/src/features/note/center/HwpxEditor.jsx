@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { useHwpxEditorViewModel } from '../../../viewmodels/hwpxEditorViewModel';
 import { HwpxDocView } from './HwpxDocView';
-import { downloadSourceRequest } from '../../../models/sourceModel';
+import { downloadSourceRequest, downloadSourceByNameRequest } from '../../../models/sourceModel';
 
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 2;
@@ -47,9 +47,16 @@ export function HwpxEditor({ source }) {
       return;
     }
 
-    // 서버 모드: 소스 id로 서버에서 파일 로드
-    if (source.id) {
-      downloadSourceRequest(source.id)
+    // 서버 모드: 소스 id, 또는 채팅 답변 출처(source_ref) 클릭이면 file_name으로 로드
+    // (docs/file-upload-api-contract.md §2.5, 가정 계약)
+    const downloadPromise = source.byName
+      ? downloadSourceByNameRequest(source.name)
+      : source.id
+      ? downloadSourceRequest(source.id)
+      : null;
+
+    if (downloadPromise) {
+      downloadPromise
         .then((res) => {
           if (requestIdRef.current !== requestId) return;
           if (res) {
@@ -65,12 +72,12 @@ export function HwpxEditor({ source }) {
         .catch((err) => {
           if (requestIdRef.current !== requestId) return;
           console.error('hwpx 다운로드 실패:', err);
-          setLoadError('파일을 불러오지 못했습니다.');
+          setLoadError(err.message || '파일을 불러오지 못했습니다.');
         });
     }
 
-    // 둘 다 없으면 수동 선택 대기 (아래 UI에서 버튼 표시)
-  }, [source?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    // 셋 다 없으면 수동 선택 대기 (아래 UI에서 버튼 표시)
+  }, [source?.id, source?.byName, source?.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pickFile = () => inputRef.current?.click();
 
@@ -128,7 +135,7 @@ export function HwpxEditor({ source }) {
 
   if (!isOpen) {
     const sourceName = source?.name || '한글 문서';
-    const needsManualPick = source && !(source.file instanceof File);
+    const needsManualPick = source && !(source.file instanceof File) && !source.id && !source.byName;
 
     return (
       <div className="docPreviewBox">

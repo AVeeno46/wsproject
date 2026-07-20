@@ -87,6 +87,10 @@ export const streamChatRequest = async (conversationId, query, handlers, signal)
             await new Promise((res) => setTimeout(res, 8));
             emit({ type: 'text', content: char });
         }
+
+        // 출처(source_ref) 칩 렌더링/클릭 열람 확인용 예시 — 실서버에서는 실제
+        // 참조 문서로 대체된다.
+        emit({ type: 'source_ref', file_id: 1, file_name: '로컬_테스트_문서.hwpx' });
         return;
     }
 

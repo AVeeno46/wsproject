@@ -200,6 +200,14 @@ Status Code
   둘 다 채워짐) 표현 가능. `file_id`만 있으면 클라이언트가 이미 있는
   `/workspace/file/get/{file_id}` 다운로드 경로([file-upload-api-contract.md](./file-upload-api-contract.md)
   §2.4)를 그대로 재사용해서 열람할 수 있다.
+  - **[확정] `attachments` 생략 방식**: 첨부 없으면 키 자체를 응답에서 뺀다(빈
+    배열 `[]`이나 `null`을 굳이 보낼 필요 없음). 클라이언트는 없음/`null`/빈
+    배열을 전부 "첨부 없음"으로 동일하게 처리하도록 만든다.
+  - **[확정] 텍스트+파일이 한 메시지에 같이 있을 때 `type`**: `attachments`가
+    하나라도 있으면 무조건 `"file"`(텍스트가 같이 있어도), `attachments`가
+    아예 없을 때만 `"text"`. 즉 file이 text보다 우선순위가 높다 — 실제 데이터는
+    `attachments` 유무로 판단하고 `type`은 보조 힌트일 뿐이라, 파일 존재를
+    놓치지 않는 쪽(file 우선)으로 정함.
   - **아직 반영 안 함**: 채팅 입력창의 파일 첨부 버튼은 현재 UI만 있고 실제
     업로드 로직에 연결되어 있지 않다(`DashboardChatPage.jsx`). 이 히스토리
     응답의 `type`/`attachments` 파싱·렌더링은 그 업로드 경로가 정해지면 같이
@@ -300,19 +308,23 @@ Status Code
 - [DashboardChatPage.jsx](../src/features/dashboard/DashboardChatPage.jsx) — `text`는
   `react-markdown` + `remark-gfm`으로 렌더링(표/코드블록/이미지 포함, 이미지 로드 실패 시
   안내문구로 대체하는 `MarkdownImage` 포함). 히스토리 페이지네이션(무한 스크롤)도 반영됨.
+- **[반영 완료] 질문 취소(정지 버튼) UI.** 답변 생성 중(`isThinking`)엔 전송 버튼이
+  정지(■) 아이콘으로 바뀌어 `cancelMessage()`를 호출한다(`DashboardChatPage.jsx`/
+  `DashboardView.jsx`). 클릭 시 `AbortController.abort()`로 스트림이 즉시 끊기고,
+  그때까지 받은 부분 응답은 그대로 화면에 남는다 — 브라우저에서 스트리밍 도중
+  클릭 → 응답이 중간에서 멈추고 버튼이 다시 전송 아이콘으로 돌아오는 것까지 확인.
+- **[반영 완료] `sourceRefs`(참조 문서) 클릭 → 문서 열람.** AI 답변 아래에 출처
+  파일명 칩(`chatSourceRefChip`)으로 렌더링되고, 클릭하면 "등록된 자료"와 같은
+  고정 오버레이로 문서 뷰어(`DocWorkspace`/`DocViewer`)가 뜬다. 다만 이 경로는
+  `file_id`가 아니라 **`file_name`으로 서버에 조회**한다(새 엔드포인트
+  `GET /workspace/file/get-by-name`, [file-upload-api-contract.md](./file-upload-api-contract.md)
+  §2.5 참고, 가정 계약) — "등록된 자료" 목록에서 여는 기존 경로(`file_id` 기반, §2.4)와는
+  별개다.
 
 **아직 안 한 것 (새 대시보드 UI로 옮기면서 이관 안 된 기능들 — 재구현 필요)**
-- **질문 취소(정지 버튼) UI가 없음.** `chatViewModel.js`의 `cancelMessage`는 여전히
-  존재하지만, `DashboardChatPage.jsx`/`DashboardView.jsx` 어디에서도 호출되지 않는다.
-  즉 지금은 답변 생성 중에 사용자가 멈출 방법이 없다.
 - **`editProposal`(AI 편집 제안) 렌더링이 화면에 없음.** `chatViewModel.js`는 여전히
   메시지에 `editProposal` 필드를 채워 넣지만, `DashboardChatPage.jsx`는 이 필드를 전혀
   읽지 않는다 — 즉 서버가 실제로 편집 제안 청크를 보내도 화면에 diff 카드나 [적용]
   버튼이 뜨지 않는다. hwpx 편집 엔진(`hwpxModel.js`의 `applyEdits`) 연결도 없음.
-- **`sourceRefs`(참조 문서) 클릭 → 문서 열람도 화면에 없음.** 마찬가지로 필드는 채워지지만
-  렌더링/클릭 핸들러가 없다. 문서 뷰어 자체는
-  [DocumentPreviewPanel.css](../src/styles/DocumentPreviewPanel.css) 기반으로 "등록된
-  자료" 목록에서 여는 것만 되어 있고(§ 별도), 채팅 답변에서 바로 연결하는 건 아직임.
-- 이 세 가지는 전부 "서버 스펙이 없어서" 못 한 게 아니라, **UI 마이그레이션 과정에서
-  범위 밖으로 미뤄둔 채 아직 다시 안 만든 것**이다 — 필요해지면 새 디자인에 맞춰
-  다시 구현해야 한다.
+- 이건 "서버 스펙이 없어서" 못 한 게 아니라, **UI 마이그레이션 과정에서 범위 밖으로
+  미뤄둔 채 아직 다시 안 만든 것**이다 — 필요해지면 새 디자인에 맞춰 다시 구현해야 한다.

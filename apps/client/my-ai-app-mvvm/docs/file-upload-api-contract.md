@@ -146,8 +146,45 @@ Status Code
 ```
 
 - 클라이언트가 `response.body.getReader()`로 청크를 읽어 하나의 `ArrayBuffer`로 합친다
-  ([sourceModel.js:164-197](../src/models/sourceModel.js)). 서버가 진짜 스트리밍으로
-  내려주는지, 아니면 일반 응답을 클라이언트가 리더로 받는 것뿐인지는 무관하게 동작한다.
+  ([sourceModel.js](../src/models/sourceModel.js)의 `readFileStreamResponse`). 서버가
+  진짜 스트리밍으로 내려주는지, 아니면 일반 응답을 클라이언트가 리더로 받는 것뿐인지는
+  무관하게 동작한다.
+
+### 2.5 다운로드(채팅 출처 열람용, 이름 기반) — 가정 계약
+
+> 채팅 답변의 출처(`source_ref` 청크, [chat-image-api-contract.md](./chat-image-api-contract.md)
+> §2.1)를 클릭해서 문서를 열람할 때 쓴다. §2.4와 달리 **`file_id`가 아니라 `file_name`으로
+> 조회**한다 — 클라이언트가 결정한 방향이며, 서버 구현 여부는 미확인 상태.
+
+```
+GET /workspace/file/get-by-name?file_name={file_name}
+
+Request
+  header  Authorization: Bearer <JWT>
+  query   file_name (string, URL-encoded)
+
+Response
+  header  file_name: <원본 파일명>
+  body    파일 바이너리 (스트림) — §2.4와 동일 형식
+
+Status Code
+  200 OK
+  401 Unauthorized
+  404 Not Found         해당 이름의 파일 없음 / 권한 없음
+  500 Internal Server Error
+```
+
+- 응답 형식·스트림 파싱 방식은 §2.4와 완전히 동일(같은 `readFileStreamResponse` 헬퍼
+  재사용). 조회 키만 `file_id` → `file_name`으로 다르다.
+- **[반영 완료]** [sourceModel.js](../src/models/sourceModel.js)의
+  `downloadSourceByNameRequest`, [PdfViewer.jsx](../src/features/note/center/PdfViewer.jsx)/
+  [HwpxEditor.jsx](../src/features/note/center/HwpxEditor.jsx)가 `source.byName`일 때
+  이 경로로 로드하도록 구현됨. [DashboardChatPage.jsx](../src/features/dashboard/DashboardChatPage.jsx)의
+  출처 칩(`chatSourceRefChip`) 클릭 → `DashboardView.jsx`의 `handleOpenSourceRef`가
+  `{ name: ref.file_name, byName: true }`로 미리보기 오버레이를 염.
+- **미정 — 서버팀 확인 필요**: 같은 이름의 파일이 여러 개 있을 수 있는지(그럴 경우
+  어떤 걸 반환할지 — 가장 최근 것? 에러?), 서버가 파일명으로 조회하는 기능 자체를
+  지원할 수 있는지.
 
 ---
 

@@ -25,6 +25,8 @@ function DashboardChatPage({
   onLoadMoreHistory,
   isThinking,
   sendMessage,
+  onCancelMessage,
+  onOpenSourceRef,
   selectedFiles,
   clearSelectedFiles,
   removeSelectedFile,
@@ -172,6 +174,22 @@ function DashboardChatPage({
                       ) : (
                         <p>{isThinking ? "답변 생성 중..." : ""}</p>
                       )}
+
+                      {message.sourceRefs?.length > 0 && (
+                        <div className="chatSourceRefList">
+                          {message.sourceRefs.map((ref, i) => (
+                            <button
+                              type="button"
+                              key={`${ref.file_id ?? ref.file_name}-${i}`}
+                              className="chatSourceRefChip"
+                              onClick={() => onOpenSourceRef?.(ref)}
+                              title={`출처 열람: ${ref.file_name}`}
+                            >
+                              📄 {ref.file_name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -303,18 +321,30 @@ function DashboardChatPage({
                 disabled={isThinking}
               />
 
-              <button
-                type="button"
-                className="chatSendBtn"
-                onClick={handleChatSubmit}
-                aria-label="질문 보내기"
-                disabled={isThinking}
-              >
-                <svg viewBox="0 0 24 24">
-                  <path d="M5 12h12" />
-                  <path d="M13 7l5 5-5 5" />
-                </svg>
-              </button>
+              {isThinking ? (
+                <button
+                  type="button"
+                  className="chatSendBtn chatStopBtn"
+                  onClick={onCancelMessage}
+                  aria-label="답변 생성 중지"
+                >
+                  <svg viewBox="0 0 24 24">
+                    <rect x="7" y="7" width="10" height="10" rx="1.5" />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="chatSendBtn"
+                  onClick={handleChatSubmit}
+                  aria-label="질문 보내기"
+                >
+                  <svg viewBox="0 0 24 24">
+                    <path d="M5 12h12" />
+                    <path d="M13 7l5 5-5 5" />
+                  </svg>
+                </button>
+              )}
             </div>
 
             {isDraggingInput && (

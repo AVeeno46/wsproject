@@ -381,6 +381,11 @@
   stroke-linejoin: round;
 }
 
+.chatPage .chatStopBtn svg rect {
+  fill: currentColor;
+  stroke: none;
+}
+
 .chatPage .chatHomeHint {
   margin: 18px 0 0;
   text-align: center;
@@ -506,6 +511,38 @@
 
 .chatPage .chatMarkdown > *:last-child {
   margin-bottom: 0;
+}
+
+.chatPage .chatSourceRefList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--chat-line);
+}
+
+.chatPage .chatSourceRefChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 220px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--chat-line);
+  background: var(--chat-surface-soft);
+  color: var(--chat-text-body);
+  font-size: 12px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatPage .chatSourceRefChip:hover {
+  background: var(--chat-navy);
+  color: #ffffff;
+  border-color: var(--chat-navy);
 }
 
 .chatPage .chatMarkdown p {

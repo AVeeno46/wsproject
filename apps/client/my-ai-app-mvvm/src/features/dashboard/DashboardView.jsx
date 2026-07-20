@@ -68,6 +68,7 @@ export function DashboardView() {
     loadMoreHistory,
     isThinking,
     sendMessage,
+    cancelMessage,
   } = useChatViewModel(conversationId);
   const synonymViewModel = useSynonymViewModel();
   const {
@@ -223,6 +224,7 @@ export function DashboardView() {
         id: message.id,
         role: message.role === "user" ? "user" : "assistant",
         content: message.text,
+        sourceRefs: message.sourceRefs,
       })),
     [chatHistory]
   );
@@ -383,6 +385,13 @@ export function DashboardView() {
     if (source) setPreviewSource(source);
   };
 
+  // 채팅 답변의 출처(source_ref) 클릭 열람 — file_id가 아니라 file_name으로
+  // 서버에 조회한다(docs/file-upload-api-contract.md §2.5, 가정 계약).
+  const handleOpenSourceRef = (ref) => {
+    if (!ref?.file_name) return;
+    setPreviewSource({ name: ref.file_name, byName: true });
+  };
+
   const handleClosePreview = () => setPreviewSource(null);
 
   // 미리보기가 열려 있을 때 Escape로 닫기
@@ -534,6 +543,8 @@ export function DashboardView() {
           onLoadMoreHistory={loadMoreHistory}
           isThinking={isThinking}
           sendMessage={handleSendMessage}
+          onCancelMessage={cancelMessage}
+          onOpenSourceRef={handleOpenSourceRef}
           selectedFiles={selectedFiles}
           clearSelectedFiles={clearSelectedFiles}
           removeSelectedFile={removeSelectedFile}

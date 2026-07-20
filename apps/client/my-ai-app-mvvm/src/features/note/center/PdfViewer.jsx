@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { downloadSourceRequest } from "../../../models/sourceModel";
+import { downloadSourceRequest, downloadSourceByNameRequest } from "../../../models/sourceModel";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -73,8 +73,16 @@ export function PdfViewer({ source }) {
       return;
     }
 
-    if (source.id) {
-      downloadSourceRequest(source.id)
+    // 채팅 답변 출처(source_ref) 클릭 열람 — file_id가 아니라 file_name으로 조회
+    // (docs/file-upload-api-contract.md §2.5, 가정 계약)
+    const downloadPromise = source.byName
+      ? downloadSourceByNameRequest(source.name)
+      : source.id
+      ? downloadSourceRequest(source.id)
+      : null;
+
+    if (downloadPromise) {
+      downloadPromise
         .then((res) => {
           if (requestIdRef.current !== requestId) return;
           if (res) {
@@ -87,15 +95,15 @@ export function PdfViewer({ source }) {
             "지금은 서버 미연결(로컬) 모드라 저장된 파일을 다시 열 수 없습니다. 서버 연결 후 열람할 수 있습니다."
           );
         })
-        .catch(() => {
+        .catch((e) => {
           if (requestIdRef.current !== requestId) return;
-          setError("파일을 불러오지 못했습니다.");
+          setError(e.message || "파일을 불러오지 못했습니다.");
         });
     }
-  }, [source?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [source?.id, source?.byName, source?.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fileName = source?.name || "문서.pdf";
-  const needsManualPick = source && !(source.file instanceof File) && !source.id;
+  const needsManualPick = source && !(source.file instanceof File) && !source.id && !source.byName;
 
   const goToPage = (next) => {
     if (!numPages) return;
