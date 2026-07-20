@@ -219,6 +219,131 @@
   background: var(--chat-surface-soft);
 }
 
+/* ===== 한글(hwpx) 문서 본문 ===== */
+
+.chatPage .hwpxDocPages {
+  display: flex;
+  justify-content: center;
+}
+
+.chatPage .hwpxDocPage {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  padding: 40px 48px;
+  background: #ffffff;
+  color: #1a1a1a;
+  box-shadow: 0 2px 10px rgba(10, 43, 95, 0.12);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.chatPage.dark .hwpxDocPage {
+  box-shadow: none;
+}
+
+.chatPage .hwpxDocPara {
+  margin: 0 0 4px;
+  min-height: 1.6em;
+}
+
+.chatPage .hwpxDocParaEmpty {
+  color: transparent;
+}
+
+.chatPage .hwpxCellPara {
+  margin: 0 0 2px;
+}
+
+.chatPage .hwpxCellPara:last-child {
+  margin-bottom: 0;
+}
+
+.chatPage .hwpxParaMix {
+  position: relative;
+}
+
+.chatPage .hwpxSeg {
+  outline: none;
+  border-radius: 2px;
+}
+
+.chatPage .hwpxSeg:focus {
+  background: rgba(58, 110, 245, 0.12);
+}
+
+.chatPage .hwpxSegEmpty {
+  display: inline-block;
+  min-width: 24px;
+  min-height: 1em;
+  border-bottom: 1px dashed var(--chat-line);
+}
+
+/* 표 — 실제 한글 표 기본값(검정 얇은 테두리, border-collapse)에 맞춤 */
+.chatPage .hwpxDocTable {
+  border-collapse: collapse;
+  margin: 6px 0;
+  table-layout: fixed;
+}
+
+.chatPage .hwpxDocCell {
+  border: 1px solid #444;
+  padding: 4px 8px;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.chatPage.dark .hwpxDocCell {
+  border-color: #888;
+}
+
+.chatPage .hwpxDocCellEmpty {
+  color: var(--chat-text-muted);
+}
+
+.chatPage .hwpxTblCaption {
+  margin: 2px 0 8px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--chat-text-muted);
+}
+
+/* 이미지/도형 개체 */
+.chatPage .hwpxInlineObj {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.chatPage .hwpxFloatObj {
+  position: absolute;
+  z-index: 1;
+}
+
+.chatPage .hwpxFloatObj.behind {
+  z-index: 0;
+}
+
+.chatPage .hwpxDocImg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.chatPage .hwpxPicCaption {
+  margin-top: 2px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--chat-text-muted);
+}
+
+.chatPage .hwpxShapeBox {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 /* ===== PDF 전용 ===== */
 
 .chatPage .pdfPageNav {
