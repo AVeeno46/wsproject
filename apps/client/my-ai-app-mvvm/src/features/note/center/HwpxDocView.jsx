@@ -19,6 +19,15 @@ function ObjPositioner({ block, children }) {
   if (!block.floating) {
     return <div className="hwpxInlineObj">{children}</div>;
   }
+  // 쪽/종이(PAGE·PAPER) 기준 개체는 페이지 분할이 없어 좌표를 신뢰할 수 없다 —
+  // 페이지 전체 크기의 배경 이미지 등이 앵커 문단 기준으로 그대로 렌더되면, 문서
+  // 전체를 하나로 이어붙인 화면에서 자기 앵커 지점부터 페이지 한 장 높이만큼
+  // 아래로 뻗어나가며 전혀 관계없는 뒤쪽 내용을 덮어버린다(reservedHeight에서
+  // 자리 예약을 안 하는 것과 같은 이유 — 실제 재현: 표지 배경 이미지가 목차/본문
+  // 위에 겹쳐 보임). 위치를 신뢰할 수 없는 개체이므로 아예 렌더링하지 않는다.
+  if (block.vertRelTo === 'PAGE' || block.vertRelTo === 'PAPER') {
+    return null;
+  }
   return (
     <div
       className={`hwpxFloatObj${block.behindText ? ' behind' : ''}`}
@@ -140,14 +149,35 @@ function Seg({ seg, valueMap, onChange }) {
   );
 }
 
+// "31.0pt" 같은 폰트 크기 문자열 → px(96dpi 기준, 1pt = 4/3px)
+const fontSizeToPx = (fontSizeStr) => {
+  const pt = parseFloat(fontSizeStr);
+  return pt ? pt * (96 / 72) : null;
+};
+
+// 문단 안 세그먼트 중 가장 큰 글자 크기(px) — 줄간격 %를 이 크기 기준으로 계산해야 한다.
+const getDominantFontPx = (segs) => {
+  let max = 0;
+  for (const seg of segs ?? []) {
+    if (!seg.fontSize) continue;
+    const px = fontSizeToPx(seg.fontSize);
+    if (px && px > max) max = px;
+  }
+  return max || null;
+};
+
 // 문단의 줄간격/앞뒤 간격을 CSS로 변환. 문서에 값이 없으면 빈 객체(기존 기본값 유지).
-const spacingStyle = (spacing) => {
+// dominantFontPx: 이 문단 안에서 가장 큰 글자 크기(px) — 줄간격 %는 문단 자신의
+// 기본 글자 크기(예: 14px)가 아니라 실제로 보이는 글자 크기 기준으로 계산해야 한다.
+// 안 그러면 제목처럼 큰 글자가 좁은 줄 상자 안에 눌려 다음 문단과 겹쳐 보인다.
+const spacingStyle = (spacing, dominantFontPx) => {
   if (!spacing) return null;
   const style = {};
   if (spacing.spaceBefore) style.marginTop = `${toPx(spacing.spaceBefore)}px`;
   if (spacing.spaceAfter) style.marginBottom = `${toPx(spacing.spaceAfter)}px`;
   if (spacing.lineSpacingType === 'PERCENT' && spacing.lineSpacingValue) {
-    style.lineHeight = `${spacing.lineSpacingValue}%`;
+    const basePx = dominantFontPx || 14; // 기본 본문 글자 크기(px, hwpxDocPage 기본값)
+    style.lineHeight = `${Math.round((basePx * spacing.lineSpacingValue) / 100)}px`;
   } else if (spacing.lineSpacingValue) {
     // FIXED 등 절대값(HWPUNIT) 줄간격 — px 고정 줄높이로 환산
     style.lineHeight = `${toPx(spacing.lineSpacingValue)}px`;
@@ -168,7 +198,11 @@ function ParaBlock({ block, valueMap, onChange }) {
       </p>
     );
   }
-  const style = { ...(block.align ? { textAlign: block.align } : null), ...spacingStyle(block.spacing) };
+  const dominantFontPx = getDominantFontPx(block.segs);
+  const style = {
+    ...(block.align ? { textAlign: block.align } : null),
+    ...spacingStyle(block.spacing, dominantFontPx),
+  };
   return (
     <p className="hwpxDocPara" style={Object.keys(style).length ? style : undefined}>
       {block.segs.map((seg) => (
@@ -209,9 +243,15 @@ const reservedHeight = (parts) => {
 // 여백을 써야 다른 셀 텍스트와 간격이 어긋나지 않는다.
 function PmixBlock({ block, valueMap, onChange, cell = false }) {
   const minH = reservedHeight(block.parts);
+  const dominantFontPx = Math.max(
+    0,
+    ...block.parts
+      .filter((part) => part.kind === 'segs')
+      .map((part) => getDominantFontPx(part.segs) || 0)
+  ) || null;
   const style = {
     ...(block.align ? { textAlign: block.align } : null),
-    ...spacingStyle(block.spacing),
+    ...spacingStyle(block.spacing, dominantFontPx),
     ...(minH ? { minHeight: `${minH}px` } : null),
   };
   return (
@@ -398,8 +438,9 @@ export function HwpxDocView({ blocks, imageUrls, valueMap, onSegmentChange, scal
     pageStyle.transformOrigin = 'top center';
   }
   if (pageInfo) {
-    pageStyle.width = hwpunitToPx(pageInfo.width);
-    pageStyle.maxWidth = 'none';
+    // 실제 문서 페이지 폭을 그대로 쓰지 않고 뷰어 폭에 맞춰 하나의 큰 페이지로
+    // 채운다(width/max-width는 CSS 기본값 100% 유지) — 여백(padding)만 원본
+    // 값을 반영해 페이지 안 내용 배치는 그대로 유지한다.
     pageStyle.paddingTop = hwpunitToPx(pageInfo.top);
     pageStyle.paddingBottom = hwpunitToPx(pageInfo.bottom);
     pageStyle.paddingLeft = hwpunitToPx(pageInfo.left);

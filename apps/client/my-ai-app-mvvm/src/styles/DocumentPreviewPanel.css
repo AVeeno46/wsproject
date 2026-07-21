@@ -224,12 +224,19 @@
 .chatPage .hwpxDocPages {
   display: flex;
   justify-content: center;
+  /* flex의 기본값(align-items: stretch)이 내용이 아무리 길어도 자식(.hwpxDocPage)을
+     이 컨테이너의 min-height(한 화면 분량)에 맞춰 눌러버려서, 흰 배경이 실제
+     문서 길이보다 짧게 끝나고 그 아래 내용이 어두운 배경 위에 떠 보이는 문제가
+     있었다 — 자식이 자기 내용 크기 그대로 자라도록 stretch를 끈다. */
+  align-items: flex-start;
+  width: 100%;
+  min-height: 100%;
 }
 
 .chatPage .hwpxDocPage {
   position: relative;
   width: 100%;
-  max-width: 800px;
+  min-height: 100%;
   padding: 40px 48px;
   background: #ffffff;
   color: #1a1a1a;
@@ -284,6 +291,11 @@
   border-collapse: collapse;
   margin: 6px 0;
   table-layout: fixed;
+  /* 표를 감싸는 바깥 문단(예: 표만 있는 pmix)의 line-height가 표 안까지
+     그대로 상속되면, 바깥 문단 기준으로 계산된 작은 값이 셀 안의 훨씬 큰
+     글자(제목 등)를 좁은 줄 상자에 눌러 다음 줄과 겹치게 만든다. 표 안
+     문단은 셀 자신의 글자 크기 기준으로 다시 계산되도록 상속을 끊는다. */
+  line-height: normal;
 }
 
 .chatPage .hwpxDocCell {
