@@ -55,6 +55,10 @@ export const useChatViewModel = (conversationId) => {
   const [error, setError] = useState(null);
   // 진행 중인 스트리밍 요청의 AbortController (질문 취소용)
   const abortRef = useRef(null);
+  // fetchHistory 호출마다 증가하는 토큰 — 방을 빠르게 옮겨다니면 먼저 보낸
+  // 요청이 나중에 응답으로 도착해 최신 방의 화면을 예전 방 내용으로 덮어쓸
+  // 수 있어서, 응답이 왔을 때 "아직 최신 요청인지"를 확인하고 아니면 버린다.
+  const fetchRequestIdRef = useRef(0);
 
   const normalizeHistory = (data) => {
     if (!Array.isArray(data)) return [];
@@ -77,6 +81,11 @@ export const useChatViewModel = (conversationId) => {
   };
 
   const fetchHistory = async (targetChatRoomId = conversationId) => {
+    const requestId = ++fetchRequestIdRef.current;
+    // 이 함수 실행 도중 다른 방으로 옮겨서 이 요청이 더 이상 최신이 아니게
+    // 됐는지 확인 — 아니면 서버 응답(또는 실패)을 화면에 반영하지 않는다.
+    const isStale = () => fetchRequestIdRef.current !== requestId;
+
     if (!targetChatRoomId) {
       setChatHistory([]);
       setHiddenOlderHistory([]);
@@ -101,6 +110,7 @@ export const useChatViewModel = (conversationId) => {
       const data = await fetchChatHistoryRequest(targetChatRoomId, {
         limit: CHAT_HISTORY_PAGE_SIZE,
       });
+      if (isStale()) return;
       const serverHistory = normalizeHistory(data);
 
       // 서버 기록이 있으면 서버 기준으로 맞추고, 없으면 로컬 기록 유지
@@ -114,7 +124,13 @@ export const useChatViewModel = (conversationId) => {
         saveLocalChatHistory(targetChatRoomId, serverHistory);
       }
     } catch {
-      setChatHistory(localWindow);
+      if (isStale()) return;
+      // 방을 새로 만든 직후처럼, 이 조회가 진행되는 동안 사용자가 이미 첫
+      // 메시지를 보내 chatHistory에 질문/답변이 추가됐을 수 있다(sendMessage는
+      // 이 fetch와 별개로 동시에 실행됨). 그 경우 여기서 실패했다고 오래된
+      // localWindow(보통 새 방이라 [])로 그냥 덮어쓰면 방금 보낸 내용이
+      // 통째로 사라진다 — 현재 화면에 이미 더 많은 메시지가 있으면 유지한다.
+      setChatHistory((prev) => (prev.length > localWindow.length ? prev : localWindow));
       setHiddenOlderHistory(localHidden);
       setHasMoreHistory(localHidden.length > 0);
     }
@@ -317,5 +333,8 @@ export const useChatViewModel = (conversationId) => {
     error,
     sendMessage,
     cancelMessage,
+    // 같은 방을 다시 클릭했을 때처럼 conversationId가 안 바뀌어서 위 effect가
+    // 재실행되지 않는 경우, 호출 측이 직접 히스토리를 다시 불러올 수 있게 노출.
+    refreshHistory: () => fetchHistory(conversationId),
   };
 };

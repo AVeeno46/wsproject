@@ -69,6 +69,7 @@ export function DashboardView() {
     isThinking,
     sendMessage,
     cancelMessage,
+    refreshHistory,
   } = useChatViewModel(conversationId);
   const synonymViewModel = useSynonymViewModel();
   const {
@@ -276,7 +277,15 @@ export function DashboardView() {
   }, [conversationId]);
 
   const handleRecentChatClick = (chatId) => {
-    navigate(`/chat/${chatId}`);
+    // 이미 보고 있는 방을 다시 누르면 경로가 안 바뀌어서 conversationId도
+    // 그대로라 히스토리를 다시 불러오는 effect가 재실행되지 않는다(예: 방
+    // 생성 직후 히스토리 조회가 한 번 실패해 화면이 빈 채로 남았을 때, 같은
+    // 방을 눌러도 복구가 안 됨) — 이 경우 직접 다시 불러온다.
+    if (String(chatId) === String(conversationId)) {
+      refreshHistory();
+    } else {
+      navigate(`/chat/${chatId}`);
+    }
     setActiveChatMenuId(null);
     handleCancelRenameChat();
     setActiveSideMenu("chat");
