@@ -447,7 +447,7 @@ export default function DashboardProcessingPage({
                             </span>
 
                             <div>
-                              <strong>{item.name}</strong>
+                              <strong title={item.name}>{item.name}</strong>
                               <p>{formatSize(item.size)}</p>
                             </div>
                           </div>
@@ -495,7 +495,7 @@ export default function DashboardProcessingPage({
                 <>
                   <div className="selectedFileEditHeader">
                     <span>개별 설정</span>
-                    <strong>{selectedFile.name}</strong>
+                    <strong title={selectedFile.name}>{selectedFile.name}</strong>
                   </div>
 
                   <label className="inlineFormField editTitleField">
@@ -860,7 +860,7 @@ export default function DashboardProcessingPage({
             filteredSources.map((source) => (
               <div className="inlineResourceTableRow" key={source.id}>
                 <div className="inlineTitleCell">
-                  <strong>{source.name}</strong>
+                  <strong title={source.name}>{source.name}</strong>
                 </div>
 
                 <span>{source.business || "-"}</span>

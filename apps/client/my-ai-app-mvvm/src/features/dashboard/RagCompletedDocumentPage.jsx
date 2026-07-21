@@ -263,7 +263,7 @@ export default function RagCompletedDocumentPage({ sources = [], onRequestSummar
                   </div>
 
                   <div>
-                    <strong>{document.title}</strong>
+                    <strong title={document.title}>{document.title}</strong>
                     <p>{document.description}</p>
                   </div>
                 </div>

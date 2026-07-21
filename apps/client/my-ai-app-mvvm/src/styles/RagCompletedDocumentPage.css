@@ -1021,9 +1021,13 @@ body.dark .documentRagPageNumbers button.active {
   }
 }
 
-/* 제목 컬럼은 왼쪽 정렬 */
-.documentRagTableHead span:first-child,
-.documentRagTitleCell {
+/* 제목 컬럼은 왼쪽 정렬 — .documentRagTitleCell 자체에는 justify-self:start를
+   주지 않는다. 그리드 아이템 기본값(stretch)이어야 칸 너비만큼 늘어나서 그
+   안의 <strong> 말줄임(ellipsis)이 제대로 동작한다. start를 주면 칸 폭과
+   무관하게 내용(전체 파일명) 크기 그대로 늘어나 버려서, 긴 파일명이 옆 칸
+   위로 그대로 겹쳐 보이는 문제가 있었다 — 왼쪽 정렬은 내부 flex의 기본
+   정렬(justify-content: flex-start)만으로 이미 충분하다. */
+.documentRagTableHead span:first-child {
   justify-self: start !important;
 }
 

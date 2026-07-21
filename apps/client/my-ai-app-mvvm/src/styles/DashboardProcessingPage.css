@@ -228,6 +228,14 @@
   gap: 10px;
 }
 
+/* 파일명을 감싸는 div — flex 아이템의 기본 min-width(auto)는 내용(파일명
+   전체 길이)보다 작아지지 않으려고 해서, 부모(.inlineFileMain)에 min-width:0을
+   줘도 이 div가 줄어들지 않아 <strong>의 말줄임이 무력화되고 옆 배지/버튼과
+   겹쳐 보였다. */
+.inlineFileMain > div {
+  min-width: 0;
+}
+
 .inlineFileExt {
   width: 34px;
   height: 42px;
@@ -719,11 +727,18 @@
   border-bottom-color: #e4eef8;
 }
 
+.inlineTitleCell {
+  min-width: 0;
+}
+
 .inlineTitleCell strong {
   display: block;
   color: #06285e;
   font-size: 13px;
   font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inlineTitleCell p {
