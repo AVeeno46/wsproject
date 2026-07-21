@@ -225,6 +225,7 @@ export function DashboardView() {
         role: message.role === "user" ? "user" : "assistant",
         content: message.text,
         sourceRefs: message.sourceRefs,
+        attachments: message.attachments,
       })),
     [chatHistory]
   );
@@ -385,11 +386,12 @@ export function DashboardView() {
     if (source) setPreviewSource(source);
   };
 
-  // 채팅 답변의 출처(source_ref) 클릭 열람 — file_id가 아니라 file_name으로
-  // 서버에 조회한다(docs/file-upload-api-contract.md §2.5, 가정 계약).
-  const handleOpenSourceRef = (ref) => {
-    if (!ref?.file_name) return;
-    setPreviewSource({ name: ref.file_name, byName: true });
+  // 채팅 답변 출처(source_ref)와 히스토리 첨부파일(attachments) 클릭 열람 —
+  // 둘 다 {file_id, file_name}을 받으므로 file_id로 통일해서 조회한다(기존
+  // file_id 기반 다운로드 경로 §2.4 재사용, get-by-name은 더 이상 안 씀).
+  const handleOpenFileRef = (ref) => {
+    if (!ref?.file_id) return;
+    setPreviewSource({ id: String(ref.file_id), name: ref.file_name });
   };
 
   const handleClosePreview = () => setPreviewSource(null);
@@ -544,7 +546,8 @@ export function DashboardView() {
           isThinking={isThinking}
           sendMessage={handleSendMessage}
           onCancelMessage={cancelMessage}
-          onOpenSourceRef={handleOpenSourceRef}
+          onOpenSourceRef={handleOpenFileRef}
+          onOpenAttachment={handleOpenFileRef}
           selectedFiles={selectedFiles}
           clearSelectedFiles={clearSelectedFiles}
           removeSelectedFile={removeSelectedFile}

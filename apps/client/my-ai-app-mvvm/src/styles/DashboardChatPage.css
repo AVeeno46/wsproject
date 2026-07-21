@@ -545,6 +545,21 @@
   border-color: var(--chat-navy);
 }
 
+/* .chatUploadedFileCard(원래 div)를 button으로 재사용할 때의 기본 스타일
+   초기화 — 히스토리 첨부파일은 클릭해서 열람할 수 있어야 하므로 button이다. */
+.chatPage .chatAttachmentCard {
+  border: 1px solid #dce6f5;
+  background: #f8fbff;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.chatPage .chatAttachmentCard:hover {
+  border-color: var(--chat-navy);
+  background: var(--chat-surface-soft);
+}
+
 .chatPage .chatMarkdown p {
   margin: 0 0 8px;
 }

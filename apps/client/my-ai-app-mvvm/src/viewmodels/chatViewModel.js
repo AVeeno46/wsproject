@@ -60,6 +60,7 @@ export const useChatViewModel = (conversationId) => {
     if (!Array.isArray(data)) return [];
 
     return data.map((message, index) => ({
+      ...message,
       // 메시지 고유 id는 chat_id 필드로 통일(chatroom_id와 이름 짝을 맞춤 —
       // docs/chat-image-api-contract.md §2.2). message.id는 구버전 서버 호환용 폴백.
       id:
@@ -69,7 +70,9 @@ export const useChatViewModel = (conversationId) => {
       role: message.role || message.sender || "ai",
       text: message.text || message.content || message.message || "",
       createdAt: message.createdAt || message.created_at || new Date().toISOString(),
-      ...message,
+      // 히스토리 응답의 파일 첨부(docs/chat-image-api-contract.md §2.2) —
+      // attachments가 없거나 빈 배열이면 "첨부 없음"으로 동일하게 취급한다.
+      attachments: message.attachments?.length > 0 ? message.attachments : undefined,
     }));
   };
 

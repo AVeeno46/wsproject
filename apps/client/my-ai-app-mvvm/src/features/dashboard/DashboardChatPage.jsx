@@ -27,6 +27,7 @@ function DashboardChatPage({
   sendMessage,
   onCancelMessage,
   onOpenSourceRef,
+  onOpenAttachment,
   selectedFiles,
   clearSelectedFiles,
   removeSelectedFile,
@@ -222,6 +223,28 @@ function DashboardChatPage({
                         </div>
                       )}
                     </>
+                  )}
+
+                  {/* 히스토리에 저장된 첨부파일(docs/chat-image-api-contract.md §2.2의
+                      attachments) — 방금 보낸 message.files(로컬 에코)와는 별개로,
+                      서버가 과거 대화 기록에서 내려준 실제 첨부파일 목록이다. */}
+                  {message.attachments?.length > 0 && (
+                    <div className="chatUploadedFileGrid">
+                      {message.attachments.map((att, i) => (
+                        <button
+                          type="button"
+                          className="chatUploadedFileCard chatAttachmentCard"
+                          key={`${att.file_id ?? att.file_name}-${i}`}
+                          onClick={() => onOpenAttachment?.(att)}
+                          title={`열람: ${att.file_name}`}
+                        >
+                          <div className="chatUploadedFileIcon">
+                            <img src={getSelectedFileIconSrc(att.file_name?.split(".").pop())} alt="" aria-hidden="true" />
+                          </div>
+                          <strong>{att.file_name}</strong>
+                        </button>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>

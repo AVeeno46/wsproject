@@ -208,10 +208,17 @@ Status Code
     아예 없을 때만 `"text"`. 즉 file이 text보다 우선순위가 높다 — 실제 데이터는
     `attachments` 유무로 판단하고 `type`은 보조 힌트일 뿐이라, 파일 존재를
     놓치지 않는 쪽(file 우선)으로 정함.
+  - **[반영 완료] 히스토리 응답의 `attachments` 파싱·렌더링**은 업로드 경로와
+    무관하게 먼저 구현함. [chatViewModel.js](../src/viewmodels/chatViewModel.js)의
+    `normalizeHistory`가 `attachments`(빈 배열/null 포함 없음 처리)를 정규화하고,
+    [DashboardChatPage.jsx](../src/features/dashboard/DashboardChatPage.jsx)가
+    역할(user/assistant) 상관없이 파일 카드로 렌더링, 클릭하면 `file_id` 기반
+    기존 다운로드 경로(§2.4)로 뷰어가 연다. 로컬 모드에서 가짜 히스토리 데이터로
+    렌더링·클릭 열람까지 확인 완료.
   - **아직 반영 안 함**: 채팅 입력창의 파일 첨부 버튼은 현재 UI만 있고 실제
-    업로드 로직에 연결되어 있지 않다(`DashboardChatPage.jsx`). 이 히스토리
-    응답의 `type`/`attachments` 파싱·렌더링은 그 업로드 경로가 정해지면 같이
-    구현한다.
+    업로드 로직에 연결되어 있지 않다(`DashboardChatPage.jsx`) — 즉 지금은
+    "과거 히스토리에 있는 첨부파일을 보여주는 것"만 되고, "지금 채팅창에서
+    새로 파일을 첨부해서 보내는 것"은 아직 안 된다.
 - 클라이언트 [chatModel.js](../src/models/chatModel.js)의 `fetchChatHistoryRequest`가
   이미 이 배열 형태(+ 페이지네이션 파라미터)를 기대하고 있음(`chat_id`/`role`/`text`/`createdAt`
   순으로 매핑, [chatViewModel.js](../src/viewmodels/chatViewModel.js)의
@@ -282,8 +289,8 @@ Status Code
       여부는 서버팀 확인 필요.
 - [x] ~~히스토리 응답의 파일 첨부 형식~~ → **확정**: 메시지에 `type: "file"` +
       `attachments: [{file_id, file_name}]`을 추가하는 방식으로 합의(§2.2 참고).
-      단, 채팅 입력창의 파일 첨부 업로드 경로 자체가 아직 없어서 클라이언트
-      파싱/렌더링 구현은 그 경로가 정해진 뒤로 미룸.
+      클라이언트 파싱/렌더링도 반영 완료(§2.2, §5 참고) — 채팅 입력창에서
+      새로 파일을 첨부해서 "보내는" 업로드 경로만 아직 없는 상태.
 - [ ] AI 생성 이미지 전용 갤러리(사이드바 기능) — 이번 범위 밖, 이미지 서빙 방식이 자리잡은
       뒤 "이 대화에서 인용된 이미지 목록" API로 별도 설계
 - [ ] 대화 내용 전문 검색 — 범위(제목만 vs 본문 포함) 미정, 이번 계약에서 제외
@@ -315,11 +322,11 @@ Status Code
   클릭 → 응답이 중간에서 멈추고 버튼이 다시 전송 아이콘으로 돌아오는 것까지 확인.
 - **[반영 완료] `sourceRefs`(참조 문서) 클릭 → 문서 열람.** AI 답변 아래에 출처
   파일명 칩(`chatSourceRefChip`)으로 렌더링되고, 클릭하면 "등록된 자료"와 같은
-  고정 오버레이로 문서 뷰어(`DocWorkspace`/`DocViewer`)가 뜬다. 다만 이 경로는
-  `file_id`가 아니라 **`file_name`으로 서버에 조회**한다(새 엔드포인트
-  `GET /workspace/file/get-by-name`, [file-upload-api-contract.md](./file-upload-api-contract.md)
-  §2.5 참고, 가정 계약) — "등록된 자료" 목록에서 여는 기존 경로(`file_id` 기반, §2.4)와는
-  별개다.
+  고정 오버레이로 문서 뷰어(`DocWorkspace`/`DocViewer`)가 뜬다. 조회는 "등록된
+  자료" 목록과 동일하게 **`file_id` 기반**(§2.4, `GET /workspace/file/get/{file_id}`)
+  으로 통일함 — 처음엔 `file_name` 기반 별도 엔드포인트를 가정했었으나, 응답에
+  `file_id`가 항상 같이 오므로 새 엔드포인트 없이 기존 경로를 재사용하는 쪽으로
+  변경([file-upload-api-contract.md](./file-upload-api-contract.md) §2.5 참고).
 
 **아직 안 한 것 (새 대시보드 UI로 옮기면서 이관 안 된 기능들 — 재구현 필요)**
 - **`editProposal`(AI 편집 제안) 렌더링이 화면에 없음.** `chatViewModel.js`는 여전히

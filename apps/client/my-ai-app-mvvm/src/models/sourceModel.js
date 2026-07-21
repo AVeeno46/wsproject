@@ -305,25 +305,3 @@ export const downloadSourceRequest = async (sourceId) => {
 
   return readFileStreamResponse(response);
 };
-
-// GET /file/get-by-name?file_name= → stream(arraybuffer) (가정 계약)
-// 채팅 답변의 출처(source_ref, {file_id, file_name})를 클릭해서 열람할 때 쓴다.
-// 이 경로는 file_id가 아니라 file_name으로 조회한다 — file-upload-api-contract.md §2.5 참고.
-export const downloadSourceByNameRequest = async (fileName) => {
-  // [로컬] 미지원
-  if (IS_LOCAL) return null;
-  // [서버]
-  const response = await apiFetch(
-    `${FILE_BASE}/get-by-name?file_name=${encodeURIComponent(fileName)}`,
-    {
-      method: "GET",
-      headers: { ...getAuthHeader() },
-    }
-  );
-
-  if (response.status === 401) return handleUnauthorized();
-  if (response.status === 404) throw new Error("해당 이름의 파일을 찾을 수 없습니다.");
-  if (!response.ok) throw new Error("파일을 불러오지 못했습니다.");
-
-  return readFileStreamResponse(response);
-};
