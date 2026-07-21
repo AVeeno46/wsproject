@@ -1220,11 +1220,10 @@ body.dark .chatMarkdown th {
   font-size: 13px;
   line-height: 1.35;
   font-weight: 850;
-  word-break: keep-all;
+  display: block;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .chatPage .chatMessageBubble.userTextBubble {

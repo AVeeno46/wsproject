@@ -16,6 +16,7 @@ function MarkdownImage({ src, alt }) {
 }
 
 function DashboardChatPage({
+  conversationId,
   userName,
   chatInput,
   setChatInput,
@@ -49,6 +50,12 @@ function DashboardChatPage({
   // 화면상 그대로 유지되도록(아래로 안 튀도록) 불러오기 직전의 스크롤 높이/위치를
   // 잠깐 담아둔다. null이면 "맨 아래로 이동" 쪽(새 메시지 전송) 경로를 탄다.
   const pendingScrollRestoreRef = useRef(null);
+  // 이 컴포넌트는 방을 옮겨도 언마운트되지 않으므로, 직전 방에서 남아있던
+  // pendingScrollRestoreRef 값이 새 방으로 그대로 넘어올 수 있다 — 그러면 방에
+  // 새로 들어갔는데 "이전 위치 복원" 경로를 타서 맨 아래(최신 메시지)로 안 가고
+  // 맨 위(과거 메시지)에 그대로 머무는 버그가 생긴다. 방이 바뀐 시점을 추적해서
+  // 그럴 땐 무조건 맨 아래로 스크롤하도록 한다.
+  const prevConversationIdRef = useRef(conversationId);
 
   // 실제 스크롤이 일어나는 조상(.dashboardMainArea, DashboardView.jsx)을 찾는다.
   // chatMessageList 자신은 overflow:visible이라 스크롤 컨테이너가 아니다.
@@ -82,11 +89,16 @@ function DashboardChatPage({
   useEffect(() => {
     if (!hasMessages) return;
 
+    const roomChanged = prevConversationIdRef.current !== conversationId;
+    prevConversationIdRef.current = conversationId;
+
     const pending = pendingScrollRestoreRef.current;
 
     // 이전 대화를 앞에 붙인 경우 — 맨 아래로 가는 대신, 늘어난 높이만큼만
-    // scrollTop을 보정해서 사용자가 보던 위치가 그대로 유지되게 한다.
-    if (pending) {
+    // scrollTop을 보정해서 사용자가 보던 위치가 그대로 유지되게 한다. 단,
+    // 그 사이 방을 옮겼다면(roomChanged) 이 pending은 이전 방 것이므로 무시하고
+    // 새 방은 무조건 맨 아래로 스크롤한다.
+    if (pending && !roomChanged) {
       pendingScrollRestoreRef.current = null;
 
       requestAnimationFrame(() => {
@@ -99,14 +111,17 @@ function DashboardChatPage({
       return;
     }
 
-    // 그 외(새 메시지 전송/수신 등)엔 기존처럼 맨 아래로 스크롤
+    pendingScrollRestoreRef.current = null;
+
+    // 그 외(새 메시지 전송/수신, 방 전환 등)엔 맨 아래로 스크롤 — 방을 막
+    // 옮긴 경우엔 매끄럽게 미끄러지는 것보다 바로 그 자리로 가는 게 자연스럽다.
     requestAnimationFrame(() => {
       chatMessagesEndRef.current?.scrollIntoView({
-        behavior: "smooth",
+        behavior: roomChanged ? "auto" : "smooth",
         block: "end",
       });
     });
-  }, [selectedFiles.length, hasMessages, chatMessagesEndRef, chatMessages.length]);
+  }, [conversationId, selectedFiles.length, hasMessages, chatMessagesEndRef, chatMessages.length]);
 
   const handleChatSubmit = () => {
     if (isThinking) return;

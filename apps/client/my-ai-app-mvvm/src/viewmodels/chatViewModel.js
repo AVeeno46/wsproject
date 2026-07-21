@@ -55,6 +55,10 @@ export const useChatViewModel = (conversationId) => {
   const [error, setError] = useState(null);
   // 진행 중인 스트리밍 요청의 AbortController (질문 취소용)
   const abortRef = useRef(null);
+  // loadMoreHistory 재진입 방지용 — isLoadingMoreHistory(React state)는 커밋될
+  // 때까지 지연이 있어서, 서버 응답이 느릴 때 스크롤이 반복되면 그 사이 여러 번
+  // 호출이 새어나갈 수 있다. ref는 즉시 반영되므로 확실하게 막아준다.
+  const isLoadingMoreRef = useRef(false);
   // fetchHistory 호출마다 증가하는 토큰 — 방을 빠르게 옮겨다니면 먼저 보낸
   // 요청이 나중에 응답으로 도착해 최신 방의 화면을 예전 방 내용으로 덮어쓸
   // 수 있어서, 응답이 왔을 때 "아직 최신 요청인지"를 확인하고 아니면 버린다.
@@ -138,8 +142,9 @@ export const useChatViewModel = (conversationId) => {
 
   // 메시지 목록 맨 위로 스크롤했을 때 이전 대화를 추가로 불러온다(무한 스크롤).
   const loadMoreHistory = async (targetChatRoomId = conversationId) => {
-    if (!targetChatRoomId || !hasMoreHistory || isLoadingMoreHistory) return;
+    if (!targetChatRoomId || !hasMoreHistory || isLoadingMoreRef.current) return;
 
+    isLoadingMoreRef.current = true;
     setIsLoadingMoreHistory(true);
 
     try {
@@ -173,6 +178,7 @@ export const useChatViewModel = (conversationId) => {
     } catch (err) {
       setError(err.message || "이전 대화를 불러오지 못했습니다.");
     } finally {
+      isLoadingMoreRef.current = false;
       setIsLoadingMoreHistory(false);
     }
   };

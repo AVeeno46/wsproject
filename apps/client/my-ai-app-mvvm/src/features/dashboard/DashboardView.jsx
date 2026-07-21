@@ -545,6 +545,7 @@ export function DashboardView() {
       // 보낼 때 처리한다.
       return (
         <DashboardChatPage
+          conversationId={conversationId}
           userName={profileName}
           chatInput={chatInput}
           setChatInput={setChatInput}
